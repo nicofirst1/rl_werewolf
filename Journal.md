@@ -1,0 +1,1 @@
+- To install the gym env use: `pip install -e .` 
