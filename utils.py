@@ -3,7 +3,7 @@ def str_id_map(str_list):
     """
     Maps a list of string to ids
     :param str_list: list, of string
-    :return: 
+    :return:
     """
     str2id = {}
     id2str = {}
@@ -36,3 +36,13 @@ def most_frequent(choices):
             num = i
 
     return num
+
+
+def suicide_num(votes):
+    """
+    Return number of agents that vote for themself
+    :param votes: dict, maps agent id to target
+    :return: int
+    """
+
+    return sum([1 for a,t in votes.items() if a==t])

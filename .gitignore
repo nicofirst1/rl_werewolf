@@ -4,3 +4,5 @@ gym_ww/envs/__pycache__/
 __pycache__/
 .idea/
 gym_ww.egg-info/
+
+ray_results/
