@@ -54,7 +54,14 @@ class SimpleWW(gym.Env):
         self.action_space = gym.spaces.Discrete(num_players)
 
         # todo: define obs space
-        self.observation_space = gym.spaces.Discrete(33)
+        self.observation_space = gym.spaces.Dict(
+            dict(
+                agent_role=spaces.Discrete(1),
+                day=spaces.Discrete(1),
+                status_map=spaces.Discrete(num_players),
+                votes=spaces.Discrete(num_players),
+            )
+        )
 
         # define empty attributes, refer to initialize method for more info
         self.role_map = None
@@ -78,8 +85,8 @@ class SimpleWW(gym.Env):
         # maps agent indices to bool (dead=0, alive=1)
         self.status_map = {i: 1 for i in range(self.num_players)}
 
-        # list mapping agent id with list of votes
-        self.votes = {i: [] for i in range(self.num_players)}
+        # lit of votes, idx is who voted value is what
+        self.votes = [-1 for _ in self.num_players]
 
         # bool flag to keep track of turns
         self.is_night = True
