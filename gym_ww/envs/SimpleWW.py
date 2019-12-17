@@ -60,7 +60,7 @@ class SimpleWW(gym.Env):
         self.penalties = CONFIGS['penalties']
 
         # action space is just an agent id
-        self.action_space = gym.spaces.Discrete(num_players)
+        self.action_space = gym.spaces.Discrete(1)
 
         # todo: define obs space
         self.observation_space = gym.spaces.Dict(
@@ -95,7 +95,7 @@ class SimpleWW(gym.Env):
         self.status_map = {i: 1 for i in range(self.num_players)}
 
         # lit of votes, idx is who voted value is what
-        self.votes = [-1 for _ in self.num_players]
+        self.votes = [-1 for _ in range(self.num_players)]
 
         # bool flag to keep track of turns
         self.is_night = True
