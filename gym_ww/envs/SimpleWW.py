@@ -2,6 +2,8 @@ import math
 import random
 
 import gym
+from gym import spaces
+from ray.rllib.env import EnvContext
 
 from gym_ww import logger
 from utils import str_id_map, most_frequent
@@ -33,6 +35,13 @@ class SimpleWW(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, num_players, roles=None):
+
+        if isinstance(num_players, EnvContext):
+            try:
+                num_players = num_players['num_players']
+            except KeyError:
+                raise AttributeError(f"Attribute 'num_players' should be present in the EnvContext")
+
         # number of player should be more than 5
         assert num_players >= 5
 
