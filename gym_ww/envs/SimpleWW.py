@@ -92,7 +92,7 @@ class SimpleWW(gym.Env):
         :return: updated rewards
         """
 
-        # todo: make so that agents cannot choos dead player
+        # todo: make so that agents cannot choose dead player
 
         # update vote list
         for idx in range(self.num_players):
@@ -204,7 +204,7 @@ class SimpleWW(gym.Env):
             logger.debug("Night Time")
             rewards = self.night(actions, rewards)
             self.is_night = not self.is_night
-        else: # else go with day
+        else:  # else go with day
             logger.debug("Day Time")
             # penalize since a day has passed
             # todo: should penalize dead players?
@@ -214,7 +214,7 @@ class SimpleWW(gym.Env):
 
         # update dones
         dones, rewards = self.check_done(rewards)
-        obs = self.get_observations()
+        obs = self.observe()
         info = []
 
         # if game over reset
@@ -234,7 +234,7 @@ class SimpleWW(gym.Env):
         """
         return obs, rewards, dones, info
 
-    def get_observations(self):
+    def observe(self):
         """
         Return observation object
         :return:
@@ -245,10 +245,10 @@ class SimpleWW(gym.Env):
         for idx in range(self.num_players):
             # get the reward from the dict, if not there (player dead) return -1
             obs = dict(
-                agent_role=CONFIGS["role2id"][self.role_map[idx]], # role of the agent, mapped as int
-                status_map=self.status_map, # agent_id:alive?
-                day=self.day_count,# day passed
-                votes=self.votes# list of votes
+                agent_role=CONFIGS["role2id"][self.role_map[idx]],  # role of the agent, mapped as int
+                status_map=self.status_map,  # agent_id:alive?
+                day=self.day_count,  # day passed
+                votes=self.votes  # list of votes
             )
             obsvs.append(obs)
 
@@ -276,7 +276,7 @@ class SimpleWW(gym.Env):
         wolf_won = all([role == ww for id, role in self.role_map.items() if id in alives])
         village_won = all([role == vil for id, role in self.role_map.items() if id in alives])
 
-        if wolf_won: # if wolves won
+        if wolf_won:  # if wolves won
             # set flag to true (for reset)
             self.is_done = True
             # reward
@@ -303,9 +303,7 @@ class SimpleWW(gym.Env):
                 observation (object): the initial observation.
             """
         self.initialize()
-        return self.get_observations()
-
-
+        return self.observe()
 
     def get_ids(self, role, alive=True):
         """
