@@ -1,4 +1,8 @@
+
+## Reminders
 - To install the gym env use: `pip install -e .` 
+
+## Env
 
 ### Constrain votes
 Player must be forced not to choose dead player to execute/eat, or else the game does not have an end. This throws the error:
@@ -12,4 +16,30 @@ ValueError: ('Batches sent to postprocessing must only contain steps from a sing
 
 The latter requires to have as action-space a list of possible ids rather than a range.
 This cannot be solved by using [this](https://stackoverflow.com/questions/57910677/openai-gym-action-space-how-to-limit-choices) since the action space varies continously and the agents cannot map an id with another agent.
-This topic is discussed over [here](https://github.com/hill-a/stable-baselines/issues/108)
+This topic is discussed over [here](https://github.com/hill-a/stable-baselines/issues/108).
+
+Solution for now is _reward shaping_, that is penalize for each inconsistent vote (execute/eat dead agent, eat wolf, suicide).
+
+### Implementing communication
+Agents need to communicate to either coordinate (wolves with wolves), or to choose lie (wolves vs vill).
+There is a need to implement a communication phase in between night and day. 
+A possible solution would be  to split the times in 4 part [night comm, night, day comm, day]. 
+This will probably require different obs/action spaces for _communication_ and _standrd_ phase.
+Moreover there is a need to implement an easy communication language.
+
+#### Spaces
+
+#### Language
+[Here](https://openai.com/blog/learning-to-communicate/) openAI has a paper on developing communication in MARLS
+
+
+
+## Training
+
+### Implementing Turns
+The need to implement turns arises from the _night_ phase. The ideal implementation would skip vil during night phase.
+That is, vil would be able to see just day phases not being aware of the night ones. This would prevent them from having double observations (night/day) and 
+it would probably speed the training up since there is no need to understand that there is nothing you can do during night.
+
+In [this Rllib question](https://github.com/ray-project/ray/issues/3547) the guy suggest to group the agents in different groups which will be treated differently.
+If this ends up being the solution then it has to be solved during training time rather than in the env itself.
