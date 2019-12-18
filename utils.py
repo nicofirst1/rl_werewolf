@@ -64,11 +64,11 @@ def suicide_num(votes):
 def pprint(votes, roles, logger, level=logging.DEBUG):
     """
     Print in a meaningful way the agent choices
-    :param votes:
-    :param roles:
-    :param logger:
-    :param level:
-    :return:
+    :param votes: dict[int->list[int]], maps voter to targets
+    :param roles: list[str], list of roles, ordered
+    :param logger: logger
+    :param level: str, level for logger, default DEBUG
+    :return: None
     """
 
 
@@ -86,3 +86,14 @@ def pprint(votes, roles, logger, level=logging.DEBUG):
         to_print+=fr.format(role,name,*targets)+"\n"
 
     logger.log(level,to_print)
+
+
+def vote_difference(cur_targets,prev_targets):
+
+    ct=cur_targets[0]
+    pt=prev_targets[0]
+    num_player=len(cur_targets)
+    diff=np.sum(ct==pt)/num_player**2
+
+    return diff
+

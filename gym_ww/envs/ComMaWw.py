@@ -8,7 +8,7 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
 from gym_ww import logger
-from utils import str_id_map, most_frequent, suicide_num, pprint
+from utils import str_id_map, most_frequent, suicide_num, pprint, vote_difference
 
 # names for roles
 ww = "werewolf"
@@ -121,6 +121,7 @@ class ComMaWw(MultiAgentEnv):
             win_wolf=0,  # number of times wolves win
             win_vil=0,  # number of times villagers win
             tot_days=0,  # total number of days before a match is over
+            target_diff=0, # difference between targets before and after the communication phase
         )
 
     def initialize(self):
@@ -387,8 +388,7 @@ class ComMaWw(MultiAgentEnv):
         :return: None
         """
 
-        # todo: check if deep copy is needed
-        self.previous_target = self.targets
+        self.previous_target = self.targets.copy()
 
         # if its night then update targets just for the ww
         if self.is_night:
@@ -404,9 +404,14 @@ class ComMaWw(MultiAgentEnv):
             for id in range(self.num_players):
                 for id2 in actions_dict.keys():
                     self.targets[id][id2] = actions_dict[id2]
+            # estimate difference
+            self.infos["target_diff"]+=vote_difference(self.targets, self.previous_target)
+
 
         # apply flexibility on agreement
         actions = {id: trgs[:self.flex] for id, trgs in actions_dict.items()}
+
+
         return actions
 
     def update_phase(self):
@@ -545,7 +550,11 @@ class ComMaWw(MultiAgentEnv):
 
         for id in voter_ids:
             votes = self.targets[id][id]
-            target_idx = votes.index(chosen_target)
+            #fixme: remove this when targets are exclusive
+            try:
+                target_idx =np.where(votes == chosen_target)[0][0]
+            except IndexError:
+                target_idx=self.num_players-1
             penalty = self.penalties["targets"] * target_idx
             rewards[id] += penalty
 
@@ -560,6 +569,8 @@ class ComMaWw(MultiAgentEnv):
         """
         :return:
         """
+        # fixme: make targets exclusive
+
         # should be a list of targets
         return gym.spaces.MultiDiscrete([self.num_players] * self.num_players)
 
