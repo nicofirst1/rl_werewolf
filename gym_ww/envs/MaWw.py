@@ -87,18 +87,16 @@ class MaWw(MultiAgentEnv):
 
         self.initialize()
 
-
     def initialize_info(self):
 
-
-        self.infos=dict(
-            dead_man_execution=0,# number of times players vote to kill dead agent
-            dead_man_kill=0, # number of times wolves try to kill dead agent
-            cannibalism=0, # number of times wolves eat each other
-            suicide=0, # number of times a player vote for itself
-            win_wolf=0,# number of times wolves win
-            win_vil=0, # number of times villagers win
-            tot_days=0,# total number of days before a match is over
+        self.infos = dict(
+            dead_man_execution=0,  # number of times players vote to kill dead agent
+            dead_man_kill=0,  # number of times wolves try to kill dead agent
+            cannibalism=0,  # number of times wolves eat each other
+            suicide=0,  # number of times a player vote for itself
+            win_wolf=0,  # number of times wolves win
+            win_vil=0,  # number of times villagers win
+            tot_days=0,  # total number of days before a match is over
         )
 
     def initialize(self):
@@ -123,10 +121,10 @@ class MaWw(MultiAgentEnv):
         self.is_night = True
 
         # reset is done
-        self.is_done=False
+        self.is_done = False
 
         # reset day
-        self.day_count=0
+        self.day_count = 0
 
         # reset info dict
         self.initialize_info()
@@ -146,7 +144,7 @@ class MaWw(MultiAgentEnv):
             # use -1 if agent is dead
             self.votes[idx] = actions.get(idx, -1)
 
-        self.infos["suicide"]+=suicide_num(actions)
+        self.infos["suicide"] += suicide_num(actions)
 
         # get the agent to be executed
         target = most_frequent(actions)
@@ -192,7 +190,6 @@ class MaWw(MultiAgentEnv):
         # execute wolf actions
         rewards = self.wolf_action(actions, rewards)
 
-
         # todo: implement other roles actions
 
         return rewards
@@ -208,11 +205,10 @@ class MaWw(MultiAgentEnv):
         # get wolves ids
         wolves_ids = self.get_ids(ww, alive=True)
         # filter action to get only wolves
-        actions={k:v for k,v in actions.items() if k in wolves_ids }
+        actions = {k: v for k, v in actions.items() if k in wolves_ids}
 
         # upvote suicide info
-        self.infos["suicide"]+=suicide_num(actions)
-
+        self.infos["suicide"] += suicide_num(actions)
 
         if not len(wolves_ids):
             raise Exception("Game not done but wolves are dead")
@@ -230,7 +226,7 @@ class MaWw(MultiAgentEnv):
             # kill him
             self.status_map[target] = 0
             # penalize dead player
-            rewards[target]+=self.penalties.get("death")
+            rewards[target] += self.penalties.get("death")
             # reward wolves
             for id in wolves_ids:
                 rewards[id] += self.penalties.get("kill")
@@ -244,7 +240,7 @@ class MaWw(MultiAgentEnv):
             for id in wolves_ids:
                 rewards[id] += self.penalties.get('execute_dead')
             # log it
-            self.infos["dead_man_kill"]+=1
+            self.infos["dead_man_kill"] += 1
 
         if target in wolves_ids:
             # penalize the agent for eating one of their kind
@@ -272,9 +268,8 @@ class MaWw(MultiAgentEnv):
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
 
-
         # rewards start from zero
-        rewards = {id: 0 for id in self.get_ids("all",alive=False)}
+        rewards = {id: 0 for id in self.get_ids("all", alive=False)}
 
         # execute night action
         if self.is_night:
@@ -292,19 +287,19 @@ class MaWw(MultiAgentEnv):
         # update dones
         dones, rewards = self.check_done(rewards)
         obs = self.observe()
-        info = {id:self.infos for id in self.get_ids("all",alive=False)}
+        info = {id: self.infos for id in self.get_ids("all", alive=False)}
 
-        obs, rewards, dones, info=self.convert(obs, rewards, dones, info)
+        obs, rewards, dones, info = self.convert(obs, rewards, dones, info)
 
         # if game over reset
         if self.is_done:
-            self.infos["tot_days"]=self.day_count
+            self.infos["tot_days"] = self.day_count
 
             dones["__all__"] = True
         else:
             dones["__all__"] = False
 
-        return  obs, rewards, dones, info
+        return obs, rewards, dones, info
 
     def convert(self, obs, rewards, dones, info):
         """
@@ -319,10 +314,10 @@ class MaWw(MultiAgentEnv):
         # if the match is not done yet remove dead agents
         if not self.is_done:
             # filter out dead agents from rewards
-            rewards={id:rw for id,rw in rewards.items() if self.status_map[id]}
-            obs={id:rw for id,rw in obs.items() if self.status_map[id]}
-            dones={id:rw for id,rw in dones.items() if self.status_map[id]}
-            info={id:rw for id,rw in info.items() if self.status_map[id]}
+            rewards = {id: rw for id, rw in rewards.items() if self.status_map[id]}
+            obs = {id: rw for id, rw in obs.items() if self.status_map[id]}
+            dones = {id: rw for id, rw in dones.items() if self.status_map[id]}
+            info = {id: rw for id, rw in info.items() if self.status_map[id]}
 
         return obs, rewards, dones, info
 
@@ -334,7 +329,7 @@ class MaWw(MultiAgentEnv):
 
         observations = {}
 
-        for idx in self.get_ids("all",alive=False):
+        for idx in self.get_ids("all", alive=False):
             # get the reward from the dict, if not there (player dead) return -1
             obs = dict(
                 agent_role=CONFIGS["role2id"][self.role_map[idx]],  # role of the agent, mapped as int
@@ -379,8 +374,7 @@ class MaWw(MultiAgentEnv):
                 rewards[idx] += self.penalties.get('lost')
 
             logger.info(f"\n{'#' * 10}\nWolves won\n{'#' * 10}\n")
-            self.infos['win_wolf']+=1
-
+            self.infos['win_wolf'] += 1
 
         if village_won:
             self.is_done = True
@@ -389,8 +383,7 @@ class MaWw(MultiAgentEnv):
             for idx in self.get_ids(ww, alive=False):
                 rewards[idx] += self.penalties.get('lost')
             logger.info(f"\n{'#' * 10}\nVillagers won\n{'#' * 10}\n")
-            self.infos['win_vil']+=1
-
+            self.infos['win_vil'] += 1
 
         return dones, rewards
 
