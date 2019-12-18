@@ -12,6 +12,14 @@ register(
 )
 
 
+register(
+    id='ComMaWw-v0',
+    entry_point='gym_ww.envs:MaWw',
+)
+
+
+
+
 
 
 logging.basicConfig(

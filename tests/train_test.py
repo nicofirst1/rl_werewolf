@@ -4,9 +4,9 @@ import ray
 from ray import tune
 from ray.rllib.agents import ppo
 import os
-from gym_ww.envs import  MaWw
+from gym_ww.envs import ComMaWw
 
-ray.init(local_mode=False)
+ray.init(local_mode=True)
 
 
 
@@ -17,7 +17,7 @@ def on_episode_end(info):
         episode.custom_metrics[k]=v
 
 configs={
-        "env": MaWw,
+        "env": ComMaWw,
         "env_config": {'num_players': 5},  # config to pass to env class
 
         "callbacks": {

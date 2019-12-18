@@ -1,5 +1,6 @@
 import gym
-import gym_ww
+
+
 num_players=5
 env = gym.make('simpleWW-v0',num_players=num_players)
 for _ in range(1000):
