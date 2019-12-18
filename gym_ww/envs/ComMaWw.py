@@ -191,7 +191,9 @@ class ComMaWw(MultiAgentEnv):
 
             # get the agent to be executed
             target = most_frequent(actions)
-            logger.debug(f"Villagers votes {actions}")
+
+            # penalize for non divergent target
+            rewards=self.reward_target(target,rewards,self.get_ids("all",alive=True))
 
             # if target is alive
             if self.status_map[target]:
@@ -331,14 +333,14 @@ class ComMaWw(MultiAgentEnv):
             if not len(wolves_ids):
                 raise Exception("Game not done but wolves are dead")
 
-            # get choices by wolves
-            #actions = [actions[id] for id in wolves_ids]
 
-            logger.debug(f"wolves votes :{actions}")
-
-            # todo: add penalty if wolves do not agree
             # get agent to be eaten
             target = most_frequent(actions)
+
+            # todo: should penalize when dead man kill?
+            # penalize for different ids
+            rewards=self.reward_target(target,rewards,wolves_ids)
+
             # if target is alive
             if self.status_map[target]:
                 # kill him
@@ -375,7 +377,6 @@ class ComMaWw(MultiAgentEnv):
 
         # call the appropriate method depending on the phase
         if self.is_comm:
-            logger.debug(f"Wolves votes : {actions}")
             return rewards
         else:
             return kill(actions, rewards)
@@ -534,6 +535,30 @@ class ComMaWw(MultiAgentEnv):
             ids = [id for id in ids if self.status_map[id]]
 
         return ids
+
+    def reward_target(self, chosen_target, rewards, voter_ids):
+        """
+        Reward/penalize agent based on the target chose for execution/kill depending on the choices it made.
+        This kind of reward shaping is done in order for agents to output targets which are more likely to be chosen
+        :param voter_ids: list[int], list of agents that voted
+        :param chosen_target: int, agent id chosen for execution/kill
+        :param rewards: dict[int->int], map agent id to reward
+        :return: updated rewards
+        """
+
+        for id in voter_ids:
+            votes=self.targets[id][id]
+            target_idx=votes.index(chosen_target)
+            penalty=self.penalties["targets"]*target_idx
+            rewards[id]+=penalty
+
+        return rewards
+
+
+
+
+
+
 
     #######################################
     #       SPACES
