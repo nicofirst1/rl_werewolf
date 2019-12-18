@@ -72,20 +72,6 @@ class ComMaWw(MultiAgentEnv):
         self.roles = roles
         self.penalties = CONFIGS['penalties']
 
-        obs = dict(
-            # the agent role is an id in range 'existing_roles'
-            agent_role=spaces.Discrete(len(CONFIGS['existing_roles'])),
-            # number of days passed, todo: have inf or something
-            day=spaces.Discrete(999),
-            # idx is agent id, value is boll for agent alive
-            status_map=spaces.MultiBinary(num_players),
-            # idx is agent id, value is last vote for execution
-            votes=spaces.Box(low=-1, high=num_players, shape=(num_players,)),
-            # number in range number of phases [com night, night, com day, day]
-            phase=spaces.Discrete(4),
-        )
-        self.observation_space = gym.spaces.Dict(obs)
-
         # define empty attributes, refer to initialize method for more info
         self.role_map = None
         self.status_map = None
@@ -460,12 +446,31 @@ class ComMaWw(MultiAgentEnv):
     @property
     def action_space(self):
         """
-        Depending on the phase we're in the action space needs to be modified
         :return:
         """
+        # should be a list of targets
+        return gym.spaces.MultiDiscrete([self.num_players] * self.num_players)
 
-        if self.is_comm:
-            # if in communication phase each agent should output a list of preference targets
-            return 1
-        else:
-            return gym.spaces.MultiDiscrete([self.num_players]*self.num_players)
+    @property
+    def observation_space(self):
+        """
+        Return observation space in gym box
+        :return:
+        """
+        obs = dict(
+            # the agent role is an id in range 'existing_roles'
+            agent_role=spaces.Discrete(len(CONFIGS['existing_roles'])),
+            # number of days passed, todo: have inf or something
+            day=spaces.Discrete(999),
+            # idx is agent id, value is boll for agent alive
+            status_map=spaces.MultiBinary(self.num_players),
+            # idx is agent id, value is last vote for execution
+            votes=spaces.Box(low=-1, high=self.num_players, shape=(self.num_players,)),
+            # number in range number of phases [com night, night, com day, day]
+            phase=spaces.Discrete(4),
+            # targets are the preferences for each agent,
+            # it is basically a matrix in which rows are agents and cols are targets
+            targets=spaces.Box(low=-1, high=self.num_players, shape=(self.num_players, self.num_players)),
+        )
+        # should be a list of targets
+        return gym.spaces.Dict(obs)
