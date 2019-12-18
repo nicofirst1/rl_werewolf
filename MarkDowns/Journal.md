@@ -25,14 +25,16 @@ Agents need to communicate to either coordinate (wolves with wolves), or to choo
 There is a need to implement a communication phase in between night and day. 
 A possible solution would be  to split the times in 4 part [night comm, night, day comm, day]. 
 This will probably require different obs/action spaces for _communication_ and _standrd_ phase.
-Moreover there is a need to implement an easy communication language.
+Moreover there is a need to implement an easy communication language. [Here](https://openai.com/blog/learning-to-communicate/) openAI has a paper on developing communication in MARLS.
 
-#### Spaces
+#### First attempt
+During communication phase each agent outputs a list of ids (of len _number of players_) describing their preferences on who to vote for.
+This list will be fed to every other agent and mapped. The main idea is to sum up the communication part with a list of preferences. 
+So each agent has a vague idea of what other agents are thinking. TThis needs to be tied somehow with the action in voting phase.
+One way could be reward shaping (yet again), penalizing the agent in proportion to the target. Ex:
 
-#### Language
-[Here](https://openai.com/blog/learning-to-communicate/) openAI has a paper on developing communication in MARLS
-
-
+Agent 1 outputs [2,0,3,4,1] as favor list. The voting phase comes up and he votes for 2.
+Target 4 is executed, then Agent 1 should be penalized by _w_*argof(target,favor list), where _w_ is a predefined weight.
 
 ## Training
 
