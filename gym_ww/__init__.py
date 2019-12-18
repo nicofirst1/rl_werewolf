@@ -26,7 +26,7 @@ logging.basicConfig(
     format='%(asctime)s.%(msecs)03d %(levelname)-8s %(message)s',
     datefmt='%H:%M:%S'
 )
-logger = logging.getLogger()
-logger.setLevel(logging.WARN)
+logger = logging.getLogger("WwEnvs")
+logger.setLevel(logging.DEBUG)
 
 logger.debug("Logger initialized")
