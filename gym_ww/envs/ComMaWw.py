@@ -103,7 +103,7 @@ class ComMaWw(MultiAgentEnv):
         self.day_count = 0
         self.is_done = False
         self.targets = None
-        self.previous_target=None
+        self.previous_target = None
 
         self.initialize()
 
@@ -159,7 +159,7 @@ class ComMaWw(MultiAgentEnv):
         # the third dimension is what each agent know/can see.
         # So it would be [agent who know this,agent who voted,target ]
         self.targets = np.zeros(shape=(self.num_players, self.num_players, self.num_players)) - 1
-        self.previous_target=np.zeros(shape=(self.num_players, self.num_players, self.num_players)) - 1
+        self.previous_target = np.zeros(shape=(self.num_players, self.num_players, self.num_players)) - 1
 
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
@@ -195,7 +195,7 @@ class ComMaWw(MultiAgentEnv):
             target = most_frequent(actions)
 
             # penalize for non divergent target
-            rewards=self.reward_target(target,rewards,self.get_ids("all",alive=True))
+            rewards = self.reward_target(target, rewards, self.get_ids("all", alive=True))
 
             # if target is alive
             if self.status_map[target]:
@@ -225,7 +225,6 @@ class ComMaWw(MultiAgentEnv):
 
             return rewards
 
-
         # call the appropriate method depending on the phase
         if self.is_comm:
             logger.debug("Day Time| Voting")
@@ -248,8 +247,6 @@ class ComMaWw(MultiAgentEnv):
             logger.debug("Night Time| Voting")
         else:
             logger.debug("Night Time| Eating")
-
-
 
         # execute wolf actions
         rewards = self.wolf_action(actions, rewards)
@@ -276,7 +273,7 @@ class ComMaWw(MultiAgentEnv):
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
 
-        pprint(actions,self.roles,logger=logger)
+        pprint(actions, self.roles, logger=logger)
         # update target list
         actions = self.update_targets(actions)
 
@@ -292,7 +289,6 @@ class ComMaWw(MultiAgentEnv):
 
         # prepare for phase shifting
         is_night, is_comm, phase = self.update_phase()
-
 
         # get dones
         dones, rewards = self.check_done(rewards)
@@ -312,10 +308,9 @@ class ComMaWw(MultiAgentEnv):
         else:
             dones["__all__"] = False
 
-
         # shift phase
-        self.is_night=is_night
-        self.is_comm=is_comm
+        self.is_night = is_night
+        self.is_comm = is_comm
 
         return obs, rewards, dones, info
 
@@ -335,13 +330,12 @@ class ComMaWw(MultiAgentEnv):
             if not len(wolves_ids):
                 raise Exception("Game not done but wolves are dead")
 
-
             # get agent to be eaten
             target = most_frequent(actions)
 
             # todo: should penalize when dead man kill?
             # penalize for different ids
-            rewards=self.reward_target(target,rewards,wolves_ids)
+            rewards = self.reward_target(target, rewards, wolves_ids)
 
             # if target is alive
             if self.status_map[target]:
@@ -394,7 +388,7 @@ class ComMaWw(MultiAgentEnv):
         """
 
         # todo: check if deep copy is needed
-        self.previous_target=self.targets
+        self.previous_target = self.targets
 
         # if its night then update targets just for the ww
         if self.is_night:
@@ -427,7 +421,7 @@ class ComMaWw(MultiAgentEnv):
         if self.is_night and self.is_comm:
             comm = False
             phase = 0
-            night=True
+            night = True
 
         elif self.is_night and not self.is_comm:
             night = False
@@ -437,7 +431,7 @@ class ComMaWw(MultiAgentEnv):
         elif not self.is_night and self.is_comm:
             comm = False
             phase = 2
-            night=False
+            night = False
 
         elif not self.is_night and not self.is_comm:
             night = True
@@ -448,7 +442,6 @@ class ComMaWw(MultiAgentEnv):
             raise ValueError("Something wrong when shifting phase")
 
         return night, comm, phase
-
 
     #######################################
     #       UTILS
@@ -551,18 +544,12 @@ class ComMaWw(MultiAgentEnv):
         """
 
         for id in voter_ids:
-            votes=self.targets[id][id]
-            target_idx=votes.index(chosen_target)
-            penalty=self.penalties["targets"]*target_idx
-            rewards[id]+=penalty
+            votes = self.targets[id][id]
+            target_idx = votes.index(chosen_target)
+            penalty = self.penalties["targets"] * target_idx
+            rewards[id] += penalty
 
         return rewards
-
-
-
-
-
-
 
     #######################################
     #       SPACES
@@ -598,14 +585,13 @@ class ComMaWw(MultiAgentEnv):
         # should be a list of targets
         return gym.spaces.Dict(obs)
 
-    def observe(self,phase):
+    def observe(self, phase):
         """
         Return observation object
         :return:
         """
 
         observations = {}
-
 
         for idx in self.get_ids("all", alive=False):
             # build obs dict
@@ -620,5 +606,3 @@ class ComMaWw(MultiAgentEnv):
             observations[idx] = obs
 
         return observations
-
-
