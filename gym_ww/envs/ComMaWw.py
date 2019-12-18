@@ -18,14 +18,26 @@ CONFIGS = dict(
 
     existing_roles=[ww, vil],  # list of existing roles [werewolf, villanger]
     penalties=dict(  # penalty dictionary
+        # penalty to give for each day that has passed
         day=-1,
+        # when wolves kill someone
         kill=5,
+        # when an execution is successful (no dead man execution)
         execution=2,
+        # when a player dies
         death=-5,
+        # victory
         victory=+10,
+        # lost
         lost=-10,
+        # when a dead man is executed
         execute_dead=-2,
+        # given to wolves when they kill one of their kind
         kill_wolf=-5,
+        # penalty used for punishing votes that are not chosen during execution/kill.
+        # If agent1 outputs [4,2,3,1,0] as a target list and agent2 get executed then agent1 get
+        # a penalty equal to index_of(agent2,targets)*penalty
+        targets=-1,
 
     ),
 
