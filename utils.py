@@ -72,17 +72,18 @@ def pprint(votes, roles, logger, level=logging.DEBUG):
     """
 
 
-    separator="{:<8} "*len(votes)
+    separator="| {:<8} |"*len(votes)
 
-    to_print="\n{:<15} {:<15} "+separator
-    to_format=["Role",'Voter/Target' ]+[f"Ag_{id}" for id in votes.keys()]
+    to_print="\n|{:<15} || {:<15} |"+separator
+    to_format=["Role",'Voter/Voted' ]+[f"Vote_{id}" for id in votes.keys()]
     to_print=to_print.format(*to_format)+"\n"
+    to_print+="-"*len(to_print)+"\n"
 
     for idx in votes.keys():
         targets=[f"Ag_{id}" for id in votes[idx]]
         role=roles[idx]
         name=f"Ag_{idx}"
-        fr="{:<15} {:<15} "+separator
+        fr="|{:<15} || {:<15} |"+separator
         to_print+=fr.format(role,name,*targets)+"\n"
 
     logger.log(level,to_print)
