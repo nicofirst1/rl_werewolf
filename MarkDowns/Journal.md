@@ -51,7 +51,7 @@ The change is just a list of the previous action so  `MultiDiscrete([self.num_pl
 
 OR 
 
-Action space can permanently change to a multi MultiDiscrete. At communication phase nothing changes, at voting phase you take the first one.
+Action space can permanently change to a multi MultiDiscrete. At communication phase nothing changes, at voting phase you take the first one (or most common in first n ones?).
 
 ###### Observation Space
 Should the observation space stay the same with just an added value or should it change completely?
