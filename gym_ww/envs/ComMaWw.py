@@ -77,7 +77,7 @@ class ComMaWw(MultiAgentEnv):
         assert num_players >= 5, "Number of player should be >= 5"
 
         if roles is None:
-            # number of wolfes should be less than villagers
+            # number of wolves should be less than villagers
             num_wolves = math.floor(math.sqrt(num_players))
             num_villagers = num_players - num_wolves
             roles = [ww] * num_wolves + [vil] * num_villagers
@@ -103,6 +103,7 @@ class ComMaWw(MultiAgentEnv):
         self.day_count = 0
         self.is_done = False
         self.targets = None
+        self.previous_target=None
 
         self.initialize()
 
@@ -158,6 +159,7 @@ class ComMaWw(MultiAgentEnv):
         # the third dimension is what each agent know/can see.
         # So it would be [agent who know this,agent who voted,target ]
         self.targets = np.zeros(shape=(self.num_players, self.num_players, self.num_players)) - 1
+        self.previous_target=np.zeros(shape=(self.num_players, self.num_players, self.num_players)) - 1
 
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
@@ -391,6 +393,9 @@ class ComMaWw(MultiAgentEnv):
         :return: None
         """
 
+        # todo: check if deep copy is needed
+        self.previous_target=self.targets
+
         # if its night then update targets just for the ww
         if self.is_night:
             ww_ids = self.get_ids(ww, alive=True)
@@ -419,8 +424,6 @@ class ComMaWw(MultiAgentEnv):
             phase: int, value of phase
         """
 
-
-
         if self.is_night and self.is_comm:
             comm = False
             phase = 0
@@ -445,6 +448,7 @@ class ComMaWw(MultiAgentEnv):
             raise ValueError("Something wrong when shifting phase")
 
         return night, comm, phase
+
 
     #######################################
     #       UTILS
