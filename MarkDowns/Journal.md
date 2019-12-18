@@ -33,8 +33,32 @@ This list will be fed to every other agent and mapped. The main idea is to sum u
 So each agent has a vague idea of what other agents are thinking. TThis needs to be tied somehow with the action in voting phase.
 One way could be reward shaping (yet again), penalizing the agent in proportion to the target. Ex:
 
-Agent 1 outputs [2,0,3,4,1] as favor list. The voting phase comes up and he votes for 2.
-Target 4 is executed, then Agent 1 should be penalized by _w_*argof(target,favor list), where _w_ is a predefined weight.
+Agent 1 outputs [2,0,3,4,1] as favor list. The voting phase comes up and he votes for 2, but agent 4 is executed.
+Then Agent 1 should be penalized by _w_*argof(target,favor list), where _w_ is a predefined weight.
+
+
+Notice that this approach is useless if agents are not implemented with LSTM or some sort of memory.
+
+##### Spaces
+Both action and observation space need to change during training.
+Based on [This link ](https://ai.stackexchange.com/questions/9491/inconsistent-action-space-in-reinforcement-learning) you shouldn't 
+change spaces during iteration with DeepRL.
+
+
+###### Action space
+Action space can stay the same during standard phases `Discrete(num players)` but has to change during communication phase.
+The change is just a list of the previous action so  `MultiDiscrete([self.num_players]*self.num_players)`.
+
+OR 
+
+Action space can permanently change to a multi MultiDiscrete. At communication phase nothing changes, at voting phase you take the first one.
+
+###### Observation Space
+Should the observation space stay the same with just an added value or should it change completely?
+Again according to [this link ](https://ai.stackexchange.com/questions/9491/inconsistent-action-space-in-reinforcement-learning) you should keep the space should stay the same.
+Introducing another map agent_id:candidates can be a solution, but then you should have one for keeping track of past scores?
+
+This new obs should be updated during the day only for vil and everytime for wolves -> with this wolvees can communicate and know who is on their side (should it be more explicit?)
 
 ## Training
 
