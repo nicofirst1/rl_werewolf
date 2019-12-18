@@ -58,7 +58,9 @@ Should the observation space stay the same with just an added value or should it
 Again according to [this link ](https://ai.stackexchange.com/questions/9491/inconsistent-action-space-in-reinforcement-learning) you should keep the space should stay the same.
 Introducing another map agent_id:candidates can be a solution, but then you should have one for keeping track of past scores?
 
-This new obs should be updated during the day only for vil and everytime for wolves -> with this wolvees can communicate and know who is on their side (should it be more explicit?)
+This new obs should be updated during the day only for vil and everytime for wolves -> with this wolves can communicate and know who is on their side (should it be more explicit?)
+
+For this to be possible the target list must contain exclusive number....fuck
 
 ## Training
 
