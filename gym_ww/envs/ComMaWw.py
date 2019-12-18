@@ -141,52 +141,61 @@ class ComMaWw(MultiAgentEnv):
 
     def day(self, actions, rewards):
         """
-        Run the day phase, that is execute target based on votes and reward accordingly
+        Run the day phase, that is execute target based on votes and reward accordingly or the voting
         :param actions: dict, map id to vote
         :param rewards: dict, maps agent id to curr reward
         :return: updated rewards
         """
 
-        # todo: make so that agents cannot choose dead player
+        def execution(actions, rewards):
+            """
+            To be called when is execution phase
+            :return:
+            """
+            # update vote list
+            for idx in range(self.num_players):
+                # use -1 if agent is dead
+                self.votes[idx] = actions.get(idx, -1)
 
-        # update vote list
-        for idx in range(self.num_players):
-            # use -1 if agent is dead
-            self.votes[idx] = actions.get(idx, -1)
+            self.infos["suicide"] += suicide_num(actions)
 
-        self.infos["suicide"] += suicide_num(actions)
+            # get the agent to be executed
+            target = most_frequent(actions)
+            logger.debug(f"Villagers votes {[elem for elem in actions.values()]}")
 
-        # get the agent to be executed
-        target = most_frequent(actions)
-        logger.debug(f"Villagers votes {[elem for elem in actions.values()]}")
+            # if target is alive
+            if self.status_map[target]:
+                # log
+                logger.debug(f"Player {target} ({self.role_map[target]}) has been executed")
+                # kill target
+                self.status_map[target] = 0
 
-        # if target is alive
-        if self.status_map[target]:
-            # log
-            logger.debug(f"Player {target} ({self.role_map[target]}) has been executed")
-            # kill target
-            self.status_map[target] = 0
+                # for every agent alive
+                for id in [elem for elem in rewards.keys() if self.status_map[elem]]:
+                    # add/subtract penalty
+                    if id == target:
+                        rewards[id] += self.penalties.get("death")
+                    else:
+                        rewards[id] += self.penalties.get("execution")
+            else:
+                # penalize agents for executing a dead one
+                for id in self.get_ids("all", alive=True):
+                    rewards[id] += self.penalties.get('execute_dead')
+                logger.debug(f"Players tried to execute dead agent {target}")
 
-            # for every agent alive
-            for id in [elem for elem in rewards.keys() if self.status_map[elem]]:
-                # add/subtract penalty
-                if id == target:
-                    rewards[id] += self.penalties.get("death")
-                else:
-                    rewards[id] += self.penalties.get("execution")
+                # increase the number of dead_man_execution in info
+                self.infos["dead_man_execution"] += 1
+
+            # update day
+            self.day_count += 1
+
+            return rewards
+
+        # call the appropriate method depending on the phase
+        if self.is_comm:
+            return rewards
         else:
-            # penalize agents for executing a dead one
-            for id in self.get_ids("all", alive=True):
-                rewards[id] += self.penalties.get('execute_dead')
-            logger.debug(f"Players tried to execute dead agent {target}")
-
-            # increase the number of dead_man_execution in info
-            self.infos["dead_man_execution"] += 1
-
-        # update day
-        self.day_count += 1
-
-        return rewards
+            return execution(actions, rewards)
 
     def night(self, actions, rewards):
         """
@@ -212,64 +221,72 @@ class ComMaWw(MultiAgentEnv):
         :return: updated rewards
         """
 
-        # get wolves ids
-        wolves_ids = self.get_ids(ww, alive=True)
-        # filter action to get only wolves
-        actions = {k: v for k, v in actions.items() if k in wolves_ids}
+        def kill(actions, rewards):
+            # get wolves ids
+            wolves_ids = self.get_ids(ww, alive=True)
+            # filter action to get only wolves
+            actions = {k: v for k, v in actions.items() if k in wolves_ids}
 
-        # upvote suicide info
-        self.infos["suicide"] += suicide_num(actions)
+            # upvote suicide info
+            self.infos["suicide"] += suicide_num(actions)
 
-        if not len(wolves_ids):
-            raise Exception("Game not done but wolves are dead")
+            if not len(wolves_ids):
+                raise Exception("Game not done but wolves are dead")
 
-        # get choices by wolves
-        actions = [actions[id] for id in wolves_ids]
+            # get choices by wolves
+            actions = [actions[id] for id in wolves_ids]
 
-        logger.debug(f"wolves votes :{actions}")
+            logger.debug(f"wolves votes :{actions}")
 
-        # todo: add penalty if wolves do not agree
-        # get agent to be eaten
-        target = most_frequent(actions)
-        # if target is alive
-        if self.status_map[target]:
-            # kill him
-            self.status_map[target] = 0
-            # penalize dead player
-            rewards[target] += self.penalties.get("death")
-            # reward wolves
-            for id in wolves_ids:
-                rewards[id] += self.penalties.get("kill")
-            logger.debug(f"Wolves killed {target} ({self.role_map[target]})")
+            # todo: add penalty if wolves do not agree
+            # get agent to be eaten
+            target = most_frequent(actions)
+            # if target is alive
+            if self.status_map[target]:
+                # kill him
+                self.status_map[target] = 0
+                # penalize dead player
+                rewards[target] += self.penalties.get("death")
+                # reward wolves
+                for id in wolves_ids:
+                    rewards[id] += self.penalties.get("kill")
+                logger.debug(f"Wolves killed {target} ({self.role_map[target]})")
 
 
 
+            else:
+                logger.debug(f"Wolves tried to kill dead agent {target}")
+                # penalize the wolves for eating a dead player
+                for id in wolves_ids:
+                    rewards[id] += self.penalties.get('execute_dead')
+                # log it
+                self.infos["dead_man_kill"] += 1
+
+            if target in wolves_ids:
+                # penalize the agent for eating one of their kind
+                for id in wolves_ids:
+                    rewards[id] += self.penalties.get('kill_wolf')
+                # log it
+                self.infos["cannibalism"] += 1
+
+            return rewards
+
+        # call the appropriate method depending on the phase
+        if self.is_comm:
+            return rewards
         else:
-            logger.debug(f"Wolves tried to kill dead agent {target}")
-            # penalize the wolves for eating a dead player
-            for id in wolves_ids:
-                rewards[id] += self.penalties.get('execute_dead')
-            # log it
-            self.infos["dead_man_kill"] += 1
-
-        if target in wolves_ids:
-            # penalize the agent for eating one of their kind
-            for id in wolves_ids:
-                rewards[id] += self.penalties.get('kill_wolf')
-            # log it
-            self.infos["cannibalism"] += 1
-
-        return rewards
+            return kill(actions, rewards)
 
     def step(self, actions):
-        """Run one timestep of the environment's dynamics. When end of
+        """
+        Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
         to reset this environment's state.
 
         Accepts an action and returns a tuple (observation, reward, done, info).
 
         Args:
-            actions_dict (dict): a list of action provided by the agents
+            actions (dict): a list of action provided by the agents
 
         Returns:
             observation (object): agent's observation of the current environment
