@@ -131,7 +131,7 @@ class MaWw(MultiAgentEnv):
 
     def day(self, actions, rewards):
         """
-        Run the day phase, that is execute target based on votes and reward accorndingly
+        Run the day phase, that is execute target based on votes and reward accordingly
         :param actions: dict, map id to vote
         :param rewards: dict, maps agent id to curr reward
         :return: updated rewards
