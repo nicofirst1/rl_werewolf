@@ -36,6 +36,10 @@ CONFIGS['role2id'], CONFIGS['id2role'] = str_id_map(CONFIGS['existing_roles'])
 
 
 class MaWw(MultiAgentEnv):
+    """
+    In this basic version ww cannot communicate with each other and they are not aware of the identities of their companions.
+    Moreover player does not have memory of past events.
+    """
     metadata = {'players': ['human']}
 
     def __init__(self, num_players, roles=None):
