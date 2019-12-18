@@ -256,7 +256,7 @@ class ComMaWw(MultiAgentEnv):
 
         return rewards
 
-    def step(self, actions):
+    def step(self, actions_dict):
         """
         Run one timestep of the environment's dynamics. When end of
         episode is reached, you are responsible for calling `reset()`
@@ -274,9 +274,8 @@ class ComMaWw(MultiAgentEnv):
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
 
-        pprint(actions, self.roles, logger=logger)
         # update target list
-        actions = self.update_targets(actions)
+        actions = self.update_targets(actions_dict)
 
         # rewards start from zero
         rewards = {id: 0 for id in self.get_ids("all", alive=False)}
@@ -287,6 +286,9 @@ class ComMaWw(MultiAgentEnv):
         else:  # else go with day
             # apply action by day
             rewards = self.day(actions, rewards)
+
+        pprint(actions_dict, self.roles, logger=logger)
+
 
         # prepare for phase shifting
         is_night, is_comm, phase = self.update_phase()
@@ -491,7 +493,7 @@ class ComMaWw(MultiAgentEnv):
         alives = self.get_ids('all', alive=True)
 
         # if there are more wolves than villagers than they won
-        wolf_won = len(self.get_ids(ww)) > len(self.get_ids(vil))
+        wolf_won = len(self.get_ids(ww)) >= len(self.get_ids(vil))
         # if there are no more wolves than the villager won
         village_won = all([role == vil for id, role in self.role_map.items() if id in alives])
 
