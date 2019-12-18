@@ -62,8 +62,15 @@ def suicide_num(votes):
 
 
 def pprint(votes, roles, logger, level=logging.DEBUG):
+    """
+    Print in a meaningful way the agent choices
+    :param votes:
+    :param roles:
+    :param logger:
+    :param level:
+    :return:
+    """
 
-    assert len(votes)==len(roles), "Len for votes and roles must be the same"
 
     separator="{:<8} "*len(votes)
 
@@ -71,7 +78,7 @@ def pprint(votes, roles, logger, level=logging.DEBUG):
     to_format=["Role",'Voter/Target' ]+[f"Ag_{id}" for id in votes.keys()]
     to_print=to_print.format(*to_format)+"\n"
 
-    for idx in range(len(roles)):
+    for idx in votes.keys():
         targets=[f"Ag_{id}" for id in votes[idx]]
         role=roles[idx]
         name=f"Ag_{idx}"
