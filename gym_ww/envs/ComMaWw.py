@@ -155,7 +155,7 @@ class ComMaWw(MultiAgentEnv):
             """
         logger.info("Reset called")
         self.initialize()
-        return self.observe()
+        return self.observe(phase=0)
 
     #######################################
     #       MAIN CORE
