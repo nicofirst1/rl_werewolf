@@ -8,7 +8,7 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
 from gym_ww import logger
-from utils import str_id_map, most_frequent, suicide_num
+from utils import str_id_map, most_frequent, suicide_num, pprint
 
 # names for roles
 ww = "werewolf"
@@ -46,7 +46,14 @@ class ComMaWw(MultiAgentEnv):
     """
     metadata = {'players': ['human']}
 
-    def __init__(self, num_players, roles=None):
+    def __init__(self, num_players, roles=None, flex=0):
+        """
+
+        :param num_players: int, number of player, must be grater than 4
+        :param roles: list of str, list of roles for each agent
+        :param flex: float [0,1), percentage of targets to consider when voting, 0 is just one, depend on the number of player.
+            EG:  if num_players=10 -> targets are list of 10 elements, 10*0.5=5 -> first 5 player are considered when voting
+        """
 
         if isinstance(num_players, EnvContext):
             try:
@@ -65,23 +72,31 @@ class ComMaWw(MultiAgentEnv):
             random.shuffle(roles)
             logger.info(f"Starting game with {num_players} players: {num_villagers} {vil} and {num_wolves} {ww}")
         else:
-            raise AttributeError(
-                f"Length of role list ({len(roles)}) should be equal to number of players ({num_players})")
+            assert len(
+                roles) == num_players, f"Length of role list ({len(roles)}) should be equal to number of players ({num_players})"
 
         self.num_players = num_players
         self.roles = roles
         self.penalties = CONFIGS['penalties']
+        if flex == 0:
+            self.flex = 1
+        else:
+            self.flex = math.floor(num_players * flex)
 
         # define empty attributes, refer to initialize method for more info
         self.role_map = None
         self.status_map = None
-        self.votes = []
         self.is_night = True
         self.is_comm = True
         self.day_count = 0
         self.is_done = False
+        self.targets = None
 
         self.initialize()
+
+    #######################################
+    #       INITALIZATION
+    #######################################
 
     def initialize_info(self):
 
@@ -110,11 +125,11 @@ class ComMaWw(MultiAgentEnv):
         # list for agent status (dead=0, alive=1)
         self.status_map = [1 for _ in range(self.num_players)]
 
-        # lit of votes, idx is who voted value is what
-        self.votes = [-1 for _ in range(self.num_players)]
-
         # bool flag to keep track of turns
         self.is_night = True
+
+        # first phase is communication night phase
+        self.is_comm = True
 
         # reset is done
         self.is_done = False
@@ -124,6 +139,27 @@ class ComMaWw(MultiAgentEnv):
 
         # reset info dict
         self.initialize_info()
+
+        # tensor of shape [num_players,num_players,num_players]
+        # each row belongs to an agent, each column is the preference list for that agent
+        # since some agents are not suppose to see changes in the previous matrix,
+        # the third dimension is what each agent know/can see.
+        # So it would be [agent who know this,agent who voted,target ]
+        self.targets = np.zeros(shape=(self.num_players, self.num_players, self.num_players)) - 1
+
+    def reset(self):
+        """Resets the state of the environment and returns an initial observation.
+
+            Returns:
+                observation (object): the initial observation.
+            """
+        logger.info("Reset called")
+        self.initialize()
+        return self.observe()
+
+    #######################################
+    #       MAIN CORE
+    #######################################
 
     def day(self, actions, rewards):
         """
@@ -138,16 +174,12 @@ class ComMaWw(MultiAgentEnv):
             To be called when is execution phase
             :return:
             """
-            # update vote list
-            for idx in range(self.num_players):
-                # use -1 if agent is dead
-                self.votes[idx] = actions.get(idx, -1)
 
             self.infos["suicide"] += suicide_num(actions)
 
             # get the agent to be executed
             target = most_frequent(actions)
-            logger.debug(f"Villagers votes {[elem for elem in actions.values()]}")
+            logger.debug(f"Villagers votes {actions}")
 
             # if target is alive
             if self.status_map[target]:
@@ -177,10 +209,14 @@ class ComMaWw(MultiAgentEnv):
 
             return rewards
 
+
         # call the appropriate method depending on the phase
         if self.is_comm:
+            logger.debug("Day Time| Voting")
             return rewards
         else:
+            logger.debug("Day Time| Executing")
+            rewards = {id: val + self.penalties.get('day') for id, val in rewards.items()}
             return execution(actions, rewards)
 
     def night(self, actions, rewards):
@@ -192,12 +228,80 @@ class ComMaWw(MultiAgentEnv):
         :return: return updated rewards
         """
 
+        if self.is_comm:
+            logger.debug("Night Time| Voting")
+        else:
+            logger.debug("Night Time| Eating")
+
+
+
         # execute wolf actions
         rewards = self.wolf_action(actions, rewards)
 
         # todo: implement other roles actions
 
         return rewards
+
+    def step(self, actions):
+        """
+        Run one timestep of the environment's dynamics. When end of
+        episode is reached, you are responsible for calling `reset()`
+        to reset this environment's state.
+
+        Accepts an action and returns a tuple (observation, reward, done, info).
+
+        Args:
+            actions (dict): a list of action provided by the agents
+
+        Returns:
+            observation (object): agent's observation of the current environment
+            reward (float) : amount of reward returned after previous action
+            done (bool): whether the episode has ended, in which case further step() calls will return undefined results
+            info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
+        """
+
+        pprint(actions,self.roles,logger=logger)
+        # update target list
+        actions = self.update_targets(actions)
+
+        # rewards start from zero
+        rewards = {id: 0 for id in self.get_ids("all", alive=False)}
+
+        # execute night action
+        if self.is_night:
+            rewards = self.night(actions, rewards)
+        else:  # else go with day
+            # apply action by day
+            rewards = self.day(actions, rewards)
+
+        # prepare for phase shifting
+        is_night, is_comm, phase = self.update_phase()
+
+
+        # get dones
+        dones, rewards = self.check_done(rewards)
+        # get observation
+        obs = self.observe(phase)
+        # ad infos to every agent
+        info = {id: self.infos for id in self.get_ids("all", alive=False)}
+
+        # convert
+        obs, rewards, dones, info = self.convert(obs, rewards, dones, info)
+
+        # if game over reset
+        if self.is_done:
+            self.infos["tot_days"] = self.day_count
+
+            dones["__all__"] = True
+        else:
+            dones["__all__"] = False
+
+
+        # shift phase
+        self.is_night=is_night
+        self.is_comm=is_comm
+
+        return obs, rewards, dones, info
 
     def wolf_action(self, actions, rewards):
         """
@@ -208,10 +312,6 @@ class ComMaWw(MultiAgentEnv):
         """
 
         def kill(actions, rewards):
-            # get wolves ids
-            wolves_ids = self.get_ids(ww, alive=True)
-            # filter action to get only wolves
-            actions = {k: v for k, v in actions.items() if k in wolves_ids}
 
             # upvote suicide info
             self.infos["suicide"] += suicide_num(actions)
@@ -220,7 +320,7 @@ class ComMaWw(MultiAgentEnv):
                 raise Exception("Game not done but wolves are dead")
 
             # get choices by wolves
-            actions = [actions[id] for id in wolves_ids]
+            #actions = [actions[id] for id in wolves_ids]
 
             logger.debug(f"wolves votes :{actions}")
 
@@ -257,62 +357,85 @@ class ComMaWw(MultiAgentEnv):
 
             return rewards
 
+        wolves_ids = self.get_ids(ww, alive=True)
+        # filter action to get only wolves
+        actions = {k: v for k, v in actions.items() if k in wolves_ids}
+
         # call the appropriate method depending on the phase
         if self.is_comm:
+            logger.debug(f"Wolves votes : {actions}")
             return rewards
         else:
             return kill(actions, rewards)
 
-    def step(self, actions):
+    #######################################
+    #       UPDATER
+    #######################################
+    def update_targets(self, actions_dict):
         """
-        Run one timestep of the environment's dynamics. When end of
-        episode is reached, you are responsible for calling `reset()`
-        to reset this environment's state.
-
-        Accepts an action and returns a tuple (observation, reward, done, info).
-
-        Args:
-            actions (dict): a list of action provided by the agents
-
-        Returns:
-            observation (object): agent's observation of the current environment
-            reward (float) : amount of reward returned after previous action
-            done (bool): whether the episode has ended, in which case further step() calls will return undefined results
-            info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
+        Update target attribute based on phase
+        :param actions: dict, action for each agent
+        :return: None
         """
 
-        # rewards start from zero
-        rewards = {id: 0 for id in self.get_ids("all", alive=False)}
-
-        # execute night action
+        # if its night then update targets just for the ww
         if self.is_night:
-            logger.debug("Night Time")
-            rewards = self.night(actions, rewards)
-            self.is_night = not self.is_night
-        else:  # else go with day
-            logger.debug("Day Time")
-            # penalize since a day has passed
-            # todo: should penalize dead players?
-            rewards = {id: val + self.penalties.get('day') for id, val in rewards.items()}
-            rewards = self.day(actions, rewards)
-            self.is_night = not self.is_night
-
-        # update dones
-        dones, rewards = self.check_done(rewards)
-        obs = self.observe()
-        info = {id: self.infos for id in self.get_ids("all", alive=False)}
-
-        obs, rewards, dones, info = self.convert(obs, rewards, dones, info)
-
-        # if game over reset
-        if self.is_done:
-            self.infos["tot_days"] = self.day_count
-
-            dones["__all__"] = True
+            ww_ids = self.get_ids(ww, alive=True)
+            for id in ww_ids:
+                for id2 in ww_ids:
+                    try:
+                        self.targets[id2][id] = actions_dict[id]
+                    except KeyError:
+                        pass
+        # if day update for everyone
         else:
-            dones["__all__"] = False
+            for id in range(self.num_players):
+                for id2 in actions_dict.keys():
+                    self.targets[id][id2] = actions_dict[id2]
 
-        return obs, rewards, dones, info
+        # apply flexibility on agreement
+        actions = {id: trgs[:self.flex] for id, trgs in actions_dict.items()}
+        return actions
+
+    def update_phase(self):
+        """
+        Shift the phase to the next one, keep elif explicit for readability
+        :return:
+            night: bool, value of is_night
+            comm: bool, value of is_com
+            phase: int, value of phase
+        """
+
+
+
+        if self.is_night and self.is_comm:
+            comm = False
+            phase = 0
+            night=True
+
+        elif self.is_night and not self.is_comm:
+            night = False
+            comm = True
+            phase = 1
+
+        elif not self.is_night and self.is_comm:
+            comm = False
+            phase = 2
+            night=False
+
+        elif not self.is_night and not self.is_comm:
+            night = True
+            comm = True
+            phase = 3
+
+        else:
+            raise ValueError("Something wrong when shifting phase")
+
+        return night, comm, phase
+
+    #######################################
+    #       UTILS
+    #######################################
 
     def convert(self, obs, rewards, dones, info):
         """
@@ -333,39 +456,6 @@ class ComMaWw(MultiAgentEnv):
             info = {id: rw for id, rw in info.items() if self.status_map[id]}
 
         return obs, rewards, dones, info
-
-    def observe(self):
-        """
-        Return observation object
-        :return:
-        """
-
-        observations = {}
-
-        # determine the phase, use explicit elif for readability
-        if self.is_night and self.is_comm:
-            phase=0
-        elif self.is_night and not self.is_comm:
-            phase=1
-        elif not self.is_night and self.is_comm:
-            phase=2
-        elif not self.is_night and not self.is_comm:
-            phase=3
-        else:
-            raise ValueError(f"Cannot determine phase, something wrong")
-
-        for idx in self.get_ids("all", alive=False):
-            # get the reward from the dict, if not there (player dead) return -1
-            obs = dict(
-                agent_role=CONFIGS["role2id"][self.role_map[idx]],  # role of the agent, mapped as int
-                status_map=np.array(self.status_map),  # agent_id:alive?
-                day=self.day_count,  # day passed
-                votes=np.array(self.votes),  # list of votes
-                phase=phase
-            )
-            observations[idx] = obs
-
-        return observations
 
     def check_done(self, rewards):
         """
@@ -413,16 +503,6 @@ class ComMaWw(MultiAgentEnv):
 
         return dones, rewards
 
-    def reset(self):
-        """Resets the state of the environment and returns an initial observation.
-
-            Returns:
-                observation (object): the initial observation.
-            """
-        logger.info("Reset called")
-        self.initialize()
-        return self.observe()
-
     def get_ids(self, role, alive=True):
         """
         Return a list of ids given a role
@@ -442,6 +522,10 @@ class ComMaWw(MultiAgentEnv):
             ids = [id for id in ids if self.status_map[id]]
 
         return ids
+
+    #######################################
+    #       SPACES
+    #######################################
 
     @property
     def action_space(self):
@@ -464,8 +548,6 @@ class ComMaWw(MultiAgentEnv):
             day=spaces.Discrete(999),
             # idx is agent id, value is boll for agent alive
             status_map=spaces.MultiBinary(self.num_players),
-            # idx is agent id, value is last vote for execution
-            votes=spaces.Box(low=-1, high=self.num_players, shape=(self.num_players,)),
             # number in range number of phases [com night, night, com day, day]
             phase=spaces.Discrete(4),
             # targets are the preferences for each agent,
@@ -474,3 +556,28 @@ class ComMaWw(MultiAgentEnv):
         )
         # should be a list of targets
         return gym.spaces.Dict(obs)
+
+    def observe(self,phase):
+        """
+        Return observation object
+        :return:
+        """
+
+        observations = {}
+
+
+        for idx in self.get_ids("all", alive=False):
+            # build obs dict
+            obs = dict(
+                agent_role=CONFIGS["role2id"][self.role_map[idx]],  # role of the agent, mapped as int
+                status_map=np.array(self.status_map),  # agent_id:alive?
+                day=self.day_count,  # day passed
+                phase=phase,
+                targets=self.targets[idx]
+            )
+
+            observations[idx] = obs
+
+        return observations
+
+
