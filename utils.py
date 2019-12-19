@@ -33,6 +33,7 @@ def most_frequent(choices):
             if any(isinstance(elem,np.ndarray) for elem in choices):
                 choices=[item for sublist in choices for item in sublist]
 
+    random.shuffle(choices)
     counter = 0
     num = choices[0]
     for i in choices:
