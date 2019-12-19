@@ -121,7 +121,7 @@ class ComMaWw(MultiAgentEnv):
             win_wolf=0,  # number of times wolves win
             win_vil=0,  # number of times villagers win
             tot_days=0,  # total number of days before a match is over
-            target_diff=0, # difference between targets before and after the communication phase
+            target_diff=0,  # difference between targets before and after the communication phase
         )
 
     def initialize(self):
@@ -179,8 +179,8 @@ class ComMaWw(MultiAgentEnv):
     def day(self, actions, rewards):
         """
         Run the day phase, that is execute target based on votes and reward accordingly or the voting
-        :param actions: dict, map id to vote
-        :param rewards: dict, maps agent id to curr reward
+        :param actions: dict, map id_ to vote
+        :param rewards: dict, maps agent id_ to curr reward
         :return: updated rewards
         """
 
@@ -206,16 +206,16 @@ class ComMaWw(MultiAgentEnv):
                 self.status_map[target] = 0
 
                 # for every agent alive
-                for id in [elem for elem in rewards.keys() if self.status_map[elem]]:
+                for id_ in [elem for elem in rewards.keys() if self.status_map[elem]]:
                     # add/subtract penalty
-                    if id == target:
-                        rewards[id] += self.penalties.get("death")
+                    if id_ == target:
+                        rewards[id_] += self.penalties.get("death")
                     else:
-                        rewards[id] += self.penalties.get("execution")
+                        rewards[id_] += self.penalties.get("execution")
             else:
                 # penalize agents for executing a dead one
-                for id in self.get_ids("all", alive=True):
-                    rewards[id] += self.penalties.get('execute_dead')
+                for id_ in self.get_ids("all", alive=True):
+                    rewards[id_] += self.penalties.get('execute_dead')
                 logger.debug(f"Players tried to execute dead agent {target}")
 
                 # increase the number of dead_man_execution in info
@@ -232,15 +232,15 @@ class ComMaWw(MultiAgentEnv):
             return rewards
         else:
             logger.debug("Day Time| Executing")
-            rewards = {id: val + self.penalties.get('day') for id, val in rewards.items()}
+            rewards = {id_: val + self.penalties.get('day') for id_, val in rewards.items()}
             return execution(actions, rewards)
 
     def night(self, actions, rewards):
         """
         Is night, time to perform actions!
         During this phase, villagers action are not considered
-        :param actions: dict, map id to vote
-        :param rewards: dict, maps agent id to curr reward
+        :param actions: dict, map id_ to vote
+        :param rewards: dict, maps agent id_ to curr reward
         :return: return updated rewards
         """
 
@@ -278,7 +278,7 @@ class ComMaWw(MultiAgentEnv):
         actions = self.update_targets(actions_dict)
 
         # rewards start from zero
-        rewards = {id: 0 for id in self.get_ids("all", alive=False)}
+        rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
 
         # execute night action
         if self.is_night:
@@ -289,7 +289,6 @@ class ComMaWw(MultiAgentEnv):
 
         pprint(actions_dict, self.roles, logger=logger)
 
-
         # prepare for phase shifting
         is_night, is_comm, phase = self.update_phase()
 
@@ -298,7 +297,7 @@ class ComMaWw(MultiAgentEnv):
         # get observation
         obs = self.observe(phase)
         # ad infos to every agent
-        info = {id: self.infos for id in self.get_ids("all", alive=False)}
+        info = {id_: self.infos for id_ in self.get_ids("all", alive=False)}
 
         # convert
         obs, rewards, dones, info = self.convert(obs, rewards, dones, info)
@@ -320,8 +319,8 @@ class ComMaWw(MultiAgentEnv):
     def wolf_action(self, actions, rewards):
         """
         Perform wolf action, that is kill agent based on votes and reward
-        :param actions: dict, map id to vote
-        :param rewards: dict, maps agent id to curr reward
+        :param actions: dict, map id_ to vote
+        :param rewards: dict, maps agent id_ to curr reward
         :return: updated rewards
         """
 
@@ -347,8 +346,8 @@ class ComMaWw(MultiAgentEnv):
                 # penalize dead player
                 rewards[target] += self.penalties.get("death")
                 # reward wolves
-                for id in wolves_ids:
-                    rewards[id] += self.penalties.get("kill")
+                for id_ in wolves_ids:
+                    rewards[id_] += self.penalties.get("kill")
                 logger.debug(f"Wolves killed {target} ({self.role_map[target]})")
 
 
@@ -356,15 +355,15 @@ class ComMaWw(MultiAgentEnv):
             else:
                 logger.debug(f"Wolves tried to kill dead agent {target}")
                 # penalize the wolves for eating a dead player
-                for id in wolves_ids:
-                    rewards[id] += self.penalties.get('execute_dead')
+                for id_ in wolves_ids:
+                    rewards[id_] += self.penalties.get('execute_dead')
                 # log it
                 self.infos["dead_man_kill"] += 1
 
             if target in wolves_ids:
                 # penalize the agent for eating one of their kind
-                for id in wolves_ids:
-                    rewards[id] += self.penalties.get('kill_wolf')
+                for id_ in wolves_ids:
+                    rewards[id_] += self.penalties.get('kill_wolf')
                 # log it
                 self.infos["cannibalism"] += 1
 
@@ -395,24 +394,22 @@ class ComMaWw(MultiAgentEnv):
         # if its night then update targets just for the ww
         if self.is_night:
             ww_ids = self.get_ids(ww, alive=True)
-            for id in ww_ids:
+            for id_ in ww_ids:
                 for id2 in ww_ids:
                     try:
-                        self.targets[id2][id] = actions_dict[id]
+                        self.targets[id2][id_] = actions_dict[id_]
                     except KeyError:
                         pass
         # if day update for everyone
         else:
-            for id in range(self.num_players):
+            for id_ in range(self.num_players):
                 for id2 in actions_dict.keys():
-                    self.targets[id][id2] = actions_dict[id2]
+                    self.targets[id_][id2] = actions_dict[id2]
             # estimate difference
-            self.infos["target_diff"]+=vote_difference(self.targets, self.previous_target)
-
+            self.infos["target_diff"] += vote_difference(self.targets, self.previous_target)
 
         # apply flexibility on agreement
-        actions = {id: trgs[:self.flex] for id, trgs in actions_dict.items()}
-
+        actions = {id_: trgs[:self.flex] for id_, trgs in actions_dict.items()}
 
         return actions
 
@@ -467,22 +464,22 @@ class ComMaWw(MultiAgentEnv):
         # if the match is not done yet remove dead agents
         if not self.is_done:
             # filter out dead agents from rewards
-            rewards = {id: rw for id, rw in rewards.items() if self.status_map[id]}
-            obs = {id: rw for id, rw in obs.items() if self.status_map[id]}
-            dones = {id: rw for id, rw in dones.items() if self.status_map[id]}
-            info = {id: rw for id, rw in info.items() if self.status_map[id]}
+            rewards = {id_: rw for id_, rw in rewards.items() if self.status_map[id_]}
+            obs = {id_: rw for id_, rw in obs.items() if self.status_map[id_]}
+            dones = {id_: rw for id_, rw in dones.items() if self.status_map[id_]}
+            info = {id_: rw for id_, rw in info.items() if self.status_map[id_]}
 
         return obs, rewards, dones, info
 
     def check_done(self, rewards):
         """
         Check if the game is over, moreover return true for dead agent in done
-        :param rewards: dict, maps agent id to curr reward
+        :param rewards: dict, maps agent id_ to curr reward
         :return:
             dones: list of bool statement
             rewards: update rewards
         """
-        dones = {id: 0 for id in rewards.keys()}
+        dones = {id_: 0 for id_ in rewards.keys()}
 
         for idx in range(self.num_players):
             # done if the player is not alive
@@ -495,7 +492,7 @@ class ComMaWw(MultiAgentEnv):
         # if there are more wolves than villagers than they won
         wolf_won = len(self.get_ids(ww)) >= len(self.get_ids(vil))
         # if there are no more wolves than the villager won
-        village_won = all([role == vil for id, role in self.role_map.items() if id in alives])
+        village_won = all([role == vil for id_, role in self.role_map.items() if id_ in alives])
 
         if wolf_won:  # if wolves won
             # set flag to true (for reset)
@@ -532,11 +529,11 @@ class ComMaWw(MultiAgentEnv):
             ids = list(self.role_map.keys())
         else:
             # get all the ids for a given role
-            ids = [id for id, rl in self.role_map.items() if rl == role]
+            ids = [id_ for id_, rl in self.role_map.items() if rl == role]
 
         # filter out dead ones
         if alive:
-            ids = [id for id in ids if self.status_map[id]]
+            ids = [id_ for id_ in ids if self.status_map[id_]]
 
         return ids
 
@@ -545,20 +542,20 @@ class ComMaWw(MultiAgentEnv):
         Reward/penalize agent based on the target chose for execution/kill depending on the choices it made.
         This kind of reward shaping is done in order for agents to output targets which are more likely to be chosen
         :param voter_ids: list[int], list of agents that voted
-        :param chosen_target: int, agent id chosen for execution/kill
-        :param rewards: dict[int->int], map agent id to reward
+        :param chosen_target: int, agent id_ chosen for execution/kill
+        :param rewards: dict[int->int], map agent id_ to reward
         :return: updated rewards
         """
 
-        for id in voter_ids:
-            votes = self.targets[id][id]
-            #fixme: remove this when targets are exclusive
+        for id_ in voter_ids:
+            votes = self.targets[id_][id_]
+            # fixme: remove this when targets are exclusive
             try:
-                target_idx =np.where(votes == chosen_target)[0][0]
+                target_idx = np.where(votes == chosen_target)[0][0]
             except IndexError:
-                target_idx=self.num_players-1
+                target_idx = self.num_players - 1
             penalty = self.penalties["targets"] * target_idx
-            rewards[id] += penalty
+            rewards[id_] += penalty
 
         return rewards
 
@@ -583,11 +580,11 @@ class ComMaWw(MultiAgentEnv):
         :return:
         """
         obs = dict(
-            # the agent role is an id in range 'existing_roles'
+            # the agent role is an id_ in range 'existing_roles'
             agent_role=spaces.Discrete(len(CONFIGS['existing_roles'])),
             # number of days passed, todo: have inf or something
             day=spaces.Discrete(999),
-            # idx is agent id, value is boll for agent alive
+            # idx is agent id_, value is boll for agent alive
             status_map=spaces.MultiBinary(self.num_players),
             # number in range number of phases [com night, night, com day, day]
             phase=spaces.Discrete(4),
