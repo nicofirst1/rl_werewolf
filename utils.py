@@ -89,12 +89,3 @@ def pprint(votes, roles, logger, level=logging.DEBUG):
     logger.log(level,to_print)
 
 
-def vote_difference(cur_targets,prev_targets):
-
-    ct=cur_targets[0]
-    pt=prev_targets[0]
-    num_player=len(cur_targets)
-    diff=np.sum(ct==pt)/num_player**2
-
-    return diff
-
