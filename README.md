@@ -26,7 +26,8 @@ The game ends when either there are no more ww alive or there are more wolves th
 
 To install follow the instructions:
 1. (Optional) source your custom environment
-2. run `pip install -e .` 
+2. Run `pip install -e .` 
+3. Run `pip install -r requirements.txt`
 3. Install [tensorflow](https://www.tensorflow.org/install/pip)
 
 ## Helpful Links
