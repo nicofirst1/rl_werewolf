@@ -15,7 +15,7 @@ def vote_difference(cur_targets,prev_targets):
     assert cur_targets.size==prev_targets.size, "matrices size must be the same"
 
     num_player=len(cur_targets)
-    diff=np.sum(cur_targets!=prev_targets)/num_player**2
+    diff=np.sum(cur_targets!=prev_targets)/(num_player**2)
 
     return diff
 
