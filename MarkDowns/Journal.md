@@ -71,3 +71,7 @@ it would probably speed the training up since there is no need to understand tha
 
 In [this Rllib question](https://github.com/ray-project/ray/issues/3547) the guy suggest to group the agents in different groups which will be treated differently.
 If this ends up being the solution then it has to be solved during training time rather than in the env itself.
+
+### Observations
+
+- With low _dead_man_execution_ penalty agents learn to never make the game end by voting dead mans. The game crashes when total number of days exceeds the maximum. For this penalty has been increased from -2 to -10 (same as loosing)
