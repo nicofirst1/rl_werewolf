@@ -2,7 +2,7 @@ import logging
 
 import ray
 from ray import tune
-
+import os
 from gym_ww.envs import ComMaWw
 
 ray.init(local_mode=False ,logging_level=logging.WARN,num_cpus=4)
@@ -26,9 +26,14 @@ configs = {
     },
 }
 
+
+pwd=os.getcwd()
+pwd=pwd.rsplit("/",1)[0]
+
+
 analysis = tune.run(
     "PG",
-    local_dir="/Users/giulia/Desktop/rl-werewolf/ray_results",
+    local_dir=f"{pwd}/ray_results",
     config=configs,
 )
 
