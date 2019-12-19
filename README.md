@@ -22,6 +22,13 @@ Here wolves have to be smart not to get catch and executed, to do so they lie.
 The game ends when either there are no more ww alive or there are more wolves than vil.
 
 
+#Install
+
+To install follow the instructions:
+1. (Optional) source your custom environment
+2. run `pip install -e .` 
+3. Install [tensorflow](https://www.tensorflow.org/install/pip)
+
 ## Helpful Links
 
 ### Custom gym env
