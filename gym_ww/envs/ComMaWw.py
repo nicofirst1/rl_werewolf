@@ -31,7 +31,7 @@ CONFIGS = dict(
         # lost
         lost=-10,
         # when a dead man is executed
-        execute_dead=-2,
+        execute_dead=-10,
         # given to wolves when they kill one of their kind
         kill_wolf=-5,
         # penalty used for punishing votes that are not chosen during execution/kill.
