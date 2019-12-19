@@ -65,4 +65,4 @@ def measure_influence(cur_targets,prev_targets,flexibility):
 
 
 
-    return diff
+    return 1-diff
