@@ -5,18 +5,14 @@ from ray import tune
 
 from gym_ww.envs import ComMaWw
 
-ray.init(local_mode=True ,logging_level=logging.WARN,num_cpus=4)
+ray.init(local_mode=False ,logging_level=logging.WARN,num_cpus=4)
 
 
 def on_episode_end(info):
     episode = info['episode']
-    infos = episode._agent_to_last_info[0]
-    for k, v in infos.items():
-        val=v
-        if k!="tot_days" and "win" not in k:
-            #normalize
-            val=val/infos['tot_days']
-        episode.custom_metrics[k] = val
+    cm = info['env'].envs[0].custom_metrics
+    for k, v in cm.items():
+        episode.custom_metrics[k] = v
 
 
 configs = {
