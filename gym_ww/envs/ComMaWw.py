@@ -215,16 +215,17 @@ class ComMaWw(MultiAgentEnv):
             if self.status_map[target]:
                 # log
                 logger.debug(f"Player {target} ({self.role_map[target]}) has been executed")
-                # kill target
-                self.status_map[target] = 0
 
-                # for every agent alive
+                # for every agent alive, [to be executed agent too]
                 for id_ in [elem for elem in rewards.keys() if self.status_map[elem]]:
                     # add/subtract penalty
                     if id_ == target:
                         rewards[id_] += self.penalties.get("death")
                     else:
                         rewards[id_] += self.penalties.get("execution")
+
+                # kill target
+                self.status_map[target] = 0
             else:
                 # penalize agents for executing a dead one
                 for id_ in self.get_ids("all", alive=True):
@@ -343,7 +344,7 @@ class ComMaWw(MultiAgentEnv):
             self.custom_metrics["suicide"] += suicide_num(actions)
 
             if not len(wolves_ids):
-                raise Exception("Game not done but wolves are dead")
+                raise Exception("Game not done but wolves are dead, have reset been called?")
 
             # get agent to be eaten
             target = most_frequent(actions)
