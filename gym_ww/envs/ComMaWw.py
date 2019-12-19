@@ -7,8 +7,9 @@ from gym import spaces
 from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
+from analysis import vote_difference, measure_influence
 from gym_ww import logger
-from utils import str_id_map, most_frequent, suicide_num, pprint, vote_difference
+from utils import str_id_map, most_frequent, suicide_num, pprint
 
 # names for roles
 ww = "werewolf"
@@ -104,6 +105,7 @@ class ComMaWw(MultiAgentEnv):
         self.is_done = False
         self.targets = None
         self.previous_target = None
+        self.custom_metrics = None
 
         self.initialize()
 
@@ -113,7 +115,7 @@ class ComMaWw(MultiAgentEnv):
 
     def initialize_info(self):
 
-        self.infos = dict(
+        self.custom_metrics = dict(
             dead_man_execution=0,  # number of times players vote to kill dead agent
             dead_man_kill=0,  # number of times wolves try to kill dead agent
             cannibalism=0,  # number of times wolves eat each other
@@ -121,7 +123,8 @@ class ComMaWw(MultiAgentEnv):
             win_wolf=0,  # number of times wolves win
             win_vil=0,  # number of times villagers win
             tot_days=0,  # total number of days before a match is over
-            target_diff=0,  # difference between targets before and after the communication phase
+            trg_diff=0,  # percentage of different votes  between targets before and after the communication phase
+            trg_influence=0, # measure of how much each agent is influenced by the others
         )
 
     def initialize(self):
@@ -190,7 +193,7 @@ class ComMaWw(MultiAgentEnv):
             :return:
             """
 
-            self.infos["suicide"] += suicide_num(actions)
+            self.custom_metrics["suicide"] += suicide_num(actions)
 
             # get the agent to be executed
             target = most_frequent(actions)
@@ -219,7 +222,7 @@ class ComMaWw(MultiAgentEnv):
                 logger.debug(f"Players tried to execute dead agent {target}")
 
                 # increase the number of dead_man_execution in info
-                self.infos["dead_man_execution"] += 1
+                self.custom_metrics["dead_man_execution"] += 1
 
             # update day
             self.day_count += 1
@@ -265,7 +268,7 @@ class ComMaWw(MultiAgentEnv):
         Accepts an action and returns a tuple (observation, reward, done, info).
 
         Args:
-            actions (dict): a list of action provided by the agents
+            actions_dict (dict): a list of action provided by the agents
 
         Returns:
             observation (object): agent's observation of the current environment
@@ -296,17 +299,17 @@ class ComMaWw(MultiAgentEnv):
         dones, rewards = self.check_done(rewards)
         # get observation
         obs = self.observe(phase)
-        # ad infos to every agent
-        info = {id_: self.infos for id_ in self.get_ids("all", alive=False)}
 
         # convert
-        obs, rewards, dones, info = self.convert(obs, rewards, dones, info)
+        obs, rewards, dones, info = self.convert(obs, rewards, dones, {})
 
         # if game over reset
         if self.is_done:
-            self.infos["tot_days"] = self.day_count
+            self.custom_metrics["tot_days"] = self.day_count
 
             dones["__all__"] = True
+            # normalize infos
+            self.normalize_metrics()
         else:
             dones["__all__"] = False
 
@@ -327,7 +330,7 @@ class ComMaWw(MultiAgentEnv):
         def kill(actions, rewards):
 
             # upvote suicide info
-            self.infos["suicide"] += suicide_num(actions)
+            self.custom_metrics["suicide"] += suicide_num(actions)
 
             if not len(wolves_ids):
                 raise Exception("Game not done but wolves are dead")
@@ -358,14 +361,14 @@ class ComMaWw(MultiAgentEnv):
                 for id_ in wolves_ids:
                     rewards[id_] += self.penalties.get('execute_dead')
                 # log it
-                self.infos["dead_man_kill"] += 1
+                self.custom_metrics["dead_man_kill"] += 1
 
             if target in wolves_ids:
                 # penalize the agent for eating one of their kind
                 for id_ in wolves_ids:
                     rewards[id_] += self.penalties.get('kill_wolf')
                 # log it
-                self.infos["cannibalism"] += 1
+                self.custom_metrics["cannibalism"] += 1
 
             return rewards
 
@@ -406,7 +409,8 @@ class ComMaWw(MultiAgentEnv):
                 for id2 in actions_dict.keys():
                     self.targets[id_][id2] = actions_dict[id2]
             # estimate difference
-            self.infos["target_diff"] += vote_difference(self.targets, self.previous_target)
+            self.custom_metrics["trg_diff"] += vote_difference(self.targets[0], self.previous_target[0])
+            self.custom_metrics["trg_influence"]+=measure_influence(self.targets[0], self.previous_target[0],self.flex)
 
         # apply flexibility on agreement
         actions = {id_: trgs[:self.flex] for id_, trgs in actions_dict.items()}
@@ -450,6 +454,18 @@ class ComMaWw(MultiAgentEnv):
     #######################################
     #       UTILS
     #######################################
+
+    def normalize_metrics(self):
+        """
+        In here normalization for custom metrics should be executed.
+        Notice that this method needs to be called before the reset.
+        :return: None
+        """
+
+        day_dep = ["dead_man_execution", "dead_man_kill", "cannibalism", "suicide", "trg_diff","trg_influence"]
+
+        for k in day_dep:
+            self.custom_metrics[k] /= self.day_count
 
     def convert(self, obs, rewards, dones, info):
         """
@@ -504,7 +520,7 @@ class ComMaWw(MultiAgentEnv):
                 rewards[idx] += self.penalties.get('lost')
 
             logger.info(f"\n{'#' * 10}\nWolves won\n{'#' * 10}\n")
-            self.infos['win_wolf'] += 1
+            self.custom_metrics['win_wolf'] += 1
 
         if village_won:
             self.is_done = True
@@ -513,7 +529,7 @@ class ComMaWw(MultiAgentEnv):
             for idx in self.get_ids(ww, alive=False):
                 rewards[idx] += self.penalties.get('lost')
             logger.info(f"\n{'#' * 10}\nVillagers won\n{'#' * 10}\n")
-            self.infos['win_vil'] += 1
+            self.custom_metrics['win_vil'] += 1
 
         return dones, rewards
 
