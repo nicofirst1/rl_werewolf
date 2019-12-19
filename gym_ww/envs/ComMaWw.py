@@ -26,7 +26,8 @@ rule_break_penalty=-50
 CONFIGS = dict(
 
     existing_roles=[ww, vil],  # list of existing roles [werewolf, villanger]
-    penalties=dict(  # penalty dictionary
+    penalties=dict(
+        # penalty dictionary
         # penalty to give for each day that has passed
         day=-1,
         # when wolves kill someone
@@ -51,6 +52,7 @@ CONFIGS = dict(
         trg_all_diff=rule_break_penalty,
 
     ),
+    max_days=1000,
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
 
@@ -101,6 +103,7 @@ class ComMaWw(MultiAgentEnv):
         self.num_players = num_players
         self.roles = roles
         self.penalties = CONFIGS['penalties']
+        self.max_days=CONFIGS['max_days']
         if flex == 0:
             self.flex = 1
         else:
@@ -549,6 +552,9 @@ class ComMaWw(MultiAgentEnv):
             logger.info(f"\n{'#' * 10}\nVillagers won\n{'#' * 10}\n")
             self.custom_metrics['win_vil'] += 1
 
+        if self.day_count>=self.max_days-1:
+            self.is_done=True
+
         return dones, rewards
 
     def get_ids(self, role, alive=True):
@@ -617,7 +623,7 @@ class ComMaWw(MultiAgentEnv):
             # the agent role is an id_ in range 'existing_roles'
             agent_role=spaces.Discrete(len(CONFIGS['existing_roles'])),
             # number of days passed, todo: have inf or something
-            day=spaces.Discrete(999),
+            day=spaces.Discrete(self.max_days),
             # idx is agent id_, value is boll for agent alive
             status_map=spaces.MultiBinary(self.num_players),
             # number in range number of phases [com night, night, com day, day]
