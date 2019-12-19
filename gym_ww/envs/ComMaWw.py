@@ -11,9 +11,17 @@ from analysis import vote_difference, measure_influence
 from gym_ww import logger
 from utils import str_id_map, most_frequent, suicide_num, pprint
 
+####################
 # names for roles
+####################
 ww = "werewolf"
 vil = "villager"
+
+####################
+# global vars
+####################
+# penalty fro breaking a rule
+rule_break_penalty=-50
 
 CONFIGS = dict(
 
@@ -28,17 +36,19 @@ CONFIGS = dict(
         # when a player dies
         death=-5,
         # victory
-        victory=+10,
+        victory=+25,
         # lost
-        lost=-10,
+        lost=-25,
         # when a dead man is executed
-        execute_dead=-10,
+        execute_dead=rule_break_penalty,
         # given to wolves when they kill one of their kind
-        kill_wolf=-5,
+        kill_wolf=rule_break_penalty,
         # penalty used for punishing votes that are not chosen during execution/kill.
         # If agent1 outputs [4,2,3,1,0] as a target list and agent2 get executed then agent1 get
         # a penalty equal to index_of(agent2,targets)*penalty
-        targets=-1,
+        trg_accord=-1,
+        # targets should be a list of DIFFERENT ids for each agent, those which output same ids shall be punished
+        trg_all_diff=rule_break_penalty,
 
     ),
 
@@ -199,7 +209,7 @@ class ComMaWw(MultiAgentEnv):
             target = most_frequent(actions)
 
             # penalize for non divergent target
-            rewards = self.reward_target(target, rewards, self.get_ids("all", alive=True))
+            rewards = self.target_accord(target, rewards, self.get_ids("all", alive=True))
 
             # if target is alive
             if self.status_map[target]:
@@ -277,11 +287,11 @@ class ComMaWw(MultiAgentEnv):
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
 
-        # update target list
-        actions = self.update_targets(actions_dict)
-
         # rewards start from zero
         rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
+
+        # update target list
+        actions,rewards = self.update_targets(actions_dict, rewards)
 
         # execute night action
         if self.is_night:
@@ -300,7 +310,7 @@ class ComMaWw(MultiAgentEnv):
         # get observation
         obs = self.observe(phase)
 
-        # convert
+        # convert to return in correct format, do not modify anything except for dones
         obs, rewards, dones, info = self.convert(obs, rewards, dones, {})
 
         # if game over reset
@@ -340,7 +350,7 @@ class ComMaWw(MultiAgentEnv):
 
             # todo: should penalize when dead man kill?
             # penalize for different ids
-            rewards = self.reward_target(target, rewards, wolves_ids)
+            rewards = self.target_accord(target, rewards, wolves_ids)
 
             # if target is alive
             if self.status_map[target]:
@@ -385,12 +395,19 @@ class ComMaWw(MultiAgentEnv):
     #######################################
     #       UPDATER
     #######################################
-    def update_targets(self, actions_dict):
+    def update_targets(self, actions_dict, rewards):
         """
         Update target attribute based on phase
         :param actions: dict, action for each agent
         :return: None
         """
+
+        # punish agents when they do not output all different targets
+        for id_,trgs in actions_dict.items():
+            # if there are some same ids in the trgs vector
+            if not len(np.unique(trgs))== len(trgs):
+                rewards[id_]+=self.penalties["trg_all_diff"]
+
 
         self.previous_target = self.targets.copy()
 
@@ -415,7 +432,7 @@ class ComMaWw(MultiAgentEnv):
         # apply flexibility on agreement
         actions = {id_: trgs[:self.flex] for id_, trgs in actions_dict.items()}
 
-        return actions
+        return actions,rewards
 
     def update_phase(self):
         """
@@ -553,7 +570,7 @@ class ComMaWw(MultiAgentEnv):
 
         return ids
 
-    def reward_target(self, chosen_target, rewards, voter_ids):
+    def target_accord(self, chosen_target, rewards, voter_ids):
         """
         Reward/penalize agent based on the target chose for execution/kill depending on the choices it made.
         This kind of reward shaping is done in order for agents to output targets which are more likely to be chosen
@@ -570,7 +587,7 @@ class ComMaWw(MultiAgentEnv):
                 target_idx = np.where(votes == chosen_target)[0][0]
             except IndexError:
                 target_idx = self.num_players - 1
-            penalty = self.penalties["targets"] * target_idx
+            penalty = self.penalties["trg_accord"] * target_idx
             rewards[id_] += penalty
 
         return rewards
