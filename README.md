@@ -1,4 +1,4 @@
-## WereWolf Game
+# WereWolf Game
 [Werewolf](https://en.wikipedia.org/wiki/Werewolf_(social_deduction_game) is a simple deduction game that can be played with at least 5 players. It is also knows as:
 - Mafia
 - Lupus in fabula
@@ -9,26 +9,33 @@ In its most basic version there are __villagers__ (aka. vil) and __werewolf__ (a
 Notice that the number of wolves should always be less than the number of vil.
 
 The game develops into tho phases, _night_ and _day_.
-#### Night
+### Night
 At _night_ time everyone closes their eyes, this prevents players to know which roles are assigned to other playser. 
 Taking turnes each non vil player open his eyes and choose an action.
 When only ww are present they open their eyes and choose someone to eat.
 
-#### Day
+### Day
 During the day everyone open their eyes, assert the events of the night before (eaten players) and decide who is to be executed.
 Here wolves have to be smart not to get catch and executed, to do so they lie.
 
-#### Game over
+### Game over
 The game ends when either there are no more ww alive or there are more wolves than vil.
 
 
-#Install
+
+# Install
 
 To install follow the instructions:
 1. (Optional) source your custom environment
 2. Run `pip install -e .` 
 3. Run `pip install -r requirements.txt`
 3. Install [tensorflow](https://www.tensorflow.org/install/pip)
+
+## Journal & Readme
+Most of the deveoping phase in reported in the [Journal](MarkDowns/Journal.md). For current and past issue please refer to it.
+
+In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) relative to the developing of each env and the differences between them.
+
 
 ## Helpful Links
 
