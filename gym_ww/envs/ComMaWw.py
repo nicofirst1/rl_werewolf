@@ -486,7 +486,7 @@ class ComMaWw(MultiAgentEnv):
         day_dep = ["dead_man_execution", "dead_man_kill", "cannibalism", "suicide", "trg_diff","trg_influence"]
 
         for k in day_dep:
-            self.custom_metrics[k] /= self.day_count
+            self.custom_metrics[k] /= (self.day_count+1)
 
     def convert(self, obs, rewards, dones, info):
         """
