@@ -622,7 +622,7 @@ class ComMaWw(MultiAgentEnv):
         obs = dict(
             # the agent role is an id_ in range 'existing_roles'
             agent_role=spaces.Discrete(len(CONFIGS['existing_roles'])),
-            # number of days passed, todo: have inf or something
+            # number of days passed
             day=spaces.Discrete(self.max_days),
             # idx is agent id_, value is boll for agent alive
             status_map=spaces.MultiBinary(self.num_players),
