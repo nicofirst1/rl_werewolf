@@ -27,9 +27,16 @@ The game ends when either there are no more ww alive or there are more wolves th
 
 To install follow the instructions:
 1. (Optional) source your custom environment
-2. Run `pip install -e .` 
-3. Run `pip install -r requirements.txt`
-3. Install [tensorflow](https://www.tensorflow.org/install/pip)
+2. Install the environment `pip install -e .` 
+4. Install [tensorflow](https://www.tensorflow.org/install/pip)
+5. This repo uses a custom version of rllib so you need to follow the [instructions](https://ray.readthedocs.io/en/latest/installation.html#building-ray-from-source) on how to install the custom ray library. which are:
+    1. Download the necessary [dependencies](https://ray.readthedocs.io/en/latest/installation.html#dependencies).
+    2. Run `ray/ci/travis/install-bazel.sh`
+    3. Install ray: 
+    ```
+   cd ray/python
+   pip install -e . --verbose  # Add --user if you see a permission denied error.
+   ```
 
 ## Journal & Readme
 Most of the deveoping phase in reported in the [Journal](MarkDowns/Journal.md). For current and past issue please refer to it.
