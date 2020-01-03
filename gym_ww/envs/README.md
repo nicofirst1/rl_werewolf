@@ -18,4 +18,21 @@ This environment does not support training, just testing with the [env test scri
 
 ### ComMaWw
 [ComMaWw](gym_ww/envs/ComMaWw.py) stands from CommunicationMaWw.
-Based on _MaWw_ tries to implement communication. 
+Based on _MaWw_ tries to implement communication. Updates:
+- Use night/day phases in observation
+- number of wolves is sqrt(total player)
+- add maximum days
+- normalized custom metrics
+- add targets instead of votes
+- add communication phases
+- more
+
+### PolicyWw
+[PolicyWw](gym_ww/envs/PolicyWw.py) stands from CommunicationMaWw.
+Based on _ComMaWw_. The goal is to keep agent ids fixed to a certain role, so agents can then be used with custom policies.
+
+The problem becomes to hide the roles from each agent, so there should be some kind of vote mixing at each turn. 
+
+The shifting should be done on _status_map_ and _targets_ when passing observations and first thing when getting actions. So the 
+shifting works as a mask to the agents while in the env everything stays the same.
+Learning this shifting from observation is technically the same as guessing roles.

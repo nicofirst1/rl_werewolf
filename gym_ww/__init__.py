@@ -16,8 +16,16 @@ register(
 
 register(
     id='ComMaWw-v0',
-    entry_point='gym_ww.envs:MaWw',
+    entry_point='gym_ww.envs:ComMaWw',
 )
+
+register(
+    id='PolicyWw-v0',
+    entry_point='gym_ww.envs:PolicyWw',
+)
+
+
+
 
 
 # Initialize envs loggers
