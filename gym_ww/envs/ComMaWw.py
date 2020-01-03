@@ -1,5 +1,6 @@
 import math
 import random
+from functools import reduce
 
 import gym
 import numpy as np
@@ -9,6 +10,7 @@ from ray.rllib.env import EnvContext
 
 from analysis import vote_difference, measure_influence
 from gym_ww import logger
+from ray.rllib.utils.error import UnsupportedSpaceException
 from utils import str_id_map, most_frequent, suicide_num, pprint
 
 ####################
@@ -69,7 +71,7 @@ class ComMaWw(MultiAgentEnv):
     ComMaWw:
 
     """
-    metadata = {'players': ['human']}
+    metadata = {'players': ['human'],'use_act_box':False}
 
     def __init__(self, num_players, roles=None, flex=0):
         """
@@ -619,6 +621,38 @@ class ComMaWw(MultiAgentEnv):
         Return observation space in gym box
         :return:
         """
+
+        def _make_box_from_dict(space):
+            """
+            Convert a spaces.Dict to a spaces.Box
+
+            """
+            sp = list(space.spaces.values())
+            lows = []
+            highs = []
+
+            for s in sp:
+                if isinstance(s, gym.spaces.Discrete):
+                    highs.append(s.n)
+                    lows.append(0)
+
+                elif isinstance(s, gym.spaces.MultiBinary):
+                    sh = reduce(lambda x, y: x * y, s.shape)
+                    highs += [1] * sh
+                    lows += [0] * sh
+
+                elif isinstance(s, gym.spaces.Box):
+                    highs += s.high.flatten().tolist()
+                    lows += s.low.flatten().tolist()
+
+                else:
+                    raise UnsupportedSpaceException(
+                        "Space {} is not supported.".format(space))
+
+            highs = np.asarray(highs)
+            lows = np.asarray(lows)
+            return gym.spaces.Box(high=highs, low=lows)
+
         obs = dict(
             # the agent role is an id_ in range 'existing_roles'
             agent_role=spaces.Discrete(len(CONFIGS['existing_roles'])),
@@ -632,8 +666,12 @@ class ComMaWw(MultiAgentEnv):
             # it is basically a matrix in which rows are agents and cols are targets
             targets=spaces.Box(low=-1, high=self.num_players, shape=(self.num_players, self.num_players)),
         )
-        # should be a list of targets
-        return gym.spaces.Dict(obs)
+        obs= gym.spaces.Dict(obs)
+
+        if self.metadata['use_act_box']:
+            obs=_make_box_from_dict(obs)
+
+        return obs
 
     def observe(self, phase):
         """
