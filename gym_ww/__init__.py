@@ -2,6 +2,10 @@ from gym.envs.registration import register
 import logging
 
 
+ww = "werewolf"
+vil = "villager"
+
+
 # Register envs
 register(
     id='simpleWW-v0',

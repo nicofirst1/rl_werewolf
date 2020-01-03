@@ -9,10 +9,9 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
 from analysis import vote_difference, measure_influence
-from gym_ww import logger
+from gym_ww import logger, ww, vil
 from ray.rllib.utils.error import UnsupportedSpaceException
 
-from gym_ww.envs import ww, vil
 from utils import str_id_map, most_frequent, suicide_num, pprint
 
 ####################
@@ -110,6 +109,8 @@ class PolicyWw(MultiAgentEnv):
 
         # define empty attributes, refer to initialize method for more info
         self.status_map = None
+        self.shuffle_map=None
+        self.shuffle_map_inv=None
         self.is_night = True
         self.is_comm = True
         self.day_count = 0
@@ -144,6 +145,10 @@ class PolicyWw(MultiAgentEnv):
         :return:
         """
 
+        # map to shuffle player ids at the start of each game, check the readme under PolicyWw for more info
+        sh=random.shuffle(range(self.num_players))
+        self.shuffle_map={sh[idx]:idx for idx in range(self.num_players)}
+        self.shuffle_map_inv={idx:sh[idx] for idx in range(self.num_players)}
 
         # list for agent status (dead=0, alive=1)
         self.status_map = [1 for _ in range(self.num_players)]
