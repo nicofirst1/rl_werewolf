@@ -28,7 +28,7 @@ configs={
 
 analysis = tune.run(
     "PG",
-    local_dir="/Users/giulia/Desktop/rl-werewolf/ray_results",
+    local_dir="/ray_results",
     config=configs,
 )
 
