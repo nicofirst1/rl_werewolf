@@ -31,7 +31,10 @@ class Params:
     n_cpus = multiprocessing.cpu_count() if not debug else 1  # avoiding error 6
     n_gpus = 1 if not debug else 0  # avoiding error 6
 
-  
+    ##########################
+    # env params
+    ##########################
+    num_player=5
 
     
     ##########################

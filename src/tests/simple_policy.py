@@ -16,15 +16,14 @@ def on_episode_end(info):
         episode.custom_metrics[k] = v
 
 
-num_player=5
 
-env=PolicyWw(num_player)
+env=PolicyWw(path.num_player)
 space=(None,env.observation_space,env.action_space,{})
-policies={f"p_{idx}":space for idx in range(num_player)}
+policies={f"p_{idx}":space for idx in range(path.num_player)}
 
 configs = {
     "env": PolicyWw,
-    "env_config": {'num_players': num_player},  # config to pass to env class
+    "env_config": {'num_players': path.num_player},  # config to pass to env class
 
     "callbacks": { "on_episode_end": on_episode_end,},
     "model": {
