@@ -92,13 +92,15 @@ class PolicyWw(MultiAgentEnv):
             num_wolves = math.floor(math.sqrt(num_players))
             num_villagers = num_players - num_wolves
             roles = [ww] * num_wolves + [vil] * num_villagers
-            random.shuffle(roles)
+            #random.shuffle(roles)
             logger.info(f"Starting game with {num_players} players: {num_villagers} {vil} and {num_wolves} {ww}")
         else:
             assert len(
                 roles) == num_players, f"Length of role list ({len(roles)}) should be equal to number of players ({num_players})"
+            num_wolves=len([elem for elem in roles if elem==ww])
 
         self.num_players = num_players
+        self.num_wolves=num_wolves
         self.roles = roles
         self.penalties = CONFIGS['penalties']
         self.max_days=CONFIGS['max_days']
@@ -186,7 +188,9 @@ class PolicyWw(MultiAgentEnv):
             """
         logger.info("Reset called")
         self.initialize()
-        return self.observe(phase=0)
+        obs=self.observe(phase=0)
+        obs, _, _, _=self.convert(obs,{},{},{})
+        return obs
 
     #######################################
     #       MAIN CORE
@@ -291,6 +295,9 @@ class PolicyWw(MultiAgentEnv):
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
 
+        # remove roles from ids
+        actions_dict={int(k.split("_")[1]):v for k,v in actions_dict.items()}
+
         # apply unshuffle
         unshuffler = np.vectorize(lambda x: self.unshuffle_map[x] if x in self.unshuffle_map.keys() else x)
         actions_dict={k:unshuffler(v) for k,v in actions_dict.items()}
@@ -318,8 +325,10 @@ class PolicyWw(MultiAgentEnv):
         # get observation
         obs = self.observe(phase)
 
+        infos={idx:self.roles[idx] for idx in self.get_ids("all", alive=False)}
+
         # convert to return in correct format, do not modify anything except for dones
-        obs, rewards, dones, info = self.convert(obs, rewards, dones, {})
+        obs, rewards, dones, info = self.convert(obs, rewards, dones, infos)
 
         # if game over reset
         if self.is_done:
@@ -510,6 +519,14 @@ class PolicyWw(MultiAgentEnv):
             dones = {id_: rw for id_, rw in dones.items() if self.status_map[id_]}
             info = {id_: rw for id_, rw in info.items() if self.status_map[id_]}
 
+        # add roles to ids for policy choosing
+        rewards = {f"{self.roles[k]}_{k}":v for k,v in rewards.items()}
+        obs ={f"{self.roles[k]}_{k}":v for k,v in obs.items()}
+        dones = {f"{self.roles[k]}_{k}":v for k,v in dones.items()}
+        info = {f"{self.roles[k]}_{k}":v for k,v in info.items()}
+
+
+
         return obs, rewards, dones, info
 
     def check_done(self, rewards):
@@ -684,6 +701,7 @@ class PolicyWw(MultiAgentEnv):
         st=[self.status_map[self.shuffle_map[idx]] for idx in range(self.num_players)]
         # generate shuffle function to be applied to numpy matrix
         shuffler = np.vectorize(lambda x: self.shuffle_map[x] if x in self.shuffle_map.keys() else x)
+
         for idx in self.get_ids("all", alive=False):
             tg=self.targets[idx]
             tg=shuffler(tg)
