@@ -8,10 +8,10 @@ from gym import spaces
 from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
-from analysis import vote_difference, measure_influence
+from src.other.analysis import vote_difference, measure_influence
 from gym_ww import logger
 from ray.rllib.utils.error import UnsupportedSpaceException
-from utils import str_id_map, most_frequent, suicide_num, pprint
+from src.other.utils import str_id_map, most_frequent, suicide_num, pprint
 
 ####################
 # names for roles
