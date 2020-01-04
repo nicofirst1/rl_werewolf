@@ -110,7 +110,7 @@ class PolicyWw(MultiAgentEnv):
         # define empty attributes, refer to initialize method for more info
         self.status_map = None
         self.shuffle_map=None
-        self.shuffle_map_inv=None
+        self.unshuffle_map=None
         self.is_night = True
         self.is_comm = True
         self.day_count = 0
@@ -118,7 +118,7 @@ class PolicyWw(MultiAgentEnv):
         self.targets = None
         self.previous_target = None
         self.custom_metrics = None
-
+        self.role_map=None
         self.initialize()
 
     #######################################
@@ -145,10 +145,12 @@ class PolicyWw(MultiAgentEnv):
         :return:
         """
 
+        self.role_map={idx:self.roles[idx] for idx in range(self.num_players)}
+
         # map to shuffle player ids at the start of each game, check the readme under PolicyWw for more info
-        sh=random.shuffle(range(self.num_players))
-        self.shuffle_map={sh[idx]:idx for idx in range(self.num_players)}
-        self.shuffle_map_inv={idx:sh[idx] for idx in range(self.num_players)}
+        sh=sorted(range(self.num_players), key=lambda k: random.random())
+        self.shuffle_map={idx:sh[idx] for idx in range(self.num_players)}
+        self.unshuffle_map={sh[idx]:idx for idx in range(self.num_players)}
 
         # list for agent status (dead=0, alive=1)
         self.status_map = [1 for _ in range(self.num_players)]
@@ -288,6 +290,10 @@ class PolicyWw(MultiAgentEnv):
             done (bool): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
         """
+
+        # apply unshuffle
+        unshuffler = np.vectorize(lambda x: self.unshuffle_map[x] if x in self.unshuffle_map.keys() else x)
+        actions_dict={k:unshuffler(v) for k,v in actions_dict.items()}
 
         # rewards start from zero
         rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
@@ -674,14 +680,19 @@ class PolicyWw(MultiAgentEnv):
         """
 
         observations = {}
-        #todo: shuffle targets and status map according to shuffle map
+        # apply shuffle to status map
+        st=[self.status_map[self.shuffle_map[idx]] for idx in range(self.num_players)]
+        # generate shuffle function to be applied to numpy matrix
+        shuffler = np.vectorize(lambda x: self.shuffle_map[x] if x in self.shuffle_map.keys() else x)
         for idx in self.get_ids("all", alive=False):
+            tg=self.targets[idx]
+            tg=shuffler(tg)
             # build obs dict
             obs = dict(
-                status_map=np.array(self.status_map),  # agent_id:alive?
+                status_map=np.array(st),  # agent_id:alive?
                 day=self.day_count,  # day passed
                 phase=phase,
-                targets=self.targets[idx]
+                targets=tg
             )
 
             observations[idx] = obs
