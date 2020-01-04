@@ -4,8 +4,9 @@ import ray
 from ray import tune
 import os
 from gym_ww.envs import PolicyWw
+from src.utils import path
 
-ray.init(local_mode=True ,logging_level=logging.WARN,num_cpus=4)
+ray.init(local_mode=path.debug ,logging_level=logging.WARN,num_cpus=path.n_cpus)
 
 
 def on_episode_end(info):
@@ -15,7 +16,7 @@ def on_episode_end(info):
         episode.custom_metrics[k] = v
 
 
-num_player=10
+num_player=5
 
 env=PolicyWw(num_player)
 space=(None,env.observation_space,env.action_space,{})
@@ -39,15 +40,10 @@ configs = {
 }
 
 
-pwd=os.getcwd()
-pwd=pwd.rsplit("/",1)[0]
 
 
 analysis = tune.run(
     "PG",
-    local_dir=f"{pwd}/ray_results",
+    local_dir=path.RAY_DIR,
     config=configs,
 )
-
-#
-#     print(trainer.train())
