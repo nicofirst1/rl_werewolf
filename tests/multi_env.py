@@ -10,4 +10,3 @@ for i in range(1000):
     if dones["__all__"]:
         env.reset()
 
-env.close()
