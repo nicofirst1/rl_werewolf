@@ -188,7 +188,7 @@ class PolicyWw(MultiAgentEnv):
             """
         logger.info("Reset called")
         self.initialize()
-        obs=self.observe(phase=0)
+        obs=self.observe(phase=-1)
         obs, _, _, _=self.convert(obs,{},{},{})
         return obs
 
@@ -325,7 +325,7 @@ class PolicyWw(MultiAgentEnv):
         # get observation
         obs = self.observe(phase)
 
-        infos={idx:self.roles[idx] for idx in self.get_ids("all", alive=False)}
+        infos={idx:{'role':self.roles[idx]} for idx in self.get_ids("all", alive=False)}
 
         # convert to return in correct format, do not modify anything except for dones
         obs, rewards, dones, info = self.convert(obs, rewards, dones, infos)
