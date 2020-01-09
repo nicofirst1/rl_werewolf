@@ -5,6 +5,9 @@ requires = [
       "numpy >= 1.17.4",
       "gym >= 0.15.4",
       "GPUtil >= 1.4.0",
+      "tqdm",
+      "termcolor >= 1.1.0",
+      "requests >= 2.22.0"
 
 ]
 
