@@ -1,9 +1,17 @@
 from gym.envs.registration import register
 import logging
 
+from ray.rllib.models import ModelCatalog
+
+from WwPreprocessor import WwPreprocessor
 
 ww = "werewolf"
 vil = "villager"
+
+
+
+
+ModelCatalog.register_custom_preprocessor("wwPreproc", WwPreprocessor)
 
 
 # Register envs
