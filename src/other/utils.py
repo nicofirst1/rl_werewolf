@@ -2,6 +2,7 @@ import logging
 import random
 
 import numpy as np
+from utils import Params
 
 
 def str_id_map(str_list):
@@ -63,15 +64,20 @@ def suicide_num(votes):
     return res
 
 
-def pprint(votes, roles, logger, level=logging.DEBUG):
+def pprint(votes, roles, logger, level=logging.DEBUG, filter_ids=None):
     """
     Print in a meaningful way the agent choices
+    :param filter_ids: list[str], optional, list of ids to consider
     :param votes: dict[int->list[int]], maps voter to targets
     :param roles: list[str], list of roles, ordered
     :param logger: logger
     :param level: str, level for logger, default DEBUG
     :return: None
     """
+
+    # filter ids
+    if filter_ids is not None:
+        votes={k:v for k,v in votes.items() if k in filter_ids}
 
 
     separator="| {:<6} |"*len(votes)
@@ -90,3 +96,11 @@ def pprint(votes, roles, logger, level=logging.DEBUG):
     logger.log(level,to_print)
 
 
+
+
+
+
+def trial_name_creator(something):
+    name=str(something).rsplit("_",1)[0]
+    name=f"{name}_{Params.unique_id}"
+    return name
