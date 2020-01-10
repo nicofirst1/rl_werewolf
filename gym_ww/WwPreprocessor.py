@@ -42,10 +42,14 @@ class WwPreprocessor(Preprocessor):
 
                 else:
                     raise UnsupportedSpaceException(
-                        "Space {} is not supported.".format(v))
+                        "Space {} is not supported for custom preprocessor.".format(v))
+
+        elif isinstance(obs_space, gym.spaces.Box):
+            return obs_space.shape
+
         else:
             raise UnsupportedSpaceException(
-                "Space {} is not supported.".format(obs_space))
+                "Space {} is not supported for custom preprocessor.".format(obs_space))
 
         return space_shape,
 
