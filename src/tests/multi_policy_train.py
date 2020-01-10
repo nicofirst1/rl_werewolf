@@ -5,6 +5,8 @@ import gym
 import ray
 import os
 
+from ray import tune
+from ray.rllib.agents.pg import PGTrainer
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.models import ActionDistribution, ModelCatalog, Preprocessor
 from ray.rllib.utils.error import UnsupportedSpaceException
@@ -12,16 +14,17 @@ from tqdm import tqdm
 
 from callbacks import on_episode_end
 from gym_ww.envs import PolicyWw
-from src.utils import path
+from other.utils import trial_name_creator
+from utils import Params
+
+Params()
+
+ray.init(local_mode=Params.debug ,logging_level=logging.WARN,num_cpus=Params.n_cpus)
 
 
+env_configs={'num_players': Params.num_player,"use_act_box":True}
 
-ray.init(local_mode=path.debug ,logging_level=logging.WARN,num_cpus=path.n_cpus)
-
-
-
-
-env=PolicyWw(path.num_player)
+env=PolicyWw(env_configs)
 space=(None,env.observation_space,env.action_space,{})
 
 policies=dict(
@@ -42,13 +45,16 @@ def mapping(agent_id):
 
 configs = {
     "env": PolicyWw,
-    "env_config": {'num_players': path.num_player},  # config to pass to env class
+    "env_config": env_configs,
+    "eager": False,
+    "eager_tracing":False,
+    "num_workers": 0,
+    "batch_mode":"complete_episodes",
 
     "callbacks": { "on_episode_end": on_episode_end,},
     "model": {
         "use_lstm": True,
-        "max_seq_len": 10,
-        "vf_share_layers": True,
+        #"max_seq_len": 10,
         "custom_preprocessor": "wwPreproc",
     },
     "multiagent": {
@@ -61,8 +67,14 @@ configs = {
 }
 
 
-trainer = PPOTrainer(configs, PolicyWw)
+analysis = tune.run(
+    "DDPG",
+    local_dir=Params.RAY_DIR,
+    config=configs,
+    trial_name_creator=trial_name_creator,
 
-for i in tqdm(range(20)):
-    print("Start training")
-    trainer.train()
+)
+# trainer = PGTrainer(configs, PolicyWw)
+#
+# for i in tqdm(range(20)):
+#     trainer.train()
