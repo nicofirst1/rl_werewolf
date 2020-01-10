@@ -5,6 +5,7 @@ import os
 import shutil
 import inspect
 import sys
+import uuid
 
 import termcolor
 
@@ -19,22 +20,32 @@ class Params:
     ##########################
 
     WORKING_DIR = os.getcwd().split("src")[0]
-
-    RAY_DIR=join_paths(WORKING_DIR,"ray_results")
     SRC_DIR = join_paths(WORKING_DIR, "src")
-   
+
+    LOG_DIR=join_paths(WORKING_DIR,"log_dir")
+
+    RAY_DIR=join_paths(LOG_DIR,"ray_results")
+    GAME_LOG_DIR=join_paths(LOG_DIR,"match_log")
+
     ##########################
     # Performance stuff
     ##########################
     debug = True
 
-    n_cpus = multiprocessing.cpu_count() if not debug else 1  # avoiding error 6
-    n_gpus = 1 if not debug else 0  # avoiding error 6
+    n_cpus = multiprocessing.cpu_count() if not debug else 1
+    n_gpus = 1 if not debug else 0
 
     ##########################
     # env params
     ##########################
-    num_player=6
+    num_player=5
+
+    ##########################
+    # other
+    ##########################
+
+    unique_id=str(uuid.uuid1())[:8]
+    log_match_file=join_paths(GAME_LOG_DIR,f"{unique_id}_log.log")
 
     
     ##########################

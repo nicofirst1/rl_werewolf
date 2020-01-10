@@ -10,6 +10,7 @@ from ray.rllib.models import ActionDistribution, ModelCatalog, Preprocessor
 from ray.rllib.utils.error import UnsupportedSpaceException
 from tqdm import tqdm
 
+from callbacks import on_episode_end
 from gym_ww.envs import PolicyWw
 from src.utils import path
 
@@ -17,12 +18,6 @@ from src.utils import path
 
 ray.init(local_mode=path.debug ,logging_level=logging.WARN,num_cpus=path.n_cpus)
 
-
-def on_episode_end(info):
-    episode = info['episode']
-    cm = info['env'].envs[0].custom_metrics
-    for k, v in cm.items():
-        episode.custom_metrics[k] = v
 
 
 
