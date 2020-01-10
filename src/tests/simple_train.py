@@ -7,20 +7,15 @@ from ray.rllib.agents import ppo
 
 
 from callbacks import on_episode_end
-from gym_ww.envs import ComMaWw
+from gym_ww.envs import PolicyWw
+from other.utils import trial_name_creator
 from utils import Params
 
 ray.init(local_mode=True,logging_level=logging.WARN)
 
-def trial_name_creator(something):
-    name=str(something).rsplit("_",1)[0]
-    name=f"{name}_{Params.unique_id}"
-    return name
-
-
 
 configs={
-        "env": ComMaWw,
+        "env": PolicyWw,
         "env_config": {'num_players': 5},  # config to pass to env class
 
         "callbacks": {
