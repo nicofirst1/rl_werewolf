@@ -188,8 +188,8 @@ class PolicyWw(MultiAgentEnv):
             """
         logger.info("Reset called")
         self.initialize()
-        obs=self.observe(phase=-1)
-        obs, _, _, _=self.convert(obs,{},{},{})
+        obs=self.observe(phase=0)
+        obs, _, _, _=self.convert(obs,{},{},{},0)
         return obs
 
     #######################################
@@ -328,7 +328,7 @@ class PolicyWw(MultiAgentEnv):
         infos={idx:{'role':self.roles[idx]} for idx in self.get_ids("all", alive=False)}
 
         # convert to return in correct format, do not modify anything except for dones
-        obs, rewards, dones, info = self.convert(obs, rewards, dones, infos)
+        obs, rewards, dones, info = self.convert(obs, rewards, dones, infos, phase)
 
         # if game over reset
         if self.is_done:
@@ -501,7 +501,7 @@ class PolicyWw(MultiAgentEnv):
         for k in day_dep:
             self.custom_metrics[k] /= (self.day_count+1)
 
-    def convert(self, obs, rewards, dones, info):
+    def convert(self, obs, rewards, dones, info, phase):
         """
         Convert everything in correct format
         :param obs:
@@ -511,6 +511,13 @@ class PolicyWw(MultiAgentEnv):
         :return:
         """
 
+        # remove villagers from night phase
+        if phase in [0, 1] and False:
+            rewards = {id_: rw for id_, rw in rewards.items() if self.get_ids(ww, alive=False)}
+            obs = {id_: rw for id_, rw in obs.items() if self.get_ids(ww, alive=False)}
+            dones = {id_: rw for id_, rw in dones.items() if self.get_ids(ww, alive=False)}
+            info = {id_: rw for id_, rw in info.items() if self.get_ids(ww, alive=False)}
+
         # if the match is not done yet remove dead agents
         if not self.is_done:
             # filter out dead agents from rewards
@@ -519,11 +526,15 @@ class PolicyWw(MultiAgentEnv):
             dones = {id_: rw for id_, rw in dones.items() if self.status_map[id_]}
             info = {id_: rw for id_, rw in info.items() if self.status_map[id_]}
 
+
+
         # add roles to ids for policy choosing
         rewards = {f"{self.roles[k]}_{k}":v for k,v in rewards.items()}
         obs ={f"{self.roles[k]}_{k}":v for k,v in obs.items()}
         dones = {f"{self.roles[k]}_{k}":v for k,v in dones.items()}
         info = {f"{self.roles[k]}_{k}":v for k,v in info.items()}
+
+
 
 
 
@@ -714,5 +725,7 @@ class PolicyWw(MultiAgentEnv):
             )
 
             observations[idx] = obs
+
+
 
         return observations
