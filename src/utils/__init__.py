@@ -1,3 +1,3 @@
-from src.utils.Path import Params
+from src.utils.Params import Params
 
 path=Params()
