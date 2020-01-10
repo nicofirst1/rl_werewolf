@@ -69,7 +69,7 @@ class PolicyWw(MultiAgentEnv):
     """
     metadata = {'players': ['human'],'use_act_box':False}
 
-    def __init__(self, num_players, roles=None, flex=0):
+    def __init__(self, configs, roles=None, flex=0):
         """
 
         :param num_players: int, number of player, must be grater than 4
@@ -78,11 +78,22 @@ class PolicyWw(MultiAgentEnv):
             EG:  if num_players=10 -> targets are list of 10 elements, 10*0.5=5 -> first 5 player are considered when voting
         """
 
-        if isinstance(num_players, EnvContext):
+        # if config is dict
+        if isinstance(configs, EnvContext) or isinstance(configs,dict):
+            # get num player
             try:
-                num_players = num_players['num_players']
+                num_players = configs['num_players']
             except KeyError:
                 raise AttributeError(f"Attribute 'num_players' should be present in the EnvContext")
+
+            self.metadata['use_act_box']=configs.get('use_act_box',self.metadata['use_act_box'])
+
+        elif isinstance(configs,int):
+            # used for back compatibility
+            num_players=configs
+        else:
+            raise AttributeError(f"Type {type(configs)} is invalid for config")
+
 
         # number of player should be more than 5
         assert num_players >= 5, "Number of player should be >= 5"
@@ -315,10 +326,15 @@ class PolicyWw(MultiAgentEnv):
             # apply action by day
             rewards = self.day(actions, rewards)
 
-        pprint(actions_dict, self.roles, logger=logger)
+
 
         # prepare for phase shifting
         is_night, is_comm, phase = self.update_phase()
+
+        # print actions
+        filter_ids=self.get_ids(ww,alive=True) if phase in [0,1] else self.get_ids('all',alive=True)
+        pprint(actions_dict, self.roles, logger=logger,filter_ids=filter_ids)
+
 
         # get dones
         dones, rewards = self.check_done(rewards)
@@ -642,8 +658,16 @@ class PolicyWw(MultiAgentEnv):
         """
         # fixme: make targets exclusive
 
+
+        if self.metadata['use_act_box']:
+            space=gym.spaces.Box(low=0,high=self.num_players-1,shape=(self.num_players,))
+
+        else:
+            space=gym.spaces.MultiDiscrete([self.num_players] * self.num_players)
+
+
         # should be a list of targets
-        return gym.spaces.MultiDiscrete([self.num_players] * self.num_players)
+        return space
 
     @property
     def observation_space(self):
