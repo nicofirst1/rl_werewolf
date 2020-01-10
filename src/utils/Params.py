@@ -38,7 +38,7 @@ class Params:
     ##########################
     # env params
     ##########################
-    num_player=5
+    num_player=10
 
     ##########################
     # other
@@ -80,6 +80,7 @@ class Params:
 
     def __init__(self):
         print("Params class initialized")
+        self.__empty_dirs([self.LOG_DIR])
         self.__initialize_dirs()
 
         # change values based on argparse
