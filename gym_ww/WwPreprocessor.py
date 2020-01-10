@@ -12,7 +12,7 @@ class WwPreprocessor(Preprocessor):
     """
 
     def __init__(self, obs_space, options=None):
-        super(WwPreprocessor, self).__init__( obs_space, options=options)
+        super(WwPreprocessor, self).__init__(obs_space, options=options)
 
     def _init_shape(self, obs_space, options):
         """
@@ -56,9 +56,17 @@ class WwPreprocessor(Preprocessor):
         :return: np.array(space_shape)
         """
 
-        ret = observation['status_map'].tolist()
-        ret += [observation['day']]
-        ret += [observation['phase']]
-        ret += observation['targets'].flatten().tolist()
+        ret = []
+        # for every observation
+        for v in observation.values():
+
+            # if is int then append it to list
+            if isinstance(v, int):
+                ret.append(v)
+            # if is np array then flatten, convert to list and add to ret
+            elif isinstance(v, np.ndarray):
+                ret += v.flatten().tolist()
+            else:
+                raise NotImplementedError(f"Transformation for type {type(v)} not implemented")
 
         return np.asarray(ret)
