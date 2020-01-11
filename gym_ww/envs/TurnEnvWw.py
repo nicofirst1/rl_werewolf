@@ -236,7 +236,7 @@ class TurnEnvWw(MultiAgentEnv):
                 logger.debug(f"Player {target} ({self.role_map[target]}) has been executed")
 
                 # for every agent alive, [to be executed agent too]
-                for id_ in [elem for elem in rewards.keys() if self.status_map[elem]]:
+                for id_ in self.get_ids('all',alive=True):
                     # add/subtract penalty
                     if id_ == target:
                         rewards[id_] += self.penalties.get("death")
@@ -386,7 +386,6 @@ class TurnEnvWw(MultiAgentEnv):
             # get agent to be eaten
             target = most_frequent(actions)
 
-            # todo: should penalize when dead man kill?
             # penalize for different ids
             rewards = self.target_accord(target, rewards, wolves_ids)
 
@@ -443,6 +442,7 @@ class TurnEnvWw(MultiAgentEnv):
         # punish agents when they do not output all different targets
         for id_,trgs in actions_dict.items():
             # if there are some same ids in the trgs vector
+            #todo: should make so that penalty is proportional to number of repetition
             if not len(np.unique(trgs))== len(trgs):
                 rewards[id_]+=self.penalties["trg_all_diff"]
 
@@ -456,8 +456,8 @@ class TurnEnvWw(MultiAgentEnv):
                 for id2 in ww_ids:
                     try:
                         self.targets[id2][id_] = actions_dict[id_]
-                    except KeyError:
-                        pass
+                    except KeyError as e:
+                        raise e
         # if day update for everyone
         else:
             for id_ in range(self.num_players):
