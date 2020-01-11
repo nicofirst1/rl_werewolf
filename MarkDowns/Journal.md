@@ -78,7 +78,7 @@ For this to be possible the target list must contain exclusive number....fuck
 
 # Training
 
-## Implementing Turns
+## Implementing Turns [Solved]
 The need to implement turns arises from the _night_ phase. The ideal implementation would skip vil during night phase.
 That is, vil would be able to see just day phases not being aware of the night ones. This would prevent them from having double observations (night/day) and 
 it would probably speed the training up since there is no need to understand that there is nothing you can do during night.
@@ -88,7 +88,7 @@ If this ends up being the solution then it has to be solved during training time
 
 The previous link refers to the grouping of agents which will then behave as a single one, this is not what we need right now so next step would be trying to implment a [custom training step](https://ray.readthedocs.io/en/latest/rllib-training.html#custom-training-workflows). Maybe subclassing the [trainable](https://ray.readthedocs.io/en/latest/tune-usage.html#trainable-api) class can be an idea.
 
-I opened an [issue on github](https://github.com/ray-project/ray/issues/6757). 
+I opened an [issue on github](https://github.com/ray-project/ray/issues/6757). Solved
 
 ## Observations
 
