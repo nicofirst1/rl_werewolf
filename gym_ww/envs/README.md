@@ -38,3 +38,7 @@ shifting works as a mask to the agents while in the env everything stays the sam
 Learning this shifting from observation is technically the same as guessing roles.
 
 Moreover this implementation skips villagers during night time
+
+
+## TODO
+- Make logging every n episode []
