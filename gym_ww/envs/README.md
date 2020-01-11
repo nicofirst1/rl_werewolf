@@ -41,4 +41,5 @@ Moreover this implementation skips villagers during night time
 
 
 ## TODO
-- Make logging every n episode []
+- Make logging every n episode [X]
+- Try to use decorator for logging rather than if else []
