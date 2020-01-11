@@ -1,10 +1,10 @@
 import gym
 import tqdm as tqdm
 
-from gym_ww.envs import PolicyWw
+from gym_ww.envs import TurnEnvWw
 
 num_players=10
-env = PolicyWw(num_players)
+env = TurnEnvWw(num_players)
 agent_ids=env.reset().keys()
 for i in tqdm.tqdm(range(1000)):
     actions={id:env.action_space.sample() for id in agent_ids}

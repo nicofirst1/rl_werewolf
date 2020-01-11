@@ -56,13 +56,14 @@ CONFIGS = dict(
     ),
     max_days=1000,
 
+
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
 
 )
 CONFIGS['role2id'], CONFIGS['id2role'] = str_id_map(CONFIGS['existing_roles'])
 
 
-class PolicyWw(MultiAgentEnv):
+class TurnEnvWw(MultiAgentEnv):
     """
 
 
@@ -308,6 +309,10 @@ class PolicyWw(MultiAgentEnv):
 
         # remove roles from ids
         actions_dict={int(k.split("_")[1]):v for k,v in actions_dict.items()}
+
+        # convert actions to closest int
+        inter = np.vectorize(lambda x: int(round(x)))
+        actions_dict={k:inter(v) for k,v in actions_dict.items()}
 
         # apply unshuffle
         unshuffler = np.vectorize(lambda x: self.unshuffle_map[x] if x in self.unshuffle_map.keys() else x)
@@ -660,7 +665,7 @@ class PolicyWw(MultiAgentEnv):
 
 
         if self.metadata['use_act_box']:
-            space=gym.spaces.Box(low=0,high=self.num_players-1,shape=(self.num_players,))
+            space=gym.spaces.Box(low=0,high=self.num_players-1,shape=(self.num_players,),dtype=np.int32)
 
         else:
             space=gym.spaces.MultiDiscrete([self.num_players] * self.num_players)
