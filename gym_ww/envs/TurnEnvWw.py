@@ -50,7 +50,7 @@ CONFIGS = dict(
         # a penalty equal to index_of(agent2,targets)*penalty
         trg_accord=-1,
         # targets should be a list of DIFFERENT ids for each agent, those which output same ids shall be punished
-        trg_all_diff=rule_break_penalty,
+        trg_all_diff=2,
 
     ),
     max_days=1000,
@@ -102,8 +102,7 @@ class TurnEnvWw(MultiAgentEnv):
             num_villagers = num_players - num_wolves
             roles = [ww] * num_wolves + [vil] * num_villagers
             # random.shuffle(roles)
-            if self.ep_log == self.ep_step:
-                logger.info(f"Starting game with {num_players} players: {num_villagers} {vil} and {num_wolves} {ww}")
+            logger.info(f"Starting game with {num_players} players: {num_villagers} {vil} and {num_wolves} {ww}")
         else:
             assert len(
                 roles) == num_players, f"Length of role list ({len(roles)}) should be equal to number of players ({num_players})"
@@ -457,10 +456,9 @@ class TurnEnvWw(MultiAgentEnv):
 
         # punish agents when they do not output all different targets
         for id_, trgs in actions_dict.items():
-            # if there are some same ids in the trgs vector
-            # todo: should make so that penalty is proportional to number of repetition
-            if not len(np.unique(trgs)) == len(trgs):
-                rewards[id_] += self.penalties["trg_all_diff"]
+            # get the number of duplicates for reward
+            duplicates=len(trgs) - len(np.unique(trgs))
+            rewards[id_] += duplicates* self.penalties["trg_all_diff"]
 
         self.previous_target = self.targets.copy()
 
@@ -672,7 +670,6 @@ class TurnEnvWw(MultiAgentEnv):
         """
         :return:
         """
-        # fixme: make targets exclusive
 
         if self.metadata['use_act_box']:
             space = gym.spaces.Box(low=0, high=self.num_players - 1, shape=(self.num_players,), dtype=np.int32)
