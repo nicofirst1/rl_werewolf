@@ -671,11 +671,7 @@ class TurnEnvWw(MultiAgentEnv):
         :return:
         """
 
-        if self.metadata['use_act_box']:
-            space = gym.spaces.Box(low=0, high=self.num_players - 1, shape=(self.num_players,), dtype=np.int32)
-
-        else:
-            space = gym.spaces.MultiDiscrete([self.num_players] * self.num_players)
+        space = gym.spaces.MultiDiscrete([self.num_players] )
 
         # should be a list of targets
         return space
