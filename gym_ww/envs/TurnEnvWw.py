@@ -728,7 +728,10 @@ class TurnEnvWw(MultiAgentEnv):
         obs = gym.spaces.Dict(obs)
 
         if self.metadata['use_act_box']:
+            # save original space in attribute
+            original_space=obs
             obs = _make_box_from_dict(obs)
+            obs.original_space=original_space
 
         return obs
 
