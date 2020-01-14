@@ -8,3 +8,5 @@ gym_ww.egg-info/
 ray_results/
 
 log_dir/
+
+dist/
