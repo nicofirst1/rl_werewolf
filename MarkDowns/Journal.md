@@ -26,9 +26,11 @@ to zero out the logits of illegal actions and re-normalize. This can work for ev
 
 - another option could be conditioning the action choosing on the status map, can be implemented with [this](https://ray.readthedocs.io/en/latest/rllib-models.html#custom-action-distributions).
 
-
 - [here](https://www.quora.com/How-do-I-let-AI-know-that-only-some-actions-are-available-during-specific-states-in-reinforcement-learning) this guy talks about action precondition information are used in the BURLAP RL library.
 
+- RLlib actually uses [parametric actions](https://ray.readthedocs.io/en/latest/rllib-models.html#variable-length-parametric-action-spaces) for this issue.
+
+- I opened another [issue](https://github.com/ray-project/ray/issues/6783) which address this topic a little.
 ## Implementing communication
 
 Agents need to communicate to either coordinate (wolves with wolves), or to choose who to execute (wolves vs vill).
