@@ -6,6 +6,12 @@ def on_episode_end(info):
     :return:
     """
     episode = info['episode']
-    cm = info['env'].envs[0].custom_metrics
+
+    # keep consistency for different versions
+    try:
+        cm = info['env'].envs[0].custom_metrics
+    except AttributeError:
+        cm = info['env'].envs[0].wrapped.custom_metrics
+
     for k, v in cm.items():
         episode.custom_metrics[k] = v
