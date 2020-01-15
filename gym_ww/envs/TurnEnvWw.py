@@ -66,7 +66,7 @@ class TurnEnvWw(MultiAgentEnv):
 
 
     """
-    metadata = {'players': ['human'], 'use_act_box': False}
+    metadata = {'players': ['human']}
 
     def __init__(self, configs, roles=None, flex=0):
         """
@@ -85,7 +85,6 @@ class TurnEnvWw(MultiAgentEnv):
             except KeyError:
                 raise AttributeError(f"Attribute 'num_players' should be present in the EnvContext")
 
-            self.metadata['use_act_box'] = configs.get('use_act_box', self.metadata['use_act_box'])
 
         elif isinstance(configs, int):
             # used for back compatibility
@@ -671,7 +670,7 @@ class TurnEnvWw(MultiAgentEnv):
         :return:
         """
 
-        space = gym.spaces.MultiDiscrete([self.num_players] )
+        space = gym.spaces.MultiDiscrete([self.num_players]*self.num_players )
 
         # should be a list of targets
         return space
@@ -683,36 +682,6 @@ class TurnEnvWw(MultiAgentEnv):
         :return:
         """
 
-        def _make_box_from_dict(space):
-            """
-            Convert a spaces.Dict to a spaces.Box
-
-            """
-            sp = list(space.spaces.values())
-            lows = []
-            highs = []
-
-            for s in sp:
-                if isinstance(s, gym.spaces.Discrete):
-                    highs.append(s.n)
-                    lows.append(0)
-
-                elif isinstance(s, gym.spaces.MultiBinary):
-                    sh = reduce(lambda x, y: x * y, s.shape)
-                    highs += [1] * sh
-                    lows += [0] * sh
-
-                elif isinstance(s, gym.spaces.Box):
-                    highs += s.high.flatten().tolist()
-                    lows += s.low.flatten().tolist()
-
-                else:
-                    raise UnsupportedSpaceException(
-                        "Space {} is not supported.".format(space))
-
-            highs = np.asarray(highs)
-            lows = np.asarray(lows)
-            return gym.spaces.Box(high=highs, low=lows)
 
         obs = dict(
             # number of days passed
@@ -727,11 +696,6 @@ class TurnEnvWw(MultiAgentEnv):
         )
         obs = gym.spaces.Dict(obs)
 
-        if self.metadata['use_act_box']:
-            # save original space in attribute
-            original_space=obs
-            obs = _make_box_from_dict(obs)
-            obs.original_space=original_space
 
         return obs
 
