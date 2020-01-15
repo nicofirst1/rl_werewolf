@@ -1,9 +1,11 @@
 # WereWolf Game
 [Werewolf](https://en.wikipedia.org/wiki/Werewolf_(social_deduction_game) is a simple deduction game that can be played with at least 5 players. It is also knows as:
-- Mafia
-- Lupus in fabula
-- Pueblo duerme
-- Los Hombres Lobo de Castronegro
+- Mafia (Mafia, International)
+- Lupus in fabula (Wolf from fable, Latin)
+- Pueblo duerme (Sleeping villagers, Spain)
+- Los Hombres Lobo de Castronegro (Spanish, Spain)
+- Μια Νύχτα στο Palermo (One night in Palermo, Greek)
+- Městečko palermo (Town of Palermo, Check)
 
 In its most basic version there are __villagers__ (aka. vil) and __werewolf__ (aka.  ww). 
 Notice that the number of wolves should always be less than the number of vil.
@@ -28,7 +30,7 @@ The game ends when either there are no more ww alive or there are more wolves th
 To install follow the instructions in the [Installation](MarkDowns/Installation.md) markdown.
 
 ## Journal & Readme
-Most of the deveoping phase in reported in the [Journal](MarkDowns/Journal.md). For current and past issue please refer to it.
+Most of the developing phase in reported in the [Journal](MarkDowns/Journal.md). For current and past issue please refer to it.
 
 In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) relative to the developing of each env and the differences between them.
 

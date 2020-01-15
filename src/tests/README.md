@@ -6,3 +6,4 @@ This dir contains tests for various parts of the project:
 - [simple_train.py](src/tests/simple_train.py) uses a simple rllib alghotirmt (PG) for training.
 - [memory_train.py](src/tests/memory_train.py) extends the previous file adding LSTMs for memory.
 - [multi_policy_train.py](src/tests/multi_policy_train.py) introduces multi agents, custom preprocessor and others.
+- [parametric_action.py](src/tests/parametric_action.py) Uses parametric action to mask out invalid actions.

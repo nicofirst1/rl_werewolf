@@ -39,6 +39,12 @@ Learning this shifting from observation is technically the same as guessing role
 
 Moreover this implementation skips villagers during night time
 
+### PaEnv
+[PaEnv](gym_ww/envs/PaEnv.py) stands from ParametricActionEnvironment.
+It is basically a wrapper around TurnEnvWw to allow custom action masking. 
+Together with the original observation space a boolean numpy array is used as an action masking. IndexOf zeros in the
+ mask array will be interpreted with non executable/eatable agents by the model. 
+
 
 ## TODO
 - Make logging every n episode [X]
