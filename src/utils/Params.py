@@ -30,7 +30,7 @@ class Params:
     ##########################
     # Performance stuff
     ##########################
-    debug = True
+    debug = False
 
     n_cpus = multiprocessing.cpu_count() if not debug else 1
     n_gpus = 1 if not debug else 0
@@ -38,7 +38,7 @@ class Params:
     ##########################
     # env params
     ##########################
-    num_player=10
+    num_player=20
 
     ##########################
     # other
