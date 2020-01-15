@@ -53,6 +53,8 @@ class ParametricActionWrapper(MultiAgentEnv):
             for idx in ww_ids:
                 mask[idx]=0
 
+        # apply shuffle to mask
+        mask=[mask[self.wrapped.unshuffle_map[idx]] for idx in range(len(mask))]
         return np.asarray(mask)
 
 
