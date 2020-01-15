@@ -27,10 +27,10 @@ The game ends when either there are no more ww alive or there are more wolves th
 
 # Install
 
-To install follow the instructions in the [Installation](MarkDowns/Installation.md) markdown.
+To install follow the instructions in the [Installation](Resources/MarkDowns/Installation.md) markdown.
 
 ## Journal & Readme
-Most of the developing phase in reported in the [Journal](MarkDowns/Journal.md). For current and past issue please refer to it.
+Most of the developing phase in reported in the [Journal](Resources/MarkDowns/Journal.md). For current and past issue please refer to it.
 
 In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) relative to the developing of each env and the differences between them.
 
