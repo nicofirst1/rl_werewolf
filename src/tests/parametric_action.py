@@ -2,7 +2,7 @@ from models import ParametricActionsModel
 from utils import Params
 Params()
 
-from envs.ParametricActionWrapper import ParametricActionWrapper
+from envs.PaEnv import ParametricActionWrapper
 from policies.SimpleQPolicy import MyTFPolicy
 
 import logging
