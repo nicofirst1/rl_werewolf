@@ -296,8 +296,8 @@ class TurnEnvWw(MultiAgentEnv):
             if self.ep_log == self.ep_step:
                 logger.debug("Night Time| Eating")
 
-        # execute wolf actions
-        rewards = self.wolf_action(actions, rewards)
+            # execute wolf actions
+            rewards = self.wolf_action(actions, rewards)
 
         # todo: implement other roles actions
 
@@ -358,6 +358,7 @@ class TurnEnvWw(MultiAgentEnv):
         # get observation
         obs = self.observe(phase)
 
+        # initialize infos with dict
         infos = {idx: {'role': self.roles[idx]} for idx in self.get_ids("all", alive=False)}
 
         # convert to return in correct format, do not modify anything except for dones
@@ -457,6 +458,13 @@ class TurnEnvWw(MultiAgentEnv):
         for id_, trgs in actions_dict.items():
             # get the number of duplicates for reward
             duplicates=len(trgs) - len(np.unique(trgs))
+            # get number of dead agents
+            dead=len(self.status_map)-sum(self.status_map)
+            # decrease penalty proportionally to dead agents
+            duplicates-=dead
+
+            assert duplicates>=0, "Duplicate cannot be less than zero"
+
             rewards[id_] += duplicates* self.penalties["trg_all_diff"]
 
         self.previous_target = self.targets.copy()
