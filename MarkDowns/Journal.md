@@ -4,7 +4,7 @@
 
 # Env
 
-## Constrain votes
+## Constrain votes [Solved]
 Player must be forced not to choose dead player to execute/eat, or else the game does not have an end. This throws the error:
 
 ```
@@ -31,6 +31,9 @@ to zero out the logits of illegal actions and re-normalize. This can work for ev
 - RLlib actually uses [parametric actions](https://ray.readthedocs.io/en/latest/rllib-models.html#variable-length-parametric-action-spaces) for this issue.
 
 - I opened another [issue](https://github.com/ray-project/ray/issues/6783) which address this topic a little.
+
+Solved using parametric actions.
+
 ## Implementing communication
 
 Agents need to communicate to either coordinate (wolves with wolves), or to choose who to execute (wolves vs vill).
