@@ -7,6 +7,7 @@ from ray.rllib.models.preprocessors import get_preprocessor
 from ray.rllib.utils.error import UnsupportedSpaceException
 
 from envs import TurnEnvWw
+from gym_ww import ww
 
 
 class ParametricActionWrapper(MultiAgentEnv):
@@ -35,6 +36,26 @@ class ParametricActionWrapper(MultiAgentEnv):
         obs = self.wrap_obs(obs)
         return obs, rewards, dones, info
 
+    def get_action_mask(self):
+        """
+        Estimates action mask for current observation
+        Return a boolean vector in which indexOf(zeros) are invalid actions
+        :return: np.array
+        """
+
+        # filter out dead agents
+        mask=self.wrapped.status_map.copy()
+
+        # if is night
+        if self.wrapped.is_night:
+            # filter out wolves
+            ww_ids=self.wrapped.get_ids(ww,alive=True)
+            for idx in ww_ids:
+                mask[idx]=0
+
+        return np.asarray(mask)
+
+
     def wrap_obs(self, observations):
         """
         Wrap the original observation adding custom action mask
@@ -43,12 +64,11 @@ class ParametricActionWrapper(MultiAgentEnv):
         """
 
         new_obs = {}
+        # define the action mask and convert it to array
+        action_mask = self.get_action_mask()
+
         # for every agent
         for agent_id, obs in observations.items():
-            # define the action mask and convert it to array
-            # todo: get correct action mask
-            action_mask = [1] * self.wrapped.num_players
-            action_mask = np.asarray(action_mask)
 
             # make array out of observation (flatten)
             obs = _make_array_from_obs(obs, self.wrapped.observation_space)
