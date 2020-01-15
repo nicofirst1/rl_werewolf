@@ -69,6 +69,9 @@ class ParametricActionsModel(TFModelV2):
         # Mask out invalid actions (use tf.float32.min for stability)
         # size [batch size, num players * num players]
         inf_mask = tf.maximum(tf.log(action_mask), tf.float32.min)
+        inf_mask=tf.cast(inf_mask,tf.float32)
+
+        masked_actions=action_embed + inf_mask
 
         # return masked action embed and state
-        return action_embed + inf_mask, state
+        return masked_actions, state
