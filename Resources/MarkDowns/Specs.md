@@ -131,3 +131,98 @@ To incentivate agents to vote in a meaningfull way, at the end of each execution
 - reward of `victory` if agent group wins (either wolves or villagers)
 - penalty of `lost` if agent group looses (either wolves or villagers)
 - penalty of `execute_dead` if executed agent is already dead.
+
+## Metrics
+To understand better the nature of the learnign various metrics were added. All of them can be found in the `env.initialize_info()`, and are as follows:
+
+```
+dead_man_execution=0,  # number of times players vote to kill dead agent
+dead_man_kill=0,  # number of times wolves try to kill dead agent
+cannibalism=0,  # number of times wolves eat each other
+suicide=0,  # number of times a player vote for itself
+win_wolf=0,  # number of times wolves win
+win_vil=0,  # number of times villagers win
+tot_days=0,  # total number of days before a match is over
+trg_diff=0,  # percentage of different votes  between targets before and after the communication phase
+trg_influence=0,  # measure of how much each agent is influenced by the others     
+```
+
+Some of them can be normalized to be in range [0,1].
+
+Special care should be given to the target metrics since they hold deeper information meening.
+
+#### Target Difference
+
+The `trg_diff` metric is simply the number of different agent ids between vote time and execution time. Given the output vecotr for each agent (of size `[num players, num players]`) the target difference is estimated as follow:
+
+    diff = np.sum(cur_targets != prev_targets) / (num_player ** 2)
+
+Where `prev_targets ` is the vote output and `cur_targets` is the execution one.
+
+The aim of this metric is to check the consisntecy of vote/execution during the training.
+
+#### Target Influence
+
+Unlike the previous metric, this one is a little trickyer. It tryes to measure how much each individual agent is influenced by the general vote phase.
+
+The alghoritm takes as input again `cur_targets` and `prev_targets` and uses a _Counter_ to keep trak of the most voted agents. Then it simply add up the squared distance between the to repetition dictionaries, after some filtering (dead agents).
+
+The aim of this metric is seeing how much the overall vote influences the execution time. Seeing this value increasing means that agents are taking into high consideration past votes for their next one. This is strongly correlated with the `trg_accord` penalty, which penalizes agents for not being in accordance with the others on their vote.
+On the other hand, when the value decreases then the agents may make use of the voting phase as something completely different than what was intended for, further metrics should be created on this subject.
+
+
+#### Parametric Actions
+
+Notice that with the introduction of the parametric action model the follwoing metrics will be zero and probably removed from the game entirerly:
+
+- dead man execution
+- dead man kill
+- cannibalism
+
+
+
+## Action Space
+The action space for each agent is a vecotor of discrete values in range `[0, num players -1]` called __targets__. 
+
+Using the `ray.rllib.MultiAgentEnv` wrapper the action object passed to the `env.step()` function is a dictionary mapping an agent id to a vector.
+
+This vector is supposed to be used as a preference for voting. The first _n_ values from the target will be used to decide which player to eat/execute. When the time comes to kill an agent the first _n_ targets from every agent are counted and the most common is chosen (if there is no most common one then a random one is picked instead).
+
+### Flexibility
+
+The number _n_ of targets to be considered from an agent output is regulated by the `env.flex` parameter which can be in range `[1,num players -1]`, by default set to 1.
+
+
+## Observations
+The observation space is an instance of `gym.spaces.Dic` with the following entries:
+
+```
+# number of days passed
+day=spaces.Discrete(self.max_days),
+
+# idx is agent id_, value is boll for agent alive
+status_map=spaces.MultiBinary(self.num_players),
+
+# number in range number of phases [com night, night, com day, day]
+phase=spaces.Discrete(4),
+
+# targets are the preferences for each agent,
+# it is basically a matrix in which rows are agents and cols are targets
+targets=spaces.Box(low=-1, high=self.num_players, shape=(self.num_players, self.num_players)),
+```
+
+Most of the observations are stright forward but will be described nontheless:
+
+- __day__: Discrete number counting the day passed during a match. In range `[1,max_days]` will be converted to a OneHotVector when feeded to the model. A day passes when the last phase (number 4) is concluded and an agent has been executed.
+-  __status_map__ : MultiBinary vector of lenght _num player_. Used to map agent to the _being alive_ condition by index (0 dead, 1 alive). 
+-  __phase__ : Discreate in range `[0,3]`, maps the phase integer to a OHV in the model.
+
+#### Targets
+
+The target observation is a `gym.spaces.Box` instance having a shape of `[num players, num players]` effectively being a matrix.
+
+In this matrix each row is associated with an agent outputting the target action space.
+
+It has as low the number -1 since that is the initialization number in which the agent have not outputted any targets yet. On the other hand the high value is simply the number of players.
+
+## Model
