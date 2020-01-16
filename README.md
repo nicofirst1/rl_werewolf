@@ -1,5 +1,6 @@
 # WereWolf Game
-[Werewolf](https://en.wikipedia.org/wiki/Werewolf_(social_deduction_game) is a simple deduction game that can be played with at least 5 players. It is also knows as:
+[Werewolf](https://en.wikipedia.org/wiki/Werewolf_social_deduction_game) is a simple deduction game that can be played with at least 5 players. It is also knows as:
+
 - Mafia (Mafia, International)
 - Lupus in fabula (Wolf from fable, Latin)
 - Pueblo duerme (Sleeping villagers, Spain)
@@ -11,6 +12,7 @@ In its most basic version there are __villagers__ (aka. vil) and __werewolf__ (a
 Notice that the number of wolves should always be less than the number of vil.
 
 The game develops into tho phases, _night_ and _day_.
+
 ### Night
 At _night_ time everyone closes their eyes, this prevents players to know which roles are assigned to other playser. 
 Taking turnes each non vil player open his eyes and choose an action.
@@ -29,8 +31,12 @@ The game ends when either there are no more ww alive or there are more wolves th
 
 To install follow the instructions in the [Installation](Resources/MarkDowns/Installation.md) markdown.
 
-## Journal & Readme
+## Markdowns & READMEs
+The [Markdowns dir](Resources/MarkDowns) contains usefull markdowns file covering different aspect of the implementation.
+
 Most of the developing phase in reported in the [Journal](Resources/MarkDowns/Journal.md). For current and past issue please refer to it.
+
+For a detailed adescription on how the whole architecture has been build please refer to the [Specs file](Resources/MarkDowns/Specs.md).
 
 In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) relative to the developing of each env and the differences between them.
 
