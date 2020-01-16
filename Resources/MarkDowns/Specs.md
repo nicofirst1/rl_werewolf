@@ -225,4 +225,10 @@ In this matrix each row is associated with an agent outputting the target action
 
 It has as low the number -1 since that is the initialization number in which the agent have not outputted any targets yet. On the other hand the high value is simply the number of players.
 
-## Model
+## PA Model
+
+To prevent the model to choose invalid action in the target vector a parametric wrapper is used aroud the original environment.
+
+The wrapper keeps the original observation, flattening them in a numpy array, and adds a boolean action mask of size `[num. players,1]` which is then used in the model to set logits to zero for invalid actions. 
+
+This speeds up the trainining and renders the reward shaping for such invalid actions useless. 
