@@ -7,6 +7,7 @@
 - Los Hombres Lobo de Castronegro (Spanish, Spain)
 - Μια Νύχτα στο Palermo (One night in Palermo, Greek)
 - Městečko palermo (Town of Palermo, Check)
+- 狼人殺 (Werewolf kill, Cinese)
 
 In its most basic version there are __villagers__ (aka. vil) and __werewolf__ (aka.  ww). 
 Notice that the number of wolves should always be less than the number of vil.
