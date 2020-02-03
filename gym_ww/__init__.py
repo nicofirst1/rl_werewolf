@@ -33,6 +33,8 @@ register(
 
 
 
+
+
 # Initialize envs loggers
 
 logger = logging.getLogger("WwEnvs")
@@ -51,7 +53,7 @@ c_handler.setFormatter(c_formatter)
 c_handler.setLevel(logging.WARN)
 
 
-# addign handlers to main logger
+# adding handlers to main logger
 logger.addHandler(c_handler)
 logger.addHandler(f_handler)
 
