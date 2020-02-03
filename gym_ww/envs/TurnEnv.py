@@ -1,13 +1,11 @@
 import math
 import random
-from functools import reduce
 
 import gym
 import numpy as np
 from gym import spaces
 from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
-from ray.rllib.utils.error import UnsupportedSpaceException
 
 from gym_ww import logger, ww, vil
 from src.other.analysis import vote_difference, measure_influence
@@ -457,15 +455,15 @@ class TurnEnvWw(MultiAgentEnv):
         # punish agents when they do not output all different targets
         for id_, trgs in actions_dict.items():
             # get the number of duplicates for reward
-            duplicates=len(trgs) - len(np.unique(trgs))
+            duplicates = len(trgs) - len(np.unique(trgs))
             # get number of dead agents
-            dead=len(self.status_map)-sum(self.status_map)
+            dead = len(self.status_map) - sum(self.status_map)
             # decrease penalty proportionally to dead agents
-            duplicates-=dead
+            duplicates -= dead
 
-            assert duplicates>=0, "Duplicate cannot be less than zero"
+            assert duplicates >= 0, "Duplicate cannot be less than zero"
 
-            rewards[id_] += duplicates* self.penalties["trg_all_diff"]
+            rewards[id_] += duplicates * self.penalties["trg_all_diff"]
 
         self.previous_target = self.targets.copy()
 
@@ -678,7 +676,7 @@ class TurnEnvWw(MultiAgentEnv):
         :return:
         """
 
-        space = gym.spaces.MultiDiscrete([self.num_players]*self.num_players )
+        space = gym.spaces.MultiDiscrete([self.num_players] * self.num_players)
 
         # should be a list of targets
         return space
@@ -689,7 +687,6 @@ class TurnEnvWw(MultiAgentEnv):
         Return observation space in gym box
         :return:
         """
-
 
         obs = dict(
             # number of days passed
@@ -703,7 +700,6 @@ class TurnEnvWw(MultiAgentEnv):
             targets=spaces.Box(low=-1, high=self.num_players, shape=(self.num_players, self.num_players)),
         )
         obs = gym.spaces.Dict(obs)
-
 
         return obs
 

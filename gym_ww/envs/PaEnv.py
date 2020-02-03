@@ -6,7 +6,7 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.models.preprocessors import get_preprocessor
 from ray.rllib.utils.error import UnsupportedSpaceException
 
-from envs import TurnEnvWw
+from envs.TurnEnv import TurnEnvWw
 from gym_ww import ww
 
 
