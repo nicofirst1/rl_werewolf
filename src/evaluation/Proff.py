@@ -1,3 +1,7 @@
+from utils import Params
+import pickle
+
+
 class Proff:
     """
     This class is responsible to understand what the agents are learning, doing so by looking at the targets output
@@ -7,6 +11,7 @@ class Proff:
     def __init__(self):
         # dictionary mapping episode instance to an episode class
         self.episodes = dict()
+        self.log_step=200
 
     def add_episode(self, episode_count, episode):
         """
@@ -15,23 +20,14 @@ class Proff:
         :param episode: Episode class, episode class to be added
         :return: None
         """
-        self.episodes[episode_count] = episode
+        self.episodes[episode_count*self.log_step] = episode
+        self.dump_episodes()
 
-
-class Episode:
-    """
-    Class to hold info about a training episode, that is from the start of a game till one wins
-    """
-
-    def __init__(self):
-        self.days = 0
-        self.targets = []
-
-    def add_target(self, target_mat):
+    def dump_episodes(self):
         """
-        Add a target to the target list and increment day
-        :param target_mat: nxn matrix, the target output
+        Dump the episode dict to a pickle file
         :return: None
         """
-        self.targets.append(target_mat)
-        self.days += 1
+        with open(Params.episode_file, "wb") as f:
+            pickle.dump(self.episodes,f)
+
