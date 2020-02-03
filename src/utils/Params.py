@@ -1,9 +1,9 @@
 import argparse
+import inspect
 import json
 import multiprocessing
 import os
 import shutil
-import inspect
 import sys
 import uuid
 
@@ -22,15 +22,17 @@ class Params:
     WORKING_DIR = os.getcwd().split("src")[0]
     SRC_DIR = join_paths(WORKING_DIR, "src")
 
-    LOG_DIR=join_paths(WORKING_DIR,"log_dir")
+    LOG_DIR = join_paths(WORKING_DIR, "log_dir")
 
-    RAY_DIR=join_paths(LOG_DIR,"ray_results")
-    GAME_LOG_DIR=join_paths(LOG_DIR,"match_log")
+    RAY_DIR = join_paths(LOG_DIR, "ray_results")
+    GAME_LOG_DIR = join_paths(LOG_DIR, "match_log")
+    EVAL_DIR = join_paths(LOG_DIR, "eval")
 
+    episode_file = join_paths(EVAL_DIR, "episode.pkl")
     ##########################
     # Performance stuff
     ##########################
-    debug = False
+    debug = True
 
     n_cpus = multiprocessing.cpu_count() if not debug else 1
     n_gpus = 1 if not debug else 0
@@ -38,16 +40,15 @@ class Params:
     ##########################
     # env params
     ##########################
-    num_player=20
+    num_player = 20
 
     ##########################
     # other
     ##########################
 
-    unique_id=str(uuid.uuid1())[:8]
-    log_match_file=join_paths(GAME_LOG_DIR,f"{unique_id}_log.log")
+    unique_id = str(uuid.uuid1())[:8]
+    log_match_file = join_paths(GAME_LOG_DIR, f"{unique_id}_log.log")
 
-    
     ##########################
     #    METHODS
     ##########################
@@ -110,24 +111,23 @@ class Params:
         :return:
         """
 
-         # initializing print message
-        hashes=f"\n{20*'#'}\n"
-        msg=f"{hashes} PARAMETER START {hashes}"
+        # initializing print message
+        hashes = f"\n{20 * '#'}\n"
+        msg = f"{hashes} PARAMETER START {hashes}"
 
         # get the attributes ad dict
         attributes = self.__get_attributes()
         # dump using jason
         attributes = json.dumps(attributes, indent=4, sort_keys=True)
 
-        msg+=attributes
-        msg+=f"{hashes} PARAMETER END {hashes}"
+        msg += attributes
+        msg += f"{hashes} PARAMETER END {hashes}"
 
-        color="yellow"
-        msg=termcolor.colored(msg,color=color)
+        color = "yellow"
+        msg = termcolor.colored(msg, color=color)
 
         # print them to given out
         print(msg, file=stdout)
-
 
     def __initialize_dirs(self):
         """
@@ -161,5 +161,3 @@ class Params:
                         print(e)
             except Exception:
                 continue
-
-

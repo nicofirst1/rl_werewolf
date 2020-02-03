@@ -1,5 +1,8 @@
+import numpy as np
+
 from envs.PaEnv import ParametricActionWrapper
-from evaluation.Proff import Proff, Episode
+from evaluation import Proff, Episode
+import collections
 
 
 class EvaluationEnv(ParametricActionWrapper):
@@ -11,8 +14,12 @@ class EvaluationEnv(ParametricActionWrapper):
         """
         Wrapper around original step function, add target output to episode class
         """
-
-        self.episode.add_target(action_dict)
+        #tansform targets to square numpy matrix
+        targets=sorted(action_dict.items(), key=lambda v: int(v[0].split("_")[1]))
+        targets=[elem[1] for elem in targets]
+        targets=np.stack(targets)
+        
+        self.episode.add_target(targets)
 
         return super().step(action_dict)
 
@@ -20,8 +27,11 @@ class EvaluationEnv(ParametricActionWrapper):
         """
         Calls reset function initializing the episode class again
         """
-        # add episode to proff
-        self.proff.add_episode(self.episode_count, self.episode)
+        # if is time to log then do it
+        if self.episode_count%self.proff.log_step==0:
+            # add episode to proff and reset counter
+            self.proff.add_episode(self.episode_count, self.episode)
+            self.episode_count=0
 
         # initialize episode and increase counter
         self.episode = Episode()
