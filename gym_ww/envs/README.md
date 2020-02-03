@@ -17,7 +17,7 @@ This environment does not support training, just testing with the [env test scri
 - Trainable 
 
 ### ComMaWw
-[ComMaWw](gym_ww/envs/ComMaWw.py) stands from CommunicationMaWw.
+[ComMaWw](gym_ww/envs/ComMaWw.py) stands for CommunicationMaWw.
 Based on _MaWw_ tries to implement communication. Updates:
 - Use night/day phases in observation
 - number of wolves is sqrt(total player)
@@ -28,7 +28,7 @@ Based on _MaWw_ tries to implement communication. Updates:
 - more
 
 ### TurnEnvWw
-[TurnEnvWw](gym_ww/envs/TurnEnvWw.py) stands from CommunicationMaWw.
+[TurnEnvWw](gym_ww/envs/TurnEnvWw.py) stands for CommunicationMaWw.
 Based on _ComMaWw_. The goal is to keep agent ids fixed to a certain role, so agents can then be used with custom policies.
 
 The problem becomes to hide the roles from each agent, so there should be some kind of vote mixing at each turn. 
@@ -40,11 +40,14 @@ Learning this shifting from observation is technically the same as guessing role
 Moreover this implementation skips villagers during night time
 
 ### PaEnv
-[PaEnv](gym_ww/envs/PaEnv.py) stands from ParametricActionEnvironment.
+[PaEnv](gym_ww/envs/PaEnv.py) stands for ParametricActionEnvironment.
 It is basically a wrapper around TurnEnvWw to allow custom action masking. 
 Together with the original observation space a boolean numpy array is used as an action masking. IndexOf zeros in the
  mask array will be interpreted with non executable/eatable agents by the model. 
 
+### EvalEnv
+[EvalEnv](gym_ww/envs/EvalEnv.py) stands for Evaluation Environment.
+It is built on top of the ParametricActionEnvironment and it uses classes from the [evalutation dir](src/evaluation) to understand what the agents are learning.
 
 ## TODO
 - Make logging every n episode [X]
