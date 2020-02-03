@@ -53,7 +53,7 @@ CONFIGS = dict(
         trg_all_diff=2,
 
     ),
-    max_days=50,
+    max_days=15,
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
 
