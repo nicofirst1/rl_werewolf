@@ -65,12 +65,14 @@ The aim of this metric is to check the consisntecy of vote/execution during the 
 
 
 
-## Metrics
+# Metrics
 
 In this section possible ideas for evaluation will be stored.
 
+## Role invariant
+This class of metrics does not dipend on the roles each agent has.
 
-### Distance function
+### Distance functions
 A distance function takes as input two vectors and return real number, possibly in range `[0,1]`.
 
 #### Index distance function [IDF]
@@ -137,3 +139,15 @@ $SIF(c_i,e_i,cm)=\frac{freq(e_i,cm)}{np-1}$
 
 Where $np$ is the number of players.
 
+
+From now on the TIF algorithm is easy to understand. For each colum in the CTM (where there is no $cm_i$ anymore) you compute the SIF. Finally you normalize dividing by the number of players $np$.
+
+
+### General ideas
+
+Just some random ideas
+
+- diversity between night and day communication for wolves
+- see if villagers who vote for wolves more often are then targeted by the latter during night time.
+- check if there is diversity between wolves and vil when comes to day communication time.
+- check for regular pattern somehow, can be used to communicate.
