@@ -1,6 +1,6 @@
-from envs.EvalEnv import EvaluationEnv
 from models import ParametricActionsModel
 from utils import Params
+from wrappers import EvaluationEnv
 
 Params()
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
         "env_config": env_configs,
         "eager": False,
         "eager_tracing": False,
-        "num_workers": 2,
+        "num_workers": 0,
         "batch_mode": "complete_episodes",
 
         "callbacks": {"on_episode_end": on_episode_end, },
