@@ -1,4 +1,5 @@
-This dir contains the environments in Gym format.
+This dir contains the environments in Gym format. 
+Most of them are stored in the old dir
 
 ### SimpleWw
 [SimpleWw](gym_ww/envs/SimpleWW.py) is the first approach to implementing the game.
