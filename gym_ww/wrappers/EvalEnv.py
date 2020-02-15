@@ -1,6 +1,6 @@
 import numpy as np
 
-from envs.PaEnv import ParametricActionWrapper
+from wrappers.PaEnv import ParametricActionWrapper
 from evaluation import Prof, Episode
 
 
