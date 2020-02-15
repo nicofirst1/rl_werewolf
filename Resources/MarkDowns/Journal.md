@@ -81,6 +81,19 @@ This new obs should be updated during the day only for vil and everytime for wol
 
 For this to be possible the target list must contain exclusive number....fuck
 
+### Second attempt
+Given the high complexity which arises from the previous form of communication, we decided to make things simpler. 
+Agents will now have a separate observation/action space for communication and for execution. For this a new branch has been created.
+
+##### Action space
+The now action space is a dict type containing the following values:
+- target: `gym.spaces.Discrete(self.num_players)` an int for the execution part.
+- signal: `gym.spaces.MultiDiscrete([self.signal_range]*self.signal_length)` parameter used for communication, 
+in its simplest form is a boolean integer, both the length of the signal as well as the range can be chosen arbitrarily 
+There is a problem using a dict as action space which is tracked ever [here](https://github.com/hill-a/stable-baselines/issues/133)
+##### Obs space
+The observation space stays similar as the previous one but modifies the targets which now becomes a Discrete and adds the signal one too
+
 # Training
 
 ## Implementing Turns [Solved]
