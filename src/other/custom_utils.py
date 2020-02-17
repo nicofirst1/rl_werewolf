@@ -2,7 +2,8 @@ import logging
 import random
 
 import numpy as np
-from utils.Params import Params
+
+from utils import Params
 
 
 def str_id_map(str_list):
@@ -30,10 +31,10 @@ def most_frequent(choices):
     :return: int, most common
     """
 
-    if isinstance(choices,dict):
-            choices=[v for v in choices.values()]
-            if any(isinstance(elem,np.ndarray) for elem in choices):
-                choices=[item for sublist in choices for item in sublist]
+    if isinstance(choices, dict):
+        choices = [v for v in choices.values()]
+        if any(isinstance(elem, np.ndarray) for elem in choices):
+            choices = [item for sublist in choices for item in sublist]
 
     random.shuffle(choices)
     counter = 0
@@ -53,13 +54,13 @@ def suicide_num(votes):
     :param votes: dict, maps agent id to target
     :return: int
     """
-    res=0
-    for id,trg in votes.items():
+    res = 0
+    for id, trg in votes.items():
 
-        if isinstance(trg,list):
-            res+=1 if id in trg else 0
+        if isinstance(trg, list):
+            res += 1 if id in trg else 0
         else:
-            res+= 1 if id==trg else 0
+            res += 1 if id == trg else 0
 
     return res
 
@@ -77,50 +78,69 @@ def pprint(votes, roles, logger, level=logging.DEBUG, filter_ids=None):
 
     # filter ids
     if filter_ids is not None:
-        votes={k:v for k,v in votes.items() if k in filter_ids}
+        votes = {k: v for k, v in votes.items() if k in filter_ids}
 
+    separator = "| {:<6} |" * len(votes)
 
-    separator="| {:<6} |"*len(votes)
-
-    to_print="\n|{:<15} |"+separator
-    to_format=["Role" ]+[f"Vote_{id}" for id in votes.keys()]
-    to_print=to_print.format(*to_format)+"\n"
-    to_print+="-"*len(to_print)+"\n"
+    to_print = "\n|{:<15} |" + separator
+    to_format = ["Role"] + [f"Vote_{id}" for id in votes.keys()]
+    to_print = to_print.format(*to_format) + "\n"
+    to_print += "-" * len(to_print) + "\n"
 
     for idx in votes.keys():
-        targets=[f"Ag_{id}" for id in votes[idx]]
-        name=f"{roles[idx]}_{idx}"
-        fr="|{:<15} |"+separator
-        to_print+=fr.format(name,*targets)+"\n"
+        targets = [f"Ag_{id}" for id in votes[idx]]
+        name = f"{roles[idx]}_{idx}"
+        fr = "|{:<15} |" + separator
+        to_print += fr.format(name, *targets) + "\n"
 
-    logger.log(level,to_print)
+    logger.log(level, to_print)
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
 
 def downsample(vector, rate, maximum, minimum=0):
     """
-    Downsample each value of a vector so to be in
-    :param vector:
-    :param maximum:
-    :param minimum:
-    :return:
+    Downsample a vector in range [minimum, maximum] in rate parts
+    :param vector: list/np.array, the vector to downsample
+    :param rate: int, num of splits
+    :param maximum: float, max value
+    :param minimum: float, min value
+    :return: np.array, array of 'rate' distinct elements,
     """
 
-    assert minimum<maximum, f"min ({minimum}) has to be less than max ({maximum})"
+    def test():
+        min_ = 5
+        max_ = 15
+        rate = 3
+        prov = np.random.randint(min_, high=max_, size=10)
+        res = downsample(prov, rate, max_, minimum=min_)
+        a = 1
 
-    admissible_range=maximum-minimum
-    split_wise=admissible_range/rate
+    # get the split rate
+    split = (maximum - minimum) / rate
 
+    # define 'rate' ranges of values shifted by the minimum
+    ranges = [[split * i + minimum, split * (i + 1) + minimum] for i in range(rate)]
+    # init empty res vector
+    res = np.zeros((len(vector)))
+    # for every range
+    for i in range(len(ranges)):
+        # get the current range
+        cur_range = ranges[i]
+        # find the args where the values of vector are in the current range
+        indx = np.argwhere(np.logical_and(vector > cur_range[0], vector < cur_range[1]))
+        # set those indices to the cluster index
+        res[indx] = i
 
-prov=[0,1,2,3,4,5,6,7,8,9]
-rate=3
-maximum=9
-downsample(prov, rate, maximum, minimum=0)
-
-
+    return res
 
 
 
 def trial_name_creator(something):
-    name=str(something).rsplit("_",1)[0]
-    name=f"{name}_{Params.unique_id}"
+    name = str(something).rsplit("_", 1)[0]
+    name = f"{name}_{Params.unique_id}"
     return name
