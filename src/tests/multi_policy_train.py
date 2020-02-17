@@ -12,7 +12,7 @@ from ray import tune
 from gym_ww.envs import TurnEnvWw
 
 from callbacks import on_episode_end
-from other.utils import trial_name_creator
+from other.custom_utils import trial_name_creator
 
 
 def mapping(agent_id):

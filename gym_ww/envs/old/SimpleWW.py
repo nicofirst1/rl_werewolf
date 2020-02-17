@@ -6,7 +6,7 @@ from gym import spaces
 from ray.rllib.env import EnvContext
 
 from gym_ww import logger
-from src.other.utils import str_id_map, most_frequent
+from src.other.custom_utils import str_id_map, most_frequent
 
 # names for roles
 ww = "werewolf"

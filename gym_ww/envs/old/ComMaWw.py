@@ -11,7 +11,7 @@ from ray.rllib.env import EnvContext
 from src.other.analysis import vote_difference, measure_influence
 from gym_ww import logger
 from ray.rllib.utils.error import UnsupportedSpaceException
-from src.other.utils import str_id_map, most_frequent, suicide_num, pprint
+from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint
 
 ####################
 # names for roles

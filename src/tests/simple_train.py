@@ -8,7 +8,7 @@ from ray.rllib.agents import ppo
 
 from callbacks import on_episode_end
 from gym_ww.envs import TurnEnvWw
-from other.utils import trial_name_creator
+from other.custom_utils import trial_name_creator
 from utils import Params
 
 ray.init(local_mode=True,logging_level=logging.WARN)

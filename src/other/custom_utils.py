@@ -2,7 +2,7 @@ import logging
 import random
 
 import numpy as np
-from utils import Params
+from utils.Params import Params
 
 
 def str_id_map(str_list):
@@ -95,6 +95,26 @@ def pprint(votes, roles, logger, level=logging.DEBUG, filter_ids=None):
 
     logger.log(level,to_print)
 
+
+def downsample(vector, rate, maximum, minimum=0):
+    """
+    Downsample each value of a vector so to be in
+    :param vector:
+    :param maximum:
+    :param minimum:
+    :return:
+    """
+
+    assert minimum<maximum, f"min ({minimum}) has to be less than max ({maximum})"
+
+    admissible_range=maximum-minimum
+    split_wise=admissible_range/rate
+
+
+prov=[0,1,2,3,4,5,6,7,8,9]
+rate=3
+maximum=9
+downsample(prov, rate, maximum, minimum=0)
 
 
 
