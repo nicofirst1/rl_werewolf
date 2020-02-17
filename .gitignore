@@ -10,3 +10,5 @@ ray_results/
 log_dir/
 
 dist/
+
+Resources/.DS_Store
