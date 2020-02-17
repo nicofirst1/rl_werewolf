@@ -42,7 +42,7 @@ A possible solution would be  to split the times in 4 part [night comm, night, d
 This will probably require different obs/action spaces for _communication_ and _standrd_ phase.
 Moreover there is a need to implement an easy communication language. [Here](https://openai.com/blog/learning-to-communicate/) openAI has a paper on developing communication in MARLS.
 
-### First attempt
+### First attempt 
 
 During communication phase each agent outputs a list of ids (of len _number of players_) describing their preferences on who to vote for.
 This list will be fed to every other agent and mapped. The main idea is to sum up the communication part with a list of preferences. 
@@ -81,7 +81,7 @@ This new obs should be updated during the day only for vil and everytime for wol
 
 For this to be possible the target list must contain exclusive number....fuck
 
-### Second attempt
+### Second attempt [Failed]
 Given the high complexity which arises from the previous form of communication, we decided to make things simpler. 
 Agents will now have a separate observation/action space for communication and for execution. For this a new branch has been created.
 
@@ -90,9 +90,24 @@ The now action space is a dict type containing the following values:
 - target: `gym.spaces.Discrete(self.num_players)` an int for the execution part.
 - signal: `gym.spaces.MultiDiscrete([self.signal_range]*self.signal_length)` parameter used for communication, 
 in its simplest form is a boolean integer, both the length of the signal as well as the range can be chosen arbitrarily 
-There is a problem using a dict as action space which is tracked ever [here](https://github.com/hill-a/stable-baselines/issues/133)
+There is a problem using a dict as action space which is tracked ever [here](https://github.com/hill-a/stable-baselines/issues/133).
+The problem is an active field of research, for now there is no way to output two different things using the same model.
+
 ##### Obs space
-The observation space stays similar as the previous one but modifies the targets which now becomes a Discrete and adds the signal one too
+The observation space stays similar as the previous one but modifies the targets which now becomes a Discrete and adds the signal one too 
+
+### Third attempt 
+Another way to deal with this problem is to downsample the model output. 
+
+#### Action space
+In this isnatance the action space will be similar to the previous one, but restricted in the lenght.
+The type will be a MultiDiscrete with the following paramas: 
+`gym.spaces.MultiDiscrete([self.signal_range]*(self.signal_length+1))`
+
+Technically speaking the output is the same but practically it will be splitted in two parts:
+1. the first element will serve as effective target output, specifying the agent to be killed
+2. the other part of the vector will be the signaling part which length can range from 0 to infinity. 
+
 
 # Training
 

@@ -9,7 +9,7 @@ from ray.rllib.env import EnvContext
 
 from gym_ww import logger, ww, vil
 from src.other.analysis import vote_difference, measure_influence
-from src.other.utils import str_id_map, most_frequent, suicide_num, pprint
+from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint, downsample
 
 ####################
 # names for roles
@@ -52,6 +52,11 @@ CONFIGS = dict(
 
     ),
     max_days=15,
+
+    # signal is used in the communication phase to signal other agents about intentions
+    # the length concerns the dimension of the signal while the components is the range of values it can fall into
+    signal_length=1,
+    signal_range=2,
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
 
@@ -110,6 +115,8 @@ class TurnEnvWw(MultiAgentEnv):
         self.roles = roles
         self.penalties = CONFIGS['penalties']
         self.max_days = CONFIGS['max_days']
+        self.signal_length = CONFIGS['signal_length']
+        self.signal_range = CONFIGS['signal_range']
 
         # used for logging game
         self.ep_step = 0
@@ -128,8 +135,6 @@ class TurnEnvWw(MultiAgentEnv):
         self.is_comm = True
         self.day_count = 0
         self.is_done = False
-        self.targets = None
-        self.previous_target = None
         self.custom_metrics = None
         self.role_map = None
         self.initialize()
@@ -183,14 +188,6 @@ class TurnEnvWw(MultiAgentEnv):
         # reset info dict
         self.initialize_info()
 
-        # tensor of shape [num_players,num_players,num_players]
-        # each row belongs to an agent, each column is the preference list for that agent
-        # since some agents are not suppose to see changes in the previous matrix,
-        # the third dimension is what each agent know/can see.
-        # So it would be [agent who know this,agent who voted,target ]
-        self.targets = np.zeros(shape=(self.num_players, self.num_players, self.num_players)) - 1
-        self.previous_target = np.zeros(shape=(self.num_players, self.num_players, self.num_players)) - 1
-
         # step used for logging matches
         if self.ep_step == self.ep_log:
             self.ep_step = 0
@@ -206,7 +203,8 @@ class TurnEnvWw(MultiAgentEnv):
         if self.ep_log == self.ep_step:
             logger.info("Reset called")
         self.initialize()
-        obs = self.observe(phase=0)
+        init_signal = np.zeros((self.num_players, self.signal_length)) - 1
+        obs = self.observe(phase=0, signal=init_signal, targets={k:-1 for k in range(self.num_players)})
         obs, _, _, _ = self.convert(obs, {}, {}, {}, 0)
         return obs
 
@@ -234,7 +232,7 @@ class TurnEnvWw(MultiAgentEnv):
             target = most_frequent(actions)
 
             # penalize for non divergent target
-            rewards = self.target_accord(target, rewards, self.get_ids("all", alive=True))
+            rewards = self.target_accord(target, rewards, actions)
 
             # if target is alive
             if self.status_map[target]:
@@ -322,26 +320,26 @@ class TurnEnvWw(MultiAgentEnv):
         # remove roles from ids
         actions_dict = {int(k.split("_")[1]): v for k, v in actions_dict.items()}
 
-        # convert actions to closest int
-        inter = np.vectorize(lambda x: int(round(x)))
-        actions_dict = {k: inter(v) for k, v in actions_dict.items()}
+        # split signals from targets
+        signals = {k: v[1:] for k, v in actions_dict.items()}
+        signals = {k: downsample(v,rate=self.signal_range,maximum=self.num_players) for k, v in signals.items()}
+        # make matrix out of signals of size [num_player,signal_length]
+        signals = np.stack(signals.values())
+        # remove signals from action dict
+        targets = {k: v[0] for k, v in actions_dict.items()}
 
         # apply unshuffle
-        unshuffler = np.vectorize(lambda x: self.unshuffle_map[x] if x in self.unshuffle_map.keys() else x)
-        actions_dict = {k: unshuffler(v) for k, v in actions_dict.items()}
+        targets = {k: self.unshuffle_map[v] for k, v in targets.items()}
 
         # rewards start from zero
         rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
 
-        # update target list
-        actions, rewards = self.update_targets(actions_dict, rewards)
-
         # execute night action
         if self.is_night:
-            rewards = self.night(actions, rewards)
+            rewards = self.night(targets, rewards)
         else:  # else go with day
             # apply action by day
-            rewards = self.day(actions, rewards)
+            rewards = self.day(targets, rewards)
 
         # prepare for phase shifting
         is_night, is_comm, phase = self.update_phase()
@@ -349,12 +347,12 @@ class TurnEnvWw(MultiAgentEnv):
         # print actions
         if self.ep_log == self.ep_step:
             filter_ids = self.get_ids(ww, alive=True) if phase in [0, 1] else self.get_ids('all', alive=True)
-            pprint(actions_dict, self.roles, logger=logger, filter_ids=filter_ids)
+            pprint(targets, self.roles, logger=logger, filter_ids=filter_ids)
 
         # get dones
         dones, rewards = self.check_done(rewards)
         # get observation
-        obs = self.observe(phase)
+        obs = self.observe(phase, signals,targets)
 
         # initialize infos with dict
         infos = {idx: {'role': self.roles[idx]} for idx in self.get_ids("all", alive=False)}
@@ -398,7 +396,7 @@ class TurnEnvWw(MultiAgentEnv):
             target = most_frequent(actions)
 
             # penalize for different ids
-            rewards = self.target_accord(target, rewards, wolves_ids)
+            rewards = self.target_accord(target, rewards,actions)
 
             # if target is alive
             if self.status_map[target]:
@@ -445,51 +443,6 @@ class TurnEnvWw(MultiAgentEnv):
     #######################################
     #       UPDATER
     #######################################
-    def update_targets(self, actions_dict, rewards):
-        """
-        Update target attribute based on phase
-        :param actions: dict, action for each agent
-        :return: None
-        """
-
-        # punish agents when they do not output all different targets
-        for id_, trgs in actions_dict.items():
-            # get the number of duplicates for reward
-            duplicates = len(trgs) - len(np.unique(trgs))
-            # get number of dead agents
-            dead = len(self.status_map) - sum(self.status_map)
-            # decrease penalty proportionally to dead agents
-            duplicates -= dead
-
-            assert duplicates >= 0, "Duplicate cannot be less than zero"
-
-            rewards[id_] += duplicates * self.penalties["trg_all_diff"]
-
-        self.previous_target = self.targets.copy()
-
-        # if its night then update targets just for the ww
-        if self.is_night:
-            ww_ids = self.get_ids(ww, alive=True)
-            for id_ in ww_ids:
-                for id2 in ww_ids:
-                    try:
-                        self.targets[id2][id_] = actions_dict[id_]
-                    except KeyError as e:
-                        raise e
-        # if day update for everyone
-        else:
-            for id_ in range(self.num_players):
-                for id2 in actions_dict.keys():
-                    self.targets[id_][id2] = actions_dict[id2]
-            # estimate difference
-            self.custom_metrics["trg_diff"] += vote_difference(self.targets[0], self.previous_target[0])
-            self.custom_metrics["trg_influence"] += measure_influence(self.targets[0], self.previous_target[0],
-                                                                      self.flex)
-
-        # apply flexibility on agreement
-        actions = {id_: trgs[:self.flex] for id_, trgs in actions_dict.items()}
-
-        return actions, rewards
 
     def update_phase(self):
         """
@@ -644,25 +597,21 @@ class TurnEnvWw(MultiAgentEnv):
 
         return ids
 
-    def target_accord(self, chosen_target, rewards, voter_ids):
+    def target_accord(self, chosen_target, rewards, targets):
         """
         Reward/penalize agent based on the target chose for execution/kill depending on the choices it made.
         This kind of reward shaping is done in order for agents to output targets which are more likely to be chosen
-        :param voter_ids: list[int], list of agents that voted
+        :param targets: dict[int->int], maps an agent to its target
         :param chosen_target: int, agent id_ chosen for execution/kill
         :param rewards: dict[int->int], map agent id_ to reward
         :return: updated rewards
         """
 
-        for id_ in voter_ids:
-            votes = self.targets[id_][id_]
-            # fixme: remove this when targets are exclusive
-            try:
-                target_idx = np.where(votes == chosen_target)[0][0]
-            except IndexError:
-                target_idx = self.num_players - 1
-            penalty = self.penalties["trg_accord"] * target_idx
-            rewards[id_] += penalty
+        for id_,vote in targets.items():
+            # if the agent hasn't voted for the executed agent then it takes a penalty
+            if vote!=chosen_target:
+                penalty = self.penalties["trg_accord"]
+                rewards[id_] += penalty
 
         return rewards
 
@@ -676,7 +625,9 @@ class TurnEnvWw(MultiAgentEnv):
         :return:
         """
 
-        space = gym.spaces.MultiDiscrete([self.num_players] * self.num_players)
+        # the action space is made of two parts: the first element is the actual target they want to be executed
+        # and the other ones are the signal space
+        space = gym.spaces.MultiDiscrete([self.num_players] * (self.signal_length+1))
 
         # should be a list of targets
         return space
@@ -695,15 +646,17 @@ class TurnEnvWw(MultiAgentEnv):
             status_map=spaces.MultiBinary(self.num_players),
             # number in range number of phases [com night, night, com day, day]
             phase=spaces.Discrete(4),
-            # targets are the preferences for each agent,
-            # it is basically a matrix in which rows are agents and cols are targets
-            targets=spaces.Box(low=-1, high=self.num_players, shape=(self.num_players, self.num_players)),
+            # targets is now a vector, having an element outputted from each agent
+            targets=gym.spaces.Discrete(self.num_players),
+            # signal is a matrix of dimension [num_player, signal_range]
+            signal=gym.spaces.Box(low=-1,high=self.signal_range,shape=(self.num_players,self.signal_length),dtype=np.int32)
+
         )
         obs = gym.spaces.Dict(obs)
 
         return obs
 
-    def observe(self, phase):
+    def observe(self, phase, signal, targets):
         """
         Return observation object
         :return:
@@ -716,14 +669,15 @@ class TurnEnvWw(MultiAgentEnv):
         shuffler = np.vectorize(lambda x: self.shuffle_map[x] if x in self.shuffle_map.keys() else x)
 
         for idx in self.get_ids("all", alive=False):
-            tg = self.targets[idx]
+            tg = list(targets.values())
             tg = shuffler(tg)
             # build obs dict
             obs = dict(
                 status_map=np.array(st),  # agent_id:alive?
                 day=self.day_count,  # day passed
                 phase=phase,
-                targets=tg
+                targets=tg,
+                signal=signal
             )
 
             observations[idx] = obs
