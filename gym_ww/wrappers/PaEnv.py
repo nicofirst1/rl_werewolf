@@ -97,7 +97,7 @@ class ParametricActionWrapper(MultiAgentEnv):
         # define wrapped obs space
         self.observation_space = gym.spaces.Dict({
 
-            "action_mask": gym.spaces.Box(low=0, high=1, shape=(self.wrapped.num_players,)),
+            "action_mask": gym.spaces.Box(low=0, high=1, shape=(sum(self.wrapped.action_space.nvec),)),
             "original_obs": obs,
         })
 
@@ -163,10 +163,11 @@ def _make_array_from_obs(obs, original_spaces):
     spaces = original_spaces.spaces
     offset = 0
     # for every observation
-    for k, v in obs.items():
+    for k in spaces.keys():
 
         # get gym space related to observation
         sp = spaces[k]
+        v=obs[k]
 
         # if MultiBinary, get shape and add values to array
         if isinstance(sp, gym.spaces.MultiBinary):
