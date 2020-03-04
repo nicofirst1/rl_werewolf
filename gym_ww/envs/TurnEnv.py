@@ -51,10 +51,11 @@ CONFIGS = dict(
         trg_all_diff=2,
 
     ),
-    max_days=15,
+    max_days=10,
 
     # signal is used in the communication phase to signal other agents about intentions
     # the length concerns the dimension of the signal while the components is the range of values it can fall into
+    # a range value of 2 is equal to binary variable
     signal_length=1,
     signal_range=2,
 
