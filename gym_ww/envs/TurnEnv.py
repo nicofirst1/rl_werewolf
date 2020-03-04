@@ -147,9 +147,6 @@ class TurnEnvWw(MultiAgentEnv):
     def initialize_info(self):
 
         self.custom_metrics = dict(
-            dead_man_execution=0,  # number of times players vote to kill dead agent
-            dead_man_kill=0,  # number of times wolves try to kill dead agent
-            cannibalism=0,  # number of times wolves eat each other
             suicide=0,  # number of times a player vote for itself
             win_wolf=0,  # number of times wolves win
             win_vil=0,  # number of times villagers win
@@ -258,8 +255,7 @@ class TurnEnvWw(MultiAgentEnv):
                 if self.ep_log == self.ep_step:
                     logger.debug(f"Players tried to execute dead agent {target}")
 
-                # increase the number of dead_man_execution in info
-                self.custom_metrics["dead_man_execution"] += 1
+
 
             # update day
             self.day_count += 1
@@ -417,15 +413,13 @@ class TurnEnvWw(MultiAgentEnv):
                 # penalize the wolves for eating a dead player
                 for id_ in wolves_ids:
                     rewards[id_] += self.penalties.get('execute_dead')
-                # log it
-                self.custom_metrics["dead_man_kill"] += 1
+
 
             if target in wolves_ids:
                 # penalize the agent for eating one of their kind
                 for id_ in wolves_ids:
                     rewards[id_] += self.penalties.get('kill_wolf')
-                # log it
-                self.custom_metrics["cannibalism"] += 1
+
 
             return rewards
 
@@ -488,7 +482,7 @@ class TurnEnvWw(MultiAgentEnv):
         :return: None
         """
 
-        day_dep = ["dead_man_execution", "dead_man_kill", "cannibalism", "suicide", "trg_diff", "trg_influence"]
+        day_dep = [  "suicide", "trg_diff", "trg_influence"]
 
         for k in day_dep:
             self.custom_metrics[k] /= (self.day_count + 1)
