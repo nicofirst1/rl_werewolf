@@ -98,16 +98,29 @@ The observation space stays similar as the previous one but modifies the targets
 
 ### Third attempt 
 Another way to deal with this problem is to downsample the model output. 
+No need to downsample if you use a parametric mask for the first signal range value of the signal.
 
 #### Action space
-In this isnatance the action space will be similar to the previous one, but restricted in the lenght.
-The type will be a MultiDiscrete with the following paramas: 
+In this instance the action space will be similar to the previous one, but restricted in the length.
+The type will be a MultiDiscrete with the following params: 
 `gym.spaces.MultiDiscrete([self.signal_range]*(self.signal_length+1))`
 
-Technically speaking the output is the same but practically it will be splitted in two parts:
+Technically speaking the output is the same but practically it will be split in two parts:
 1. the first element will serve as effective target output, specifying the agent to be killed
 2. the other part of the vector will be the signaling part which length can range from 0 to infinity. 
 
+### 4th attempt [not working]
+
+By using 
+``` 
+high=[self.num_players]+[self.signal_range-1]*self.signal_length
+low=[-1]+[0]*self.signal_length
+space = gym.spaces.Box(low=np.array(high), high=np.array(low), dtype=np.int32)
+```
+Instead there is no need to need to downsample the signal to the required range of values. As before the first value is
+ used for the execution while the second one onward are used for communication
+
+It doesn't work since a box output is considered a real number anyhow
 
 # Training
 
