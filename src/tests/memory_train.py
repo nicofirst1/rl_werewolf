@@ -3,7 +3,7 @@ import logging
 import ray
 from ray import tune
 import os
-from gym_ww.envs import ComMaWw
+from gym_ww.envs import TurnEnvWw
 
 ray.init(local_mode=False ,logging_level=logging.WARN,num_cpus=4)
 
@@ -16,7 +16,7 @@ def on_episode_end(info):
 
 
 configs = {
-    "env": ComMaWw,
+    "env": TurnEnvWw,
     "env_config": {'num_players': 10},  # config to pass to env class
 
     "callbacks": { "on_episode_end": on_episode_end,},
