@@ -29,6 +29,7 @@ class Params:
     EVAL_DIR = join_paths(LOG_DIR, "eval")
 
     episode_file = join_paths(EVAL_DIR, "episode.pkl")
+
     ##########################
     # Performance stuff
     ##########################
@@ -36,6 +37,11 @@ class Params:
 
     n_cpus = multiprocessing.cpu_count() if not debug else 1
     n_gpus = 1 if not debug else 0
+
+    ##########################
+    # Evaluation params
+    ##########################
+    checkpoint_freq=5
 
     ##########################
     # env params
