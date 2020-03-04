@@ -20,6 +20,8 @@ from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprin
 # global vars
 ####################
 # penalty fro breaking a rule
+from utils import Params
+
 rule_break_penalty = -50
 
 CONFIGS = dict(
@@ -121,7 +123,6 @@ class TurnEnvWw(MultiAgentEnv):
 
         # used for logging game
         self.ep_step = 0
-        self.ep_log = 100
 
         if flex == 0:
             self.flex = 1
@@ -187,7 +188,7 @@ class TurnEnvWw(MultiAgentEnv):
         self.initialize_info()
 
         # step used for logging matches
-        if self.ep_step == self.ep_log:
+        if self.ep_step == Params.log_step:
             self.ep_step = 0
         else:
             self.ep_step += 1
@@ -198,10 +199,10 @@ class TurnEnvWw(MultiAgentEnv):
             Returns:
                 observation (object): the initial observation.
             """
-        if self.ep_log == self.ep_step:
+        if Params.log_step == self.ep_step:
             logger.info("Reset called")
         self.initialize()
-        init_signal = np.zeros((self.num_players, self.signal_length)) - 1
+        init_signal={p:[-1]*self.signal_length for p in range(self.num_players)}
         obs = self.observe(phase=0, signal=init_signal, targets={k:-1 for k in range(self.num_players)})
         obs, _, _, _ = self.convert(obs, {}, {}, {}, 0)
         return obs
@@ -235,7 +236,7 @@ class TurnEnvWw(MultiAgentEnv):
             # if target is alive
             if self.status_map[target]:
                 # log
-                if self.ep_log == self.ep_step:
+                if Params.log_step == self.ep_step:
                     logger.debug(f"Player {target} ({self.role_map[target]}) has been executed")
 
                 # for every agent alive, [to be executed agent too]
@@ -252,7 +253,7 @@ class TurnEnvWw(MultiAgentEnv):
                 # penalize agents for executing a dead one
                 for id_ in self.get_ids("all", alive=True):
                     rewards[id_] += self.penalties.get('execute_dead')
-                if self.ep_log == self.ep_step:
+                if Params.log_step == self.ep_step:
                     logger.debug(f"Players tried to execute dead agent {target}")
 
 
@@ -264,11 +265,11 @@ class TurnEnvWw(MultiAgentEnv):
 
         # call the appropriate method depending on the phase
         if self.is_comm:
-            if self.ep_log == self.ep_step:
+            if Params.log_step == self.ep_step:
                 logger.debug("Day Time| Voting")
             return rewards
         else:
-            if self.ep_log == self.ep_step:
+            if Params.log_step == self.ep_step:
                 logger.debug("Day Time| Executing")
             rewards = {id_: val + self.penalties.get('day') for id_, val in rewards.items()}
             return execution(actions, rewards)
@@ -283,10 +284,10 @@ class TurnEnvWw(MultiAgentEnv):
         """
 
         if self.is_comm:
-            if self.ep_log == self.ep_step:
+            if Params.log_step == self.ep_step:
                 logger.debug("Night Time| Voting")
         else:
-            if self.ep_log == self.ep_step:
+            if Params.log_step == self.ep_step:
                 logger.debug("Night Time| Eating")
 
             # execute wolf actions
@@ -318,8 +319,7 @@ class TurnEnvWw(MultiAgentEnv):
 
         # split signals from targets
         signals = {k: v[1:] for k, v in actions_dict.items()}
-        # make matrix out of signals of size [num_player,signal_length]
-        signals = np.stack(list(signals.values()))
+
         # remove signals from action dict
         targets = {k: v[0] for k, v in actions_dict.items()}
 
@@ -340,9 +340,9 @@ class TurnEnvWw(MultiAgentEnv):
         is_night, is_comm, phase = self.update_phase()
 
         # print actions
-        if self.ep_log == self.ep_step:
+        if Params.log_step == self.ep_step:
             filter_ids = self.get_ids(ww, alive=True) if phase in [0, 1] else self.get_ids('all', alive=True)
-            pprint(targets,signals, self.roles, logger=logger, filter_ids=filter_ids)
+            pprint(targets,signals, self.roles, signal_length=self.signal_length,logger=logger, filter_ids=filter_ids)
 
         # get dones
         dones, rewards = self.check_done(rewards)
@@ -402,13 +402,13 @@ class TurnEnvWw(MultiAgentEnv):
                 # reward wolves
                 for id_ in wolves_ids:
                     rewards[id_] += self.penalties.get("kill")
-                if self.ep_log == self.ep_step:
+                if Params.log_step == self.ep_step:
                     logger.debug(f"Wolves killed {target} ({self.role_map[target]})")
 
 
 
             else:
-                if self.ep_log == self.ep_step:
+                if Params.log_step == self.ep_step:
                     logger.debug(f"Wolves tried to kill dead agent {target}")
                 # penalize the wolves for eating a dead player
                 for id_ in wolves_ids:
@@ -521,6 +521,7 @@ class TurnEnvWw(MultiAgentEnv):
         # convert to float
         rewards={k:float(v) for k,v in rewards.items()}
 
+
         return obs, rewards, dones, info
 
     def check_done(self, rewards):
@@ -554,7 +555,7 @@ class TurnEnvWw(MultiAgentEnv):
                 rewards[idx] += self.penalties.get('victory')
             for idx in self.get_ids(vil, alive=False):
                 rewards[idx] += self.penalties.get('lost')
-            if self.ep_log == self.ep_step:
+            if Params.log_step == self.ep_step:
                 logger.info(f"\n{'#' * 10}\nWolves won\n{'#' * 10}\n")
             self.custom_metrics['win_wolf'] += 1
 
@@ -564,7 +565,7 @@ class TurnEnvWw(MultiAgentEnv):
                 rewards[idx] += self.penalties.get('victory')
             for idx in self.get_ids(ww, alive=False):
                 rewards[idx] += self.penalties.get('lost')
-            if self.ep_log == self.ep_step:
+            if Params.log_step == self.ep_step:
                 logger.info(f"\n{'#' * 10}\nVillagers won\n{'#' * 10}\n")
             self.custom_metrics['win_vil'] += 1
 
@@ -661,7 +662,38 @@ class TurnEnvWw(MultiAgentEnv):
         :return:
         """
 
+
+        def add_missing(signal,targets):
+            """
+            Add missing values (for dead agents) to targets and signal
+            :param signal: ndarray, signal of size [num_player, signal_lenght]
+            :param targets: dict[int->int], mapping agent ids to targets
+            :return: tuple
+                1: signal
+                2: targets
+            """
+
+            # if the list of outputs is full then do nothing
+            if len(targets)==self.num_players:
+                return signal,targets
+
+            # get indices to add
+            to_add=set(range(self.num_players))-set(targets.keys())
+
+            # add a list of -1 of length signal_length to the signal
+            sg = [-1] * self.signal_length
+
+            # update dict with -1
+            targets.update({elem:-1 for elem in to_add})
+            signal.update({elem:sg for elem in to_add})
+
+            return signal,targets
+
         observations = {}
+
+        signal,targets=add_missing(signal,targets)
+        # make matrix out of signals of size [num_player,signal_length]
+        signal = np.stack(list(signal.values()))
         # apply shuffle to status map
         st = [self.status_map[self.shuffle_map[idx]] for idx in range(self.num_players)]
         # generate shuffle function to be applied to numpy matrix

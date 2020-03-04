@@ -42,6 +42,7 @@ class Params:
     # Evaluation params
     ##########################
     checkpoint_freq=5
+    log_step=50
 
     ##########################
     # env params
