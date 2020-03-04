@@ -55,11 +55,8 @@ class ParametricActionsModel(TFModelV2):
         original_obs = obs['original_obs']
 
         # copy it on the second dimension to match action embed shape
-        # so now it will be [batch size, num players * num players]
-        action_mask = tf.tile(
-            action_mask,
-            (1, tf.shape(action_mask)[1]),
-        )
+        # so now it will be [batch size, num players ]
+      
         # Compute the predicted action embedding
         # size [batch size, num players * num players]
         action_embed, _ = self.action_embed_model({
