@@ -295,7 +295,6 @@ class TurnEnvWw(MultiAgentEnv):
             # execute wolf actions
             rewards = self.wolf_action(actions, rewards)
 
-        # todo: implement other roles actions
 
         return rewards
 
@@ -322,9 +321,8 @@ class TurnEnvWw(MultiAgentEnv):
 
         # split signals from targets
         signals = {k: v[1:] for k, v in actions_dict.items()}
-        signals = {k: downsample(v,rate=self.signal_range,maximum=self.num_players) for k, v in signals.items()}
         # make matrix out of signals of size [num_player,signal_length]
-        signals = np.stack(signals.values())
+        signals = np.stack(list(signals.values()))
         # remove signals from action dict
         targets = {k: v[0] for k, v in actions_dict.items()}
 
@@ -347,7 +345,7 @@ class TurnEnvWw(MultiAgentEnv):
         # print actions
         if self.ep_log == self.ep_step:
             filter_ids = self.get_ids(ww, alive=True) if phase in [0, 1] else self.get_ids('all', alive=True)
-            pprint(targets, self.roles, logger=logger, filter_ids=filter_ids)
+            pprint(targets,signals, self.roles, logger=logger, filter_ids=filter_ids)
 
         # get dones
         dones, rewards = self.check_done(rewards)
@@ -525,6 +523,9 @@ class TurnEnvWw(MultiAgentEnv):
         dones = {f"{self.roles[k]}_{k}": v for k, v in dones.items()}
         info = {f"{self.roles[k]}_{k}": v for k, v in info.items()}
 
+        # convert to float
+        rewards={k:float(v) for k,v in rewards.items()}
+
         return obs, rewards, dones, info
 
     def check_done(self, rewards):
@@ -628,6 +629,9 @@ class TurnEnvWw(MultiAgentEnv):
         # the action space is made of two parts: the first element is the actual target they want to be executed
         # and the other ones are the signal space
         space = gym.spaces.MultiDiscrete([self.num_players] * (self.signal_length+1))
+        # high=[self.num_players]+[self.signal_range-1]*self.signal_length
+        # low=[-1]+[0]*self.signal_length
+        # space = gym.spaces.Box(low=np.array(low), high=np.array(high), dtype=np.int32)
 
         # should be a list of targets
         return space
@@ -647,9 +651,9 @@ class TurnEnvWw(MultiAgentEnv):
             # number in range number of phases [com night, night, com day, day]
             phase=spaces.Discrete(4),
             # targets is now a vector, having an element outputted from each agent
-            targets=gym.spaces.Discrete(self.num_players),
+            targets=gym.spaces.Box(low=-1,high=self.num_players,shape=(self.num_players,),dtype=np.int32),
             # signal is a matrix of dimension [num_player, signal_range]
-            signal=gym.spaces.Box(low=-1,high=self.signal_range,shape=(self.num_players,self.signal_length),dtype=np.int32)
+            signal=gym.spaces.Box(low=-1,high=self.signal_range-1,shape=(self.num_players,self.signal_length),dtype=np.int32)
 
         )
         obs = gym.spaces.Dict(obs)
@@ -667,14 +671,15 @@ class TurnEnvWw(MultiAgentEnv):
         st = [self.status_map[self.shuffle_map[idx]] for idx in range(self.num_players)]
         # generate shuffle function to be applied to numpy matrix
         shuffler = np.vectorize(lambda x: self.shuffle_map[x] if x in self.shuffle_map.keys() else x)
+        tg = list(targets.values())
+        tg = shuffler(tg)
 
         for idx in self.get_ids("all", alive=False):
-            tg = list(targets.values())
-            tg = shuffler(tg)
+
             # build obs dict
             obs = dict(
-                status_map=np.array(st),  # agent_id:alive?
                 day=self.day_count,  # day passed
+                status_map=np.array(st),  # agent_id:alive?
                 phase=phase,
                 targets=tg,
                 signal=signal
