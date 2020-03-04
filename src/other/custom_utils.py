@@ -65,7 +65,7 @@ def suicide_num(votes):
     return res
 
 
-def pprint(votes, roles, logger, level=logging.DEBUG, filter_ids=None):
+def pprint(votes,signals, roles, logger, level=logging.DEBUG, filter_ids=None):
     """
     Print in a meaningful way the agent choices
     :param filter_ids: list[str], optional, list of ids to consider
@@ -83,12 +83,12 @@ def pprint(votes, roles, logger, level=logging.DEBUG, filter_ids=None):
     separator = "| {:<6} |" * len(votes)
 
     to_print = "\n|{:<15} |" + separator
-    to_format = ["Role"] + [f"Vote_{id}" for id in votes.keys()]
+    to_format = ["Role","Vote"] + [f"Signal_{id}" for id in range(signals.shape[1])]
     to_print = to_print.format(*to_format) + "\n"
     to_print += "-" * len(to_print) + "\n"
 
     for idx in votes.keys():
-        targets = [f"Ag_{id}" for id in votes[idx]]
+        targets = [f"Ag_{votes[idx]}"]+[f"{sign}" for sign in signals[idx]]
         name = f"{roles[idx]}_{idx}"
         fr = "|{:<15} |" + separator
         to_print += fr.format(name, *targets) + "\n"
