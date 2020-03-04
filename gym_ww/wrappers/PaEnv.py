@@ -43,18 +43,41 @@ class ParametricActionWrapper(MultiAgentEnv):
         :return: np.array
         """
 
-        # filter out dead agents
-        mask=self.wrapped.status_map.copy()
+        def mask_targets():
+            """
+            Generate mask for targets
+            :return:
+            """
+            # filter out dead agents
+            mask=self.wrapped.status_map.copy()
 
-        # if is night
-        if self.wrapped.is_night:
-            # filter out wolves
-            ww_ids=self.wrapped.get_ids(ww,alive=True)
-            for idx in ww_ids:
-                mask[idx]=0
+            # if is night
+            if self.wrapped.is_night:
+                # filter out wolves
+                ww_ids=self.wrapped.get_ids(ww,alive=True)
+                for idx in ww_ids:
+                    mask[idx]=0
 
-        # apply shuffle to mask
-        mask=[mask[self.wrapped.unshuffle_map[idx]] for idx in range(len(mask))]
+            # apply shuffle to mask
+            mask=[mask[self.wrapped.unshuffle_map[idx]] for idx in range(len(mask))]
+
+            return mask
+
+        def mask_signal():
+            """
+            Generate mask for signal
+            :return: list[bool]: 1 for allowable returns, 0 otehrwise
+            """
+            mask=[0 for _ in range(self.wrapped.num_players)]
+            range_=self.wrapped.signal_range
+
+
+            mask[:range_] = [1] * range_
+            return mask
+
+
+        mask=mask_targets()
+        mask+=mask_signal()
         return np.asarray(mask)
 
 
