@@ -41,7 +41,7 @@ class Params:
     ##########################
     # Evaluation params
     ##########################
-    checkpoint_freq=5
+    checkpoint_freq=10
     log_step=50
 
     ##########################
