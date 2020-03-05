@@ -1,28 +1,24 @@
 import logging
-import random
 
 import ray
 from ray import tune
-from ray.rllib.agents import ppo
-
 
 from callbacks import on_episode_end
 from gym_ww.envs import TurnEnvWw
 from other.custom_utils import trial_name_creator
 from utils import Params
 
-ray.init(local_mode=True,logging_level=logging.WARN)
+ray.init(local_mode=True, logging_level=logging.WARN)
 
+configs = {
+    "env": TurnEnvWw,
+    "env_config": {'num_players': 5},  # config to pass to env class
 
-configs={
-        "env": TurnEnvWw,
-        "env_config": {'num_players': 5},  # config to pass to env class
+    "callbacks": {
 
-        "callbacks": {
-
-            "on_episode_end": on_episode_end,
-        },
-    }
+        "on_episode_end": on_episode_end,
+    },
+}
 
 analysis = tune.run(
     "PG",

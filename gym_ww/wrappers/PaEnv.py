@@ -49,17 +49,17 @@ class ParametricActionWrapper(MultiAgentEnv):
             :return:
             """
             # filter out dead agents
-            mask=self.wrapped.status_map.copy()
+            mask = self.wrapped.status_map.copy()
 
             # if is night
             if self.wrapped.is_night:
                 # filter out wolves
-                ww_ids=self.wrapped.get_ids(ww,alive=True)
+                ww_ids = self.wrapped.get_ids(ww, alive=True)
                 for idx in ww_ids:
-                    mask[idx]=0
+                    mask[idx] = 0
 
             # apply shuffle to mask
-            mask=[mask[self.wrapped.unshuffle_map[idx]] for idx in range(len(mask))]
+            mask = [mask[self.wrapped.unshuffle_map[idx]] for idx in range(len(mask))]
 
             return mask
 
@@ -68,18 +68,15 @@ class ParametricActionWrapper(MultiAgentEnv):
             Generate mask for signal
             :return: list[bool]: 1 for allowable returns, 0 otehrwise
             """
-            mask=[0 for _ in range(self.wrapped.num_players)]
-            range_=self.wrapped.signal_range
-
+            mask = [0 for _ in range(self.wrapped.num_players)]
+            range_ = self.wrapped.signal_range
 
             mask[:range_] = [1] * range_
             return mask
 
-
-        mask=mask_targets()
-        mask+=mask_signal()
+        mask = mask_targets()
+        mask += mask_signal()
         return np.asarray(mask)
-
 
     def wrap_obs(self, observations):
         """
@@ -94,7 +91,6 @@ class ParametricActionWrapper(MultiAgentEnv):
 
         # for every agent
         for agent_id, obs in observations.items():
-
             # make array out of observation (flatten)
             obs = _make_array_from_obs(obs, self.wrapped.observation_space)
 
@@ -190,7 +186,7 @@ def _make_array_from_obs(obs, original_spaces):
 
         # get gym space related to observation
         sp = spaces[k]
-        v=obs[k]
+        v = obs[k]
 
         # if MultiBinary, get shape and add values to array
         if isinstance(sp, gym.spaces.MultiBinary):

@@ -1,11 +1,8 @@
-import gym
 import tqdm as tqdm
 
 from gym_ww.envs import TurnEnvWw
 
-
 if __name__ == '__main__':
-
 
     env_configs = {'num_players': 10, "use_act_box": True}
 
@@ -16,4 +13,3 @@ if __name__ == '__main__':
         obs, rewards, dones, info = env.step(actions)  # take a random action
         if dones["__all__"]:
             env.reset()
-

@@ -1,11 +1,11 @@
-from gym.envs.registration import register
 import logging
+
+from gym.envs.registration import register
+
 from utils import Params
 
 ww = "werewolf"
 vil = "villager"
-
-
 
 # Register envs
 register(
@@ -18,7 +18,6 @@ register(
     entry_point='gym_ww.envs:MaWw',
 )
 
-
 register(
     id='ComMaWw-v0',
     entry_point='gym_ww.envs:ComMaWw',
@@ -28,12 +27,6 @@ register(
     id='PolicyWw-v0',
     entry_point='gym_ww.envs:PolicyWw',
 )
-
-
-
-
-
-
 
 # Initialize envs loggers
 
@@ -51,7 +44,6 @@ c_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(mess
 c_handler = logging.StreamHandler()
 c_handler.setFormatter(c_formatter)
 c_handler.setLevel(logging.WARN)
-
 
 # adding handlers to main logger
 logger.addHandler(c_handler)

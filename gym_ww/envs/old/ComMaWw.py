@@ -7,10 +7,10 @@ import numpy as np
 from gym import spaces
 from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
-
-from src.other.analysis import vote_difference, measure_influence
-from gym_ww import logger
 from ray.rllib.utils.error import UnsupportedSpaceException
+
+from gym_ww import logger
+from src.other.analysis import vote_difference, measure_influence
 from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint
 
 ####################
@@ -23,7 +23,7 @@ vil = "villager"
 # global vars
 ####################
 # penalty fro breaking a rule
-rule_break_penalty=-50
+rule_break_penalty = -50
 
 CONFIGS = dict(
 
@@ -71,7 +71,7 @@ class ComMaWw(MultiAgentEnv):
     ComMaWw:
 
     """
-    metadata = {'players': ['human'],'use_act_box':False}
+    metadata = {'players': ['human'], 'use_act_box': False}
 
     def __init__(self, num_players, roles=None, flex=0):
         """
@@ -105,7 +105,7 @@ class ComMaWw(MultiAgentEnv):
         self.num_players = num_players
         self.roles = roles
         self.penalties = CONFIGS['penalties']
-        self.max_days=CONFIGS['max_days']
+        self.max_days = CONFIGS['max_days']
         if flex == 0:
             self.flex = 1
         else:
@@ -139,7 +139,7 @@ class ComMaWw(MultiAgentEnv):
             win_vil=0,  # number of times villagers win
             tot_days=0,  # total number of days before a match is over
             trg_diff=0,  # percentage of different votes  between targets before and after the communication phase
-            trg_influence=0, # measure of how much each agent is influenced by the others
+            trg_influence=0,  # measure of how much each agent is influenced by the others
         )
 
     def initialize(self):
@@ -297,7 +297,7 @@ class ComMaWw(MultiAgentEnv):
         rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
 
         # update target list
-        actions,rewards = self.update_targets(actions_dict, rewards)
+        actions, rewards = self.update_targets(actions_dict, rewards)
 
         # execute night action
         if self.is_night:
@@ -409,11 +409,10 @@ class ComMaWw(MultiAgentEnv):
         """
 
         # punish agents when they do not output all different targets
-        for id_,trgs in actions_dict.items():
+        for id_, trgs in actions_dict.items():
             # if there are some same ids in the trgs vector
-            if not len(np.unique(trgs))== len(trgs):
-                rewards[id_]+=self.penalties["trg_all_diff"]
-
+            if not len(np.unique(trgs)) == len(trgs):
+                rewards[id_] += self.penalties["trg_all_diff"]
 
         self.previous_target = self.targets.copy()
 
@@ -433,12 +432,13 @@ class ComMaWw(MultiAgentEnv):
                     self.targets[id_][id2] = actions_dict[id2]
             # estimate difference
             self.custom_metrics["trg_diff"] += vote_difference(self.targets[0], self.previous_target[0])
-            self.custom_metrics["trg_influence"]+=measure_influence(self.targets[0], self.previous_target[0],self.flex)
+            self.custom_metrics["trg_influence"] += measure_influence(self.targets[0], self.previous_target[0],
+                                                                      self.flex)
 
         # apply flexibility on agreement
         actions = {id_: trgs[:self.flex] for id_, trgs in actions_dict.items()}
 
-        return actions,rewards
+        return actions, rewards
 
     def update_phase(self):
         """
@@ -485,10 +485,10 @@ class ComMaWw(MultiAgentEnv):
         :return: None
         """
 
-        day_dep = ["dead_man_execution", "dead_man_kill", "cannibalism", "suicide", "trg_diff","trg_influence"]
+        day_dep = ["dead_man_execution", "dead_man_kill", "cannibalism", "suicide", "trg_diff", "trg_influence"]
 
         for k in day_dep:
-            self.custom_metrics[k] /= (self.day_count+1)
+            self.custom_metrics[k] /= (self.day_count + 1)
 
     def convert(self, obs, rewards, dones, info):
         """
@@ -554,8 +554,8 @@ class ComMaWw(MultiAgentEnv):
             logger.info(f"\n{'#' * 10}\nVillagers won\n{'#' * 10}\n")
             self.custom_metrics['win_vil'] += 1
 
-        if self.day_count>=self.max_days-1:
-            self.is_done=True
+        if self.day_count >= self.max_days - 1:
+            self.is_done = True
 
         return dones, rewards
 
@@ -666,10 +666,10 @@ class ComMaWw(MultiAgentEnv):
             # it is basically a matrix in which rows are agents and cols are targets
             targets=spaces.Box(low=-1, high=self.num_players, shape=(self.num_players, self.num_players)),
         )
-        obs= gym.spaces.Dict(obs)
+        obs = gym.spaces.Dict(obs)
 
         if self.metadata['use_act_box']:
-            obs=_make_box_from_dict(obs)
+            obs = _make_box_from_dict(obs)
 
         return obs
 

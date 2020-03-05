@@ -8,19 +8,16 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
 from gym_ww import logger, ww, vil
-from src.other.analysis import vote_difference, measure_influence
-from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint, downsample
-
-####################
-# names for roles
-####################
-
-
+from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint
 ####################
 # global vars
 ####################
 # penalty fro breaking a rule
 from utils import Params
+
+####################
+# names for roles
+####################
 
 rule_break_penalty = -50
 
@@ -202,8 +199,8 @@ class TurnEnvWw(MultiAgentEnv):
         if Params.log_step == self.ep_step:
             logger.info("Reset called")
         self.initialize()
-        init_signal={p:[-1]*self.signal_length for p in range(self.num_players)}
-        obs = self.observe(phase=0, signal=init_signal, targets={k:-1 for k in range(self.num_players)})
+        init_signal = {p: [-1] * self.signal_length for p in range(self.num_players)}
+        obs = self.observe(phase=0, signal=init_signal, targets={k: -1 for k in range(self.num_players)})
         obs, _, _, _ = self.convert(obs, {}, {}, {}, 0)
         return obs
 
@@ -256,8 +253,6 @@ class TurnEnvWw(MultiAgentEnv):
                 if Params.log_step == self.ep_step:
                     logger.debug(f"Players tried to execute dead agent {target}")
 
-
-
             # update day
             self.day_count += 1
 
@@ -292,7 +287,6 @@ class TurnEnvWw(MultiAgentEnv):
 
             # execute wolf actions
             rewards = self.wolf_action(actions, rewards)
-
 
         return rewards
 
@@ -342,12 +336,12 @@ class TurnEnvWw(MultiAgentEnv):
         # print actions
         if Params.log_step == self.ep_step:
             filter_ids = self.get_ids(ww, alive=True) if phase in [0, 1] else self.get_ids('all', alive=True)
-            pprint(targets,signals, self.roles, signal_length=self.signal_length,logger=logger, filter_ids=filter_ids)
+            pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger, filter_ids=filter_ids)
 
         # get dones
         dones, rewards = self.check_done(rewards)
         # get observation
-        obs = self.observe(phase, signals,targets)
+        obs = self.observe(phase, signals, targets)
 
         # initialize infos with dict
         infos = {idx: {'role': self.roles[idx]} for idx in self.get_ids("all", alive=False)}
@@ -391,7 +385,7 @@ class TurnEnvWw(MultiAgentEnv):
             target = most_frequent(actions)
 
             # penalize for different ids
-            rewards = self.target_accord(target, rewards,actions)
+            rewards = self.target_accord(target, rewards, actions)
 
             # if target is alive
             if self.status_map[target]:
@@ -414,12 +408,10 @@ class TurnEnvWw(MultiAgentEnv):
                 for id_ in wolves_ids:
                     rewards[id_] += self.penalties.get('execute_dead')
 
-
             if target in wolves_ids:
                 # penalize the agent for eating one of their kind
                 for id_ in wolves_ids:
                     rewards[id_] += self.penalties.get('kill_wolf')
-
 
             return rewards
 
@@ -482,12 +474,12 @@ class TurnEnvWw(MultiAgentEnv):
         :return: None
         """
 
-        day_dep = [  "suicide", "trg_diff", "trg_influence"]
+        day_dep = ["suicide", "trg_diff", "trg_influence"]
 
         for k in day_dep:
             self.custom_metrics[k] /= (self.day_count + 1)
 
-        self.custom_metrics["suicide"]/=self.num_players
+        self.custom_metrics["suicide"] /= self.num_players
 
     def convert(self, obs, rewards, dones, info, phase):
         """
@@ -521,8 +513,7 @@ class TurnEnvWw(MultiAgentEnv):
         info = {f"{self.roles[k]}_{k}": v for k, v in info.items()}
 
         # convert to float
-        rewards={k:float(v) for k,v in rewards.items()}
-
+        rewards = {k: float(v) for k, v in rewards.items()}
 
         return obs, rewards, dones, info
 
@@ -606,9 +597,9 @@ class TurnEnvWw(MultiAgentEnv):
         :return: updated rewards
         """
 
-        for id_,vote in targets.items():
+        for id_, vote in targets.items():
             # if the agent hasn't voted for the executed agent then it takes a penalty
-            if vote!=chosen_target:
+            if vote != chosen_target:
                 penalty = self.penalties["trg_accord"]
                 rewards[id_] += penalty
 
@@ -626,7 +617,7 @@ class TurnEnvWw(MultiAgentEnv):
 
         # the action space is made of two parts: the first element is the actual target they want to be executed
         # and the other ones are the signal space
-        space = gym.spaces.MultiDiscrete([self.num_players] * (self.signal_length+1))
+        space = gym.spaces.MultiDiscrete([self.num_players] * (self.signal_length + 1))
         # high=[self.num_players]+[self.signal_range-1]*self.signal_length
         # low=[-1]+[0]*self.signal_length
         # space = gym.spaces.Box(low=np.array(low), high=np.array(high), dtype=np.int32)
@@ -649,9 +640,10 @@ class TurnEnvWw(MultiAgentEnv):
             # number in range number of phases [com night, night, com day, day]
             phase=spaces.Discrete(4),
             # targets is now a vector, having an element outputted from each agent
-            targets=gym.spaces.Box(low=-1,high=self.num_players,shape=(self.num_players,),dtype=np.int32),
+            targets=gym.spaces.Box(low=-1, high=self.num_players, shape=(self.num_players,), dtype=np.int32),
             # signal is a matrix of dimension [num_player, signal_range]
-            signal=gym.spaces.Box(low=-1,high=self.signal_range-1,shape=(self.num_players,self.signal_length),dtype=np.int32)
+            signal=gym.spaces.Box(low=-1, high=self.signal_range - 1, shape=(self.num_players, self.signal_length),
+                                  dtype=np.int32)
 
         )
         obs = gym.spaces.Dict(obs)
@@ -664,8 +656,7 @@ class TurnEnvWw(MultiAgentEnv):
         :return:
         """
 
-
-        def add_missing(signal,targets):
+        def add_missing(signal, targets):
             """
             Add missing values (for dead agents) to targets and signal
             :param signal: ndarray, signal of size [num_player, signal_lenght]
@@ -676,24 +667,24 @@ class TurnEnvWw(MultiAgentEnv):
             """
 
             # if the list of outputs is full then do nothing
-            if len(targets)==self.num_players:
-                return signal,targets
+            if len(targets) == self.num_players:
+                return signal, targets
 
             # get indices to add
-            to_add=set(range(self.num_players))-set(targets.keys())
+            to_add = set(range(self.num_players)) - set(targets.keys())
 
             # add a list of -1 of length signal_length to the signal
             sg = [-1] * self.signal_length
 
             # update dict with -1
-            targets.update({elem:-1 for elem in to_add})
-            signal.update({elem:sg for elem in to_add})
+            targets.update({elem: -1 for elem in to_add})
+            signal.update({elem: sg for elem in to_add})
 
-            return signal,targets
+            return signal, targets
 
         observations = {}
 
-        signal,targets=add_missing(signal,targets)
+        signal, targets = add_missing(signal, targets)
         # make matrix out of signals of size [num_player,signal_length]
         signal = np.stack(list(signal.values()))
         # apply shuffle to status map
@@ -704,7 +695,6 @@ class TurnEnvWw(MultiAgentEnv):
         tg = shuffler(tg)
 
         for idx in self.get_ids("all", alive=False):
-
             # build obs dict
             obs = dict(
                 day=self.day_count,  # day passed

@@ -1,7 +1,6 @@
 from utils import Params
+
 Params()
-
-
 
 import logging
 
@@ -25,46 +24,39 @@ def mapping(agent_id):
 
 
 if __name__ == '__main__':
+    ray.init(local_mode=Params.debug, logging_level=logging.WARN, num_cpus=Params.n_cpus)
 
+    env_configs = {'num_players': Params.num_player, "use_act_box": True}
 
-    ray.init(local_mode=Params.debug ,logging_level=logging.WARN,num_cpus=Params.n_cpus)
+    env = TurnEnvWw(env_configs)
+    space = (None, env.observation_space, env.action_space, {})
 
-
-    env_configs={'num_players': Params.num_player,"use_act_box":True}
-
-    env=TurnEnvWw(env_configs)
-    space=(None,env.observation_space,env.action_space,{})
-
-    policies=dict(
+    policies = dict(
         wolf_p=space,
         vill_p=space,
     )
-
-
 
     configs = {
         "env": TurnEnvWw,
         "env_config": env_configs,
         "eager": False,
-        "eager_tracing":False,
+        "eager_tracing": False,
         "num_workers": 0,
-        "batch_mode":"complete_episodes",
+        "batch_mode": "complete_episodes",
 
-        "callbacks": { "on_episode_end": on_episode_end,},
+        "callbacks": {"on_episode_end": on_episode_end, },
         "model": {
             "use_lstm": True,
-            #"max_seq_len": 10,
+            # "max_seq_len": 10,
             "custom_preprocessor": "wwPreproc",
         },
         "multiagent": {
             "policies": policies,
-            "policy_mapping_fn":mapping,
-
+            "policy_mapping_fn": mapping,
 
         },
 
     }
-
 
     analysis = tune.run(
         "DDPG",

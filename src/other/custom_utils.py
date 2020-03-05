@@ -65,7 +65,7 @@ def suicide_num(votes):
     return res
 
 
-def pprint(votes,signals, roles, logger, signal_length, level=logging.DEBUG, filter_ids=None):
+def pprint(votes, signals, roles, logger, signal_length, level=logging.DEBUG, filter_ids=None):
     """
     Print in a meaningful way the agent choices
     :param filter_ids: list[str], optional, list of ids to consider
@@ -80,15 +80,15 @@ def pprint(votes,signals, roles, logger, signal_length, level=logging.DEBUG, fil
     if filter_ids is not None:
         votes = {k: v for k, v in votes.items() if k in filter_ids}
 
-    separator = "| {:<6} |" * (1+signal_length)
+    separator = "| {:<6} |" * (1 + signal_length)
 
     to_print = "\n|{:<15} |" + separator
-    to_format = ["Role","Vote"] + [f"Signal_{id}" for id in range(signal_length)]
+    to_format = ["Role", "Vote"] + [f"Signal_{id}" for id in range(signal_length)]
     to_print = to_print.format(*to_format) + "\n"
     to_print += "-" * len(to_print) + "\n"
 
     for idx in votes.keys():
-        targets = [f"Ag_{votes[idx]}"]+[f"{sign}" for sign in signals[idx]]
+        targets = [f"Ag_{votes[idx]}"] + [f"{sign}" for sign in signals[idx]]
         name = f"{roles[idx]}_{idx}"
         fr = "|{:<15} |" + separator
         to_print += fr.format(name, *targets) + "\n"
@@ -137,7 +137,6 @@ def downsample(vector, rate, maximum, minimum=0):
         res[indx] = i
 
     return res
-
 
 
 def trial_name_creator(something):

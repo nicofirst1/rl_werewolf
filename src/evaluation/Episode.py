@@ -35,13 +35,12 @@ class Episode:
             day={},
         )
 
-
         for v in self.targets.values():
-            v['exec']=dict(
+            v['exec'] = dict(
                 original=[],
                 stacked=[]
             )
-            v['comm']=dict(
+            v['comm'] = dict(
                 original=[],
                 stacked=[]
             )
@@ -70,7 +69,6 @@ class Episode:
             self.alive.append(alive)
             self.days += 1
 
-
     def complete_episode_info(self):
         """
         Add infos when episode is done and convert target list to tensor [num player, num player, days]
@@ -81,8 +79,6 @@ class Episode:
         self.targets['day']['exec']['original'] = np.stack(self.targets['day']['exec']['original'], axis=2)
         self.targets['night']['exec']['original'] = np.stack(self.targets['night']['exec']['original'], axis=2)
         self.targets['night']['comm']['original'] = np.stack(self.targets['night']['comm']['original'], axis=2)
-
-
 
     def stack_agent_targets(self):
         """
@@ -101,12 +97,7 @@ class Episode:
 
         for v1 in self.targets.values():
             for v2 in v1.values():
-                v2['stacked']=stack_single(v2['original'])
-
-
-
-
-
+                v2['stacked'] = stack_single(v2['original'])
 
     def agent_diff(self, agent_id, stm):
         """

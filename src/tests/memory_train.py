@@ -1,11 +1,12 @@
 import logging
+import os
 
 import ray
 from ray import tune
-import os
+
 from gym_ww.envs import TurnEnvWw
 
-ray.init(local_mode=False ,logging_level=logging.WARN,num_cpus=4)
+ray.init(local_mode=False, logging_level=logging.WARN, num_cpus=4)
 
 
 def on_episode_end(info):
@@ -19,17 +20,15 @@ configs = {
     "env": TurnEnvWw,
     "env_config": {'num_players': 10},  # config to pass to env class
 
-    "callbacks": { "on_episode_end": on_episode_end,},
+    "callbacks": {"on_episode_end": on_episode_end, },
     "model": {
         "use_lstm": True,
         "max_seq_len": 10,
     },
 }
 
-
-pwd=os.getcwd()
-pwd=pwd.rsplit("/",1)[0]
-
+pwd = os.getcwd()
+pwd = pwd.rsplit("/", 1)[0]
 
 analysis = tune.run(
     "PG",
