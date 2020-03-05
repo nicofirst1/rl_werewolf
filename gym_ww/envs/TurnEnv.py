@@ -149,8 +149,6 @@ class TurnEnvWw(MultiAgentEnv):
             win_wolf=0,  # number of times wolves win
             win_vil=0,  # number of times villagers win
             tot_days=0,  # total number of days before a match is over
-            trg_diff=0,  # percentage of different votes  between targets before and after the communication phase
-            trg_influence=0,  # measure of how much each agent is influenced by the others
         )
 
     def initialize(self):
@@ -474,11 +472,8 @@ class TurnEnvWw(MultiAgentEnv):
         :return: None
         """
 
-        day_dep = ["suicide", "trg_diff", "trg_influence"]
 
-        for k in day_dep:
-            self.custom_metrics[k] /= (self.day_count + 1)
-
+        self.custom_metrics["suicide"] /= (self.day_count + 1)
         self.custom_metrics["suicide"] /= self.num_players
 
     def convert(self, obs, rewards, dones, info, phase):
