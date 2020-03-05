@@ -487,6 +487,8 @@ class TurnEnvWw(MultiAgentEnv):
         for k in day_dep:
             self.custom_metrics[k] /= (self.day_count + 1)
 
+        self.custom_metrics["suicide"]/=self.num_players
+
     def convert(self, obs, rewards, dones, info, phase):
         """
         Convert everything in correct format
