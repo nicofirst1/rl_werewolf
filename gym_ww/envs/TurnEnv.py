@@ -133,6 +133,7 @@ class TurnEnvWw(MultiAgentEnv):
         self.is_night = True
         self.is_comm = True
         self.day_count = 0
+        self.phase=0
         self.is_done = False
         self.custom_metrics = None
         self.role_map = None
@@ -452,6 +453,7 @@ class TurnEnvWw(MultiAgentEnv):
         else:
             raise ValueError("Something wrong when shifting phase")
 
+        self.phase=phase
         return night, comm, phase
 
     #######################################
