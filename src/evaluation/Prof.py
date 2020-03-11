@@ -12,7 +12,7 @@ class Prof:
     def __init__(self):
         # dictionary mapping episode instance to an episode class
         self.episodes = dict()
-        self.log_step = 5
+        self.log_step = Params.log_step
 
     def add_episode(self, episode_count, episode):
         """
