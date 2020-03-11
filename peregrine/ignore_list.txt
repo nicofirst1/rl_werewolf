@@ -1,0 +1,9 @@
+build
+.git
+.idea
+*/__pycache__
+*.egg-info
+ray_results
+log_dir
+dist
+*.DS_Store

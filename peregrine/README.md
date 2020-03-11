@@ -1,0 +1,1 @@
+This dir contains the script to sync and run code on peregrine. Be sure to run everything from inside the rl-werewolf dir.
