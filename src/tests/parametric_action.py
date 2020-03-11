@@ -1,3 +1,4 @@
+from models import ParametricActionsModel
 from utils import Params
 
 Params()
@@ -23,6 +24,7 @@ def mapping(agent_id):
 
 
 if __name__ == '__main__':
+    mod=ParametricActionsModel
     ray.init(local_mode=Params.debug, logging_level=logging.WARN, num_cpus=Params.n_cpus)
 
     env_configs = {'num_players': Params.num_player}
