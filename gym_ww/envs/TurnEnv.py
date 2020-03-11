@@ -309,14 +309,7 @@ class TurnEnvWw(MultiAgentEnv):
         # remove roles from ids
         actions_dict = {int(k.split("_")[1]): v for k, v in actions_dict.items()}
 
-        # split signals from targets
-        signals = {k: v[1:] for k, v in actions_dict.items()}
-
-        # remove signals from action dict
-        targets = {k: v[0] for k, v in actions_dict.items()}
-
-        # apply unshuffle
-        targets = {k: self.unshuffle_map[v] for k, v in targets.items()}
+        signals, targets=self.split_target_signal(actions_dict)
 
         # rewards start from zero
         rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
@@ -464,6 +457,23 @@ class TurnEnvWw(MultiAgentEnv):
     #######################################
     #       UTILS
     #######################################
+
+    def split_target_signal(self, actions_dict):
+        """
+        Split signal and target from the action dictionary
+        :param actions_dict: dict[int->obj], map agent id to action
+        :return: signals and target
+        """
+        # split signals from targets
+        signals = {k: v[1:] for k, v in actions_dict.items()}
+
+        # remove signals from action dict
+        targets = {k: v[0] for k, v in actions_dict.items()}
+
+        # apply unshuffle
+        targets = {k: self.unshuffle_map[v] for k, v in targets.items()}
+
+        return signals,targets
 
     def normalize_metrics(self):
         """
