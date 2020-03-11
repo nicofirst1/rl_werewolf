@@ -10,7 +10,7 @@ from envs.TurnEnv import TurnEnvWw
 from gym_ww import ww
 
 
-class ParametricActionWrapper(MultiAgentEnv):
+class ParametricActionWrapper(TurnEnvWw):
     """
     Wrapper around TurnEnvWw for implementing parametric actions
     """
@@ -21,7 +21,7 @@ class ParametricActionWrapper(MultiAgentEnv):
         :return:
         """
         # wrap observation from original reset function
-        obs = self.wrapped.reset()
+        obs = super().reset()
         obs = self.wrap_obs(obs)
 
         return obs
@@ -32,7 +32,7 @@ class ParametricActionWrapper(MultiAgentEnv):
         :param action_dict:
         :return:
         """
-        obs, rewards, dones, info = self.wrapped.step(action_dict)
+        obs, rewards, dones, info = super().step(action_dict)
         obs = self.wrap_obs(obs)
         return obs, rewards, dones, info
 
@@ -49,17 +49,17 @@ class ParametricActionWrapper(MultiAgentEnv):
             :return:
             """
             # filter out dead agents
-            mask = self.wrapped.status_map.copy()
+            mask = self.status_map.copy()
 
             # if is night
-            if self.wrapped.is_night:
+            if self.is_night:
                 # filter out wolves
-                ww_ids = self.wrapped.get_ids(ww, alive=True)
+                ww_ids = self.get_ids(ww, alive=True)
                 for idx in ww_ids:
                     mask[idx] = 0
 
             # apply shuffle to mask
-            mask = [mask[self.wrapped.unshuffle_map[idx]] for idx in range(len(mask))]
+            mask = [mask[self.unshuffle_map[idx]] for idx in range(len(mask))]
 
             return mask
 
@@ -68,8 +68,8 @@ class ParametricActionWrapper(MultiAgentEnv):
             Generate mask for signal
             :return: list[bool]: 1 for allowable returns, 0 otehrwise
             """
-            mask = [0 for _ in range(self.wrapped.num_players)]
-            range_ = self.wrapped.signal_range
+            mask = [0 for _ in range(self.num_players)]
+            range_ = self.signal_range
 
             mask[:range_] = [1] * range_
             return mask
@@ -92,7 +92,7 @@ class ParametricActionWrapper(MultiAgentEnv):
         # for every agent
         for agent_id, obs in observations.items():
             # make array out of observation (flatten)
-            obs = _make_array_from_obs(obs, self.wrapped.observation_space)
+            obs = _make_array_from_obs(obs, super().observation_space)
 
             # add action mask
             new_obs[agent_id] = dict(
@@ -104,25 +104,29 @@ class ParametricActionWrapper(MultiAgentEnv):
 
     def __init__(self, configs, roles=None, flex=0):
         # use TurnEnvWw as wrapped env
-        self.wrapped = TurnEnvWw(configs, roles, flex)
+        super().__init__(configs, roles, flex)
 
-        # save original space
-        obs = self.wrapped.observation_space
-        self.original_space = obs
 
+
+    @TurnEnvWw.observation_space.getter
+    def observation_space(self):
+        return super().action_space
+
+    @TurnEnvWw.observation_space.getter
+    def observation_space(self):
+
+        super_obs=super().observation_space
         # transform original space to box
-        obs = _make_box_from_obs(obs)
+        obs = _make_box_from_obs(super_obs)
 
         # define wrapped obs space
-        self.observation_space = gym.spaces.Dict({
+        observation_space = gym.spaces.Dict({
 
-            "action_mask": gym.spaces.Box(low=0, high=1, shape=(sum(self.wrapped.action_space.nvec),)),
+            "action_mask": gym.spaces.Box(low=0, high=1, shape=(sum(self.action_space.nvec),)),
             "original_obs": obs,
         })
 
-        # define action space as original one
-        self.action_space = self.wrapped.action_space
-
+        return observation_space
 
 def _make_box_from_obs(space):
     """
