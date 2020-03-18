@@ -6,7 +6,10 @@ requires = [
     "GPUtil >= 1.4.0",
     "tqdm",
     "termcolor >= 1.1.0",
-    "requests >= 2.22.0"
+    "requests >= 2.22.0",
+    "pandas",
+    "ray[rllib]",
+    "ray[tune]"
 
 ]
 
