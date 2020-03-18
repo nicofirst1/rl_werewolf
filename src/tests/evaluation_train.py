@@ -65,5 +65,6 @@ if __name__ == '__main__':
         local_dir=Params.RAY_DIR,
         config=configs,
         trial_name_creator=trial_name_creator,
+        checkpoint_freq=Params.checkpoint_freq
 
     )
