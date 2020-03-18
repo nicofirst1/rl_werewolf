@@ -15,9 +15,7 @@ class EvaluationEnv(ParametricActionWrapper):
         """
 
         # split signal from target
-        signals, targets=self.split_target_signal(action_dict)
-
-
+        signals, targets = self.split_target_signal(action_dict)
 
         # stack all targets into a matrix
         targets = np.stack(list(targets.values()))
@@ -39,7 +37,7 @@ class EvaluationEnv(ParametricActionWrapper):
         Calls reset function initializing the episode class again
         """
 
-        self.episode.days=self.day_count
+        self.episode.days = self.day_count
 
         # if is time to log then do it
         if self.episode_count % self.prof.log_step == 0:
@@ -52,7 +50,6 @@ class EvaluationEnv(ParametricActionWrapper):
         return super().reset()
 
     def __init__(self, configs, roles=None, flex=0):
-
         super().__init__(configs, roles=roles, flex=flex)
 
         # todo: find a way to split when there are multiple workes
