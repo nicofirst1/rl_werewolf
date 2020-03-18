@@ -58,6 +58,8 @@ CONFIGS = dict(
     signal_length=1,
     signal_range=2,
 
+    win_log_str=f"\n{'#' * 20}\n"*3
+
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
 
 )
@@ -556,7 +558,7 @@ class TurnEnvWw(MultiAgentEnv):
             for idx in self.get_ids(vil, alive=False):
                 rewards[idx] += self.penalties.get('lost')
             if Params.log_step == self.ep_step:
-                logger.info(f"\n{'#' * 10}\nWolves won\n{'#' * 10}\n")
+                logger.info(f"{CONFIGS['win_log_str']}Wolves won{CONFIGS['win_log_str']}")
             self.custom_metrics['win_wolf'] += 1
 
         if village_won:
@@ -566,7 +568,7 @@ class TurnEnvWw(MultiAgentEnv):
             for idx in self.get_ids(ww, alive=False):
                 rewards[idx] += self.penalties.get('lost')
             if Params.log_step == self.ep_step:
-                logger.info(f"\n{'#' * 10}\nVillagers won\n{'#' * 10}\n")
+                logger.info(f"{CONFIGS['win_log_str']} Villagers won {CONFIGS['win_log_str']}")
             self.custom_metrics['win_vil'] += 1
 
         if self.day_count >= self.max_days - 1:
