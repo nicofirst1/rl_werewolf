@@ -33,15 +33,16 @@ class Params:
     ##########################
     # Performance stuff
     ##########################
-    debug = True
+    debug = False
 
     n_cpus = multiprocessing.cpu_count() if not debug else 1
     n_gpus = 1 if not debug else 0
+    n_workers=3 if not debug else 0
 
     ##########################
     # Evaluation params
     ##########################
-    checkpoint_freq=10
+    checkpoint_freq=50
     log_step=50
 
     ##########################

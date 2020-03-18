@@ -24,8 +24,8 @@ def mapping(agent_id):
 
 
 if __name__ == '__main__':
-    ParametricActionsModel
-    ray.init(local_mode=Params.debug, logging_level=logging.WARN, num_cpus=Params.n_cpus)
+    _=ParametricActionsModel
+    ray.init(local_mode=Params.debug, logging_level=logging.WARN)
 
     env_configs = {'num_players': Params.num_player}
 
@@ -42,7 +42,8 @@ if __name__ == '__main__':
         "env_config": env_configs,
         "eager": False,
         "eager_tracing": False,
-        "num_workers": 0,
+        "num_workers": Params.n_workers,
+        "num_gpus": Params.n_gpus,
         "batch_mode": "complete_episodes",
 
         "callbacks": {"on_episode_end": on_episode_end, },
