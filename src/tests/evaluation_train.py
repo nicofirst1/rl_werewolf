@@ -1,5 +1,8 @@
-from models import ParametricActionsModel
+# initialize param class
 from utils import Params
+Params()
+
+from models import ParametricActionsModel
 from wrappers import EvaluationEnv
 
 

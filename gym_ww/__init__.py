@@ -28,8 +28,7 @@ register(
     entry_point='gym_ww.envs:PolicyWw',
 )
 
-# initialize param class
-Params()
+
 
 # Initialize envs loggers
 logger = logging.getLogger("WwEnvs")
