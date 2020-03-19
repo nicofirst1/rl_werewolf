@@ -46,8 +46,9 @@ In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) 
 ## TODO
 List of todos
 - make shell script to launch together with [ray dashboard](http://localhost:8265/) and [tensorboard](http://localhost:6006)
-- check for error during episodes
-- migrate match logs outside of env
+- check for error during episodes [X]
+- migrate match logs outside of env [X]
+- migrate custom metrics to EvalEnv [X]
 - implement some evaluation methods 
 
 ## Helpful Links

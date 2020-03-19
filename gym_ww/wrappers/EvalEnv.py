@@ -15,100 +15,9 @@ class EvaluationEnv(ParametricActionWrapper):
     Wrapper around ParametricActionWrapper for implementing implementation
     """
 
-    def log_diffs(self, prev, targets, signals):
-
-        # remove names from ids
-        targets = {int(k.split("_")[1]): v for k, v in targets.items()}
-        signals = {int(k.split("_")[1]): v for k, v in signals.items()}
-
-        # is it's not the log step yet, return
-        if Params.log_step != self.ep_step:
-            return
-
-        # if there is no difference between phases then return
-        if prev.phase == self.phase:
-            return
-
-        # log day
-        self.log(f"Day {prev.day_count})")
-
-        # log phase
-        if self.phase == 0:
-            self.log(f"Phase {self.phase} | Night Time | Voting")
-
-        elif self.phase == 1:
-            self.log(f"Phase {self.phase} | Night Time| Eating")
-
-        elif self.phase == 2:
-            self.log(f"Phase {self.phase} | Day Time| Voting")
-
-        else:
-            self.log(f"Phase {self.phase} | Day Time| Executing")
-            self.custom_metrics["suicide"] += suicide_num(targets)
-
-
-        # print actions
-        filter_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
-
-        pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger,
-               filter_ids=filter_ids)
-
-        # notify of dead agents
-        if self.phase in [1, 3]:
-            # get dead ids
-            dead = [p - c for p, c in zip(prev.status_map, self.status_map)]
-            dead = np.asarray(dead)
-            dead = np.nonzero(dead)[0][0]
-
-            # build msg
-            msg = f"Player {dead} ({self.role_map[dead]}) has been "
-
-            # personalize for context
-            if self.phase == 1:
-                msg += "eaten"
-            else:
-                msg += "executed"
-
-            self.log(msg=msg)
-
-        if self.is_done:
-
-            # update day count
-            self.custom_metrics["tot_days"] = self.day_count
-            self.normalize_metrics()
-
-
-
-            # if episode is over print winner
-            alive_ww = self.get_ids(ww, alive=True)
-
-            msg = copy.copy(self.win_brakets)
-
-            if len(alive_ww) > 0:
-                msg = msg.replace("-", "Wolves won")
-                self.custom_metrics['win_wolf'] += 1
-
-            else:
-                msg = msg.replace("-", "Villagers won")
-                self.custom_metrics['win_vil'] += 1
-
-            self.log(msg)
-
-        self.log("\n")
-
-    def log(self, msg, level=logging.INFO):
-
-        logger.log(msg=msg, level=level)
-
-    def normalize_metrics(self):
-        """
-        In here normalization for custom metrics should be executed.
-        Notice that this method needs to be called before the reset.
-        :return: None
-        """
-
-        self.custom_metrics["suicide"] /= (self.day_count + 1)
-        self.custom_metrics["suicide"] /= self.num_players
+    #########################
+    # ENV METHODS
+    #########################
 
     def step(self, action_dict):
         """
@@ -166,6 +75,34 @@ class EvaluationEnv(ParametricActionWrapper):
 
         return super().reset()
 
+    def __init__(self, configs, roles=None, flex=0):
+        super().__init__(configs, roles=roles, flex=flex)
+
+        self.log(
+            f"Starting game with {self.num_players} players: {self.num_players - self.num_wolves}"
+            f" {vil} and {self.num_wolves} {ww}")
+
+        # todo: find a way to split when there are multiple workes
+        self.prof = Prof()
+        self.episode = Episode(self.num_players)
+        self.episode_count = 1
+
+        self.win_brakets = win_brackets()
+
+    #########################
+    # UTILS
+    #########################
+
+    def normalize_metrics(self):
+        """
+        In here normalization for custom metrics should be executed.
+        Notice that this method needs to be called before the reset.
+        :return: None
+        """
+
+        self.custom_metrics["suicide"] /= (self.day_count + 1)
+        self.custom_metrics["suicide"] /= self.num_players
+
     def initialize_info(self):
 
         self.custom_metrics = dict(
@@ -174,21 +111,103 @@ class EvaluationEnv(ParametricActionWrapper):
             win_vil=0,  # number of times villagers win
             tot_days=0,  # total number of days before a match is over
         )
-    def __init__(self, configs, roles=None, flex=0):
-        super().__init__(configs, roles=roles, flex=flex)
 
-        logger.info(
-            f"Starting game with {self.num_players} players: {self.num_players - self.num_wolves} {vil} and {self.num_wolves} {ww}")
+    #########################
+    # LOGGING
+    #########################
 
-        # todo: find a way to split when there are multiple workes
-        self.prof = Prof()
-        self.episode = Episode(self.num_players)
-        self.episode_count = 1
+    def log_diffs(self, prev, targets, signals):
+        """
+            Logs difference between status from step to step
+            @param prev: EvaluationEnv, state before step
+            @param targets:
+            @param signals:
+            @return: None
+        """
 
-        self.win_brakets = win_brakets()
+
+        # remove names from ids
+        targets = {int(k.split("_")[1]): v for k, v in targets.items()}
+        signals = {int(k.split("_")[1]): v for k, v in signals.items()}
+
+        # is it's not the log step yet, return
+        if Params.log_step != self.ep_step:
+            return
+
+        # if there is no difference between phases then return
+        if prev.phase == self.phase:
+            return
+
+        # log day
+        self.log(f"Day {prev.day_count})")
+
+        # log phase
+        if self.phase == 0:
+            self.log(f"Phase {self.phase} | Night Time | Voting")
+
+        elif self.phase == 1:
+            self.log(f"Phase {self.phase} | Night Time| Eating")
+
+        elif self.phase == 2:
+            self.log(f"Phase {self.phase} | Day Time| Voting")
+
+        else:
+            self.log(f"Phase {self.phase} | Day Time| Executing")
+            self.custom_metrics["suicide"] += suicide_num(targets)
+
+        # print actions
+        filter_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
+
+        pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger,
+               filter_ids=filter_ids)
+
+        # notify of dead agents
+        if self.phase in [1, 3]:
+            # get dead ids
+            dead = [p - c for p, c in zip(prev.status_map, self.status_map)]
+            dead = np.asarray(dead)
+            dead = np.nonzero(dead)[0][0]
+
+            # build msg
+            msg = f"Player {dead} ({self.role_map[dead]}) has been "
+
+            # personalize for context
+            if self.phase == 1:
+                msg += "eaten"
+            else:
+                msg += "executed"
+
+            self.log(msg=msg)
+
+        if self.is_done:
+
+            # update day count
+            self.custom_metrics["tot_days"] = self.day_count
+            self.normalize_metrics()
+
+            # if episode is over print winner
+            alive_ww = self.get_ids(ww, alive=True)
+
+            msg = copy.copy(self.win_brakets)
+
+            if len(alive_ww) > 0:
+                msg = msg.replace("-", "Wolves won")
+                self.custom_metrics['win_wolf'] += 1
+
+            else:
+                msg = msg.replace("-", "Villagers won")
+                self.custom_metrics['win_vil'] += 1
+
+            self.log(msg)
+
+        self.log("\n")
+
+    def log(self, msg, level=logging.INFO):
+
+        logger.log(msg=msg, level=level)
 
 
-def win_brakets(num_lines=5):
+def win_brackets(num_lines=5):
     """
     Return a bracket made of hashtags for the winner of a match
     """
