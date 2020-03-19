@@ -156,22 +156,21 @@ class EvaluationEnv(ParametricActionWrapper):
 
 
 
-def win_brakets(num_hash=16, num_lines=4):
+def win_brakets(num_lines=5):
     """
     Return a bracket made of hashtags for the winner of a match
     """
 
     msg="\n"
-    new_hash=num_hash
+    hash_num=1
     for _ in range(num_lines):
-        msg+="#"*(new_hash)+"\n"
-        new_hash//=2
+        hash_num*=2
+        msg+="#"*(hash_num)+"\n"
 
     msg+="-\n"
-    new_hash+=1
     for j in range(num_lines):
-        msg+="#"*(new_hash)+"\n"
-        new_hash*=2
+        msg+="#"*(hash_num)+"\n"
+        hash_num//=2
 
 
 
