@@ -43,7 +43,12 @@ class EvaluationEnv(ParametricActionWrapper):
         prev = copy.deepcopy(self)
         obs, rewards, dones, info = super().step(action_dict)
 
-        self.log_diffs(prev, original_target, signals)
+        # remove names from ids
+        signals = {int(k.split("_")[1]): v for k, v in signals.items()}
+        targets = {int(k.split("_")[1]): v for k, v in original_target.items()}
+
+        self.log_diffs(prev, targets, signals)
+        self.update_metrics(targets)
 
         return obs, rewards, dones, info
 
@@ -52,12 +57,6 @@ class EvaluationEnv(ParametricActionWrapper):
         Calls reset function initializing the episode class again
         """
         self.log("Reset called")
-
-        # step used for logging matches
-        if self.ep_step == Params.log_step:
-            self.ep_step = 0
-        else:
-            self.ep_step += 1
 
         self.episode.days = self.day_count
 
@@ -72,6 +71,12 @@ class EvaluationEnv(ParametricActionWrapper):
 
         # reset info dict
         self.initialize_info()
+
+        # step used for logging matches
+        if self.ep_step == Params.log_step:
+            self.ep_step = 0
+        else:
+            self.ep_step += 1
 
         return super().reset()
 
@@ -116,19 +121,39 @@ class EvaluationEnv(ParametricActionWrapper):
     # LOGGING
     #########################
 
+    def update_metrics(self, targets):
+        """
+        Update metrics at each step
+        @param targets: dict[int->int], maps agents to target
+        @return:
+        """
+
+        # update suicide num
+        if self.phase == 3:
+            self.custom_metrics["suicide"] += suicide_num(targets)
+
+        if self.is_done:
+
+            # update day count
+            self.custom_metrics["tot_days"] = self.day_count
+            self.normalize_metrics()
+            
+            # if episode is over print winner
+            alive_ww = self.get_ids(ww, alive=True)
+
+            if len(alive_ww) > 0:
+                self.custom_metrics['win_wolf'] += 1
+            else:
+                self.custom_metrics['win_vil'] += 1
+
     def log_diffs(self, prev, targets, signals):
         """
             Logs difference between status from step to step
             @param prev: EvaluationEnv, state before step
-            @param targets:
-            @param signals:
+            @param targets: dict[int->int], maps agents to target
+            @param signals: dict[int->np.array], maps agents to array of signals
             @return: None
         """
-
-
-        # remove names from ids
-        targets = {int(k.split("_")[1]): v for k, v in targets.items()}
-        signals = {int(k.split("_")[1]): v for k, v in signals.items()}
 
         # is it's not the log step yet, return
         if Params.log_step != self.ep_step:
@@ -153,7 +178,6 @@ class EvaluationEnv(ParametricActionWrapper):
 
         else:
             self.log(f"Phase {self.phase} | Day Time| Executing")
-            self.custom_metrics["suicide"] += suicide_num(targets)
 
         # print actions
         filter_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
@@ -181,10 +205,6 @@ class EvaluationEnv(ParametricActionWrapper):
 
         if self.is_done:
 
-            # update day count
-            self.custom_metrics["tot_days"] = self.day_count
-            self.normalize_metrics()
-
             # if episode is over print winner
             alive_ww = self.get_ids(ww, alive=True)
 
@@ -192,11 +212,9 @@ class EvaluationEnv(ParametricActionWrapper):
 
             if len(alive_ww) > 0:
                 msg = msg.replace("-", "Wolves won")
-                self.custom_metrics['win_wolf'] += 1
 
             else:
                 msg = msg.replace("-", "Villagers won")
-                self.custom_metrics['win_vil'] += 1
 
             self.log(msg)
 
