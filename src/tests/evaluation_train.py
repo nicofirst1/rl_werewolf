@@ -3,7 +3,7 @@ from utils import Params
 Params()
 
 from models import ParametricActionsModel
-from wrappers import EvaluationEnv
+from wrappers import EvaluationWrapper
 
 
 from policies.SimpleQPolicy import MyTFPolicy
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     env_configs = {'num_players': Params.num_player}
 
-    env = EvaluationEnv(env_configs)
+    env = EvaluationWrapper(env_configs)
     space = (MyTFPolicy, env.observation_space, env.action_space, {})
 
     policies = dict(
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     )
 
     configs = {
-        "env": EvaluationEnv,
+        "env": EvaluationWrapper,
         "env_config": env_configs,
         "eager": False,
         "eager_tracing": False,
@@ -67,6 +67,7 @@ if __name__ == '__main__':
         local_dir=Params.RAY_DIR,
         config=configs,
         trial_name_creator=trial_name_creator,
-        checkpoint_freq=Params.checkpoint_freq
+        checkpoint_freq=Params.checkpoint_freq,
+        restore="/home/dizzi/Desktop/ray_results/A2C/A2C_EvaluationEnv_5c36aec8_0_2020-03-19_12-11-224pxaoz8u/checkpoint_450/checkpoint-450"
 
     )

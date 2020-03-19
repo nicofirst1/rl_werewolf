@@ -33,7 +33,7 @@ class Params:
     ##########################
     # Performance stuff
     ##########################
-    debug = False
+    debug = True
 
     n_cpus = multiprocessing.cpu_count() if not debug else 1
     n_gpus = 1 if not debug else 0

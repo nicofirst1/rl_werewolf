@@ -1,2 +1,2 @@
-from wrappers.EvalEnv import EvaluationEnv
-from wrappers.PaEnv import ParametricActionWrapper
+from wrappers.EvalWrapper import EvaluationWrapper
+from wrappers.PaWrapper import ParametricActionWrapper

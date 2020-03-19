@@ -7,10 +7,10 @@ from evaluation import Prof, Episode
 from gym_ww import logger, ww, vil
 from other.custom_utils import pprint, suicide_num
 from utils import Params
-from wrappers.PaEnv import ParametricActionWrapper
+from wrappers.PaWrapper import ParametricActionWrapper
 
 
-class EvaluationEnv(ParametricActionWrapper):
+class EvaluationWrapper(ParametricActionWrapper):
     """
     Wrapper around ParametricActionWrapper for implementing implementation
     """
@@ -137,7 +137,7 @@ class EvaluationEnv(ParametricActionWrapper):
             # update day count
             self.custom_metrics["tot_days"] = self.day_count
             self.normalize_metrics()
-            
+
             # if episode is over print winner
             alive_ww = self.get_ids(ww, alive=True)
 

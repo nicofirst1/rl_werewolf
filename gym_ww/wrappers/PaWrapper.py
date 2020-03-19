@@ -6,11 +6,11 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.models.preprocessors import get_preprocessor
 from ray.rllib.utils.error import UnsupportedSpaceException
 
-from envs.TurnEnv import TurnEnvWw
+from envs.PaEnv import PaEnv
 from gym_ww import ww
 
 
-class ParametricActionWrapper(TurnEnvWw):
+class ParametricActionWrapper(PaEnv):
     """
     Wrapper around TurnEnvWw for implementing parametric actions
     """
@@ -108,11 +108,11 @@ class ParametricActionWrapper(TurnEnvWw):
 
 
 
-    @TurnEnvWw.observation_space.getter
+    @PaEnv.observation_space.getter
     def observation_space(self):
         return super().action_space
 
-    @TurnEnvWw.observation_space.getter
+    @PaEnv.observation_space.getter
     def observation_space(self):
 
         super_obs=super().observation_space
