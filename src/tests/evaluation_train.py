@@ -2,7 +2,6 @@ from models import ParametricActionsModel
 from utils import Params
 from wrappers import EvaluationEnv
 
-Params()
 
 from policies.SimpleQPolicy import MyTFPolicy
 
