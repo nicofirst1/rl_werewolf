@@ -108,9 +108,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.custom_metrics["suicide"] /= (self.day_count + 1)
         self.custom_metrics["suicide"] /= self.num_players
 
-        self.custom_metrics["accord"]  /= (self.day_count + 1)
-
-
+        self.custom_metrics["accord"] /= (self.day_count + 1)
 
     def initialize_info(self):
 
@@ -119,7 +117,7 @@ class EvaluationWrapper(ParametricActionWrapper):
             win_wolf=0,  # number of times wolves win
             win_vil=0,  # number of times villagers win
             tot_days=0,  # total number of days before a match is over
-            accord=0, # number of agents that voted for someone which was not killed
+            accord=0,  # number of agents that voted for someone which was not killed
         )
 
     #########################
@@ -138,17 +136,14 @@ class EvaluationWrapper(ParametricActionWrapper):
             # add number of suicides
             self.custom_metrics["suicide"] += suicide_num(targets)
             # update number of differ
-            chosen=most_frequent(targets)
-            self.custom_metrics["accord"]+=sum([1 for t in targets.values() if t==chosen])/len(targets)
+            chosen = most_frequent(targets)
+            self.custom_metrics["accord"] += sum([1 for t in targets.values() if t == chosen]) / len(targets)
 
-        if self.phase ==1:
-
-            were_wolves=self.get_ids(ww,alive=True)
-            were_wolves={k:v for k,v in targets.items() if k in were_wolves }
-            chosen=most_frequent(were_wolves)
-            self.custom_metrics["accord"]+=sum([1 for t in were_wolves.values() if t==chosen])/len(were_wolves)
-
-
+        if self.phase == 1:
+            were_wolves = self.get_ids(ww, alive=True)
+            were_wolves = {k: v for k, v in targets.items() if k in were_wolves}
+            chosen = most_frequent(were_wolves)
+            self.custom_metrics["accord"] += sum([1 for t in were_wolves.values() if t == chosen]) / len(were_wolves)
 
         if self.is_done:
 

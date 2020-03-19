@@ -1,5 +1,4 @@
 import math
-import math
 import random
 
 import gym
@@ -9,7 +8,7 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
 from gym_ww import ww, vil
-from src.other.custom_utils import str_id_map, most_frequent, suicide_num
+from src.other.custom_utils import str_id_map, most_frequent
 
 ####################
 # global vars
@@ -133,8 +132,6 @@ class PaEnv(MultiAgentEnv):
     #       INITALIZATION
     #######################################
 
-
-
     def initialize(self):
         """
         Initialize attributes for new run
@@ -162,8 +159,6 @@ class PaEnv(MultiAgentEnv):
 
         # reset day
         self.day_count = 0
-
-
 
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
@@ -196,7 +191,6 @@ class PaEnv(MultiAgentEnv):
             :return:
             """
 
-
             # get the agent to be executed
             target = most_frequent(actions)
 
@@ -207,7 +201,6 @@ class PaEnv(MultiAgentEnv):
             rewards[target] += self.penalties.get("death")
             # kill him
             self.status_map[target] = 0
-
 
             # update day
             self.day_count += 1
@@ -308,7 +301,6 @@ class PaEnv(MultiAgentEnv):
 
         def kill(actions, rewards):
 
-
             if not len(wolves_ids):
                 raise Exception("Game not done but wolves are dead, have reset been called?")
 
@@ -394,8 +386,6 @@ class PaEnv(MultiAgentEnv):
         targets = {k: self.unshuffle_map[v] for k, v in targets.items()}
 
         return signals, targets
-
-
 
     def convert(self, obs, rewards, dones, info, phase):
         """
