@@ -16,6 +16,12 @@ def join_paths(path1, path2):
 
 class Params:
     ##########################
+    # other
+    ##########################
+
+    unique_id = str(uuid.uuid1())[:8]
+
+    ##########################
     #       Path params
     ##########################
 
@@ -24,16 +30,21 @@ class Params:
 
     LOG_DIR = join_paths(WORKING_DIR, "log_dir")
 
-    RAY_DIR = join_paths(LOG_DIR, "ray_results")
-    GAME_LOG_DIR = join_paths(LOG_DIR, "match_log")
-    EVAL_DIR = join_paths(LOG_DIR, "eval")
+
+    INNER_LOG_DIR=join_paths(LOG_DIR,unique_id)
+
+    RAY_DIR = join_paths(INNER_LOG_DIR, "ray_results")
+    GAME_LOG_DIR = join_paths(INNER_LOG_DIR, "match_log")
+    EVAL_DIR = join_paths(INNER_LOG_DIR, "eval")
 
     episode_file = join_paths(EVAL_DIR, "episode.pkl")
+    log_match_file = join_paths(GAME_LOG_DIR, f"{unique_id}_log.log")
+
 
     ##########################
     # Performance stuff
     ##########################
-    debug = True
+    debug = False
 
     n_cpus = multiprocessing.cpu_count() if not debug else 1
     n_gpus = 1 if not debug else 0
@@ -50,12 +61,6 @@ class Params:
     ##########################
     num_player = 20
 
-    ##########################
-    # other
-    ##########################
-
-    unique_id = str(uuid.uuid1())[:8]
-    log_match_file = join_paths(GAME_LOG_DIR, f"{unique_id}_log.log")
 
     ##########################
     #    METHODS
@@ -89,7 +94,7 @@ class Params:
 
     def __init__(self):
         print("Params class initialized")
-        self.__empty_dirs([self.LOG_DIR])
+        #self.__empty_dirs([self.LOG_DIR])
         self.__initialize_dirs()
 
         # change values based on argparse
