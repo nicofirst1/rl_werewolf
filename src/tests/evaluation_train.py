@@ -68,6 +68,5 @@ if __name__ == '__main__':
         config=configs,
         trial_name_creator=trial_name_creator,
         checkpoint_freq=Params.checkpoint_freq,
-        restore="/home/dizzi/Desktop/ray_results/A2C/A2C_EvaluationEnv_5c36aec8_0_2020-03-19_12-11-224pxaoz8u/checkpoint_450/checkpoint-450"
 
     )
