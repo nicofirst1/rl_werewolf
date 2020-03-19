@@ -59,7 +59,6 @@ CONFIGS = dict(
     signal_length=1,
     signal_range=2,
 
-    win_log_str=f"\n{'#' * 20}\n"*3
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
 
@@ -108,7 +107,6 @@ class TurnEnvWw(MultiAgentEnv):
             roles = [ww] * num_wolves + [vil] * num_villagers
             # random.shuffle(roles)
 
-            logger.info(f"Starting game with {num_players} players: {num_villagers} {vil} and {num_wolves} {ww}")
         else:
             assert len(
                 roles) == num_players, f"Length of role list ({len(roles)}) should be equal to number of players ({num_players})"
@@ -187,11 +185,7 @@ class TurnEnvWw(MultiAgentEnv):
         # reset info dict
         self.initialize_info()
 
-        # step used for logging matches
-        if self.ep_step == Params.log_step:
-            self.ep_step = 0
-        else:
-            self.ep_step += 1
+
 
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
@@ -200,7 +194,6 @@ class TurnEnvWw(MultiAgentEnv):
                 observation (object): the initial observation.
             """
 
-        self.log("Reset called")
         self.initialize()
         init_signal = {p: [-1] * self.signal_length for p in range(self.num_players)}
         obs = self.observe(phase=0, signal=init_signal, targets={k: -1 for k in range(self.num_players)})
@@ -235,8 +228,10 @@ class TurnEnvWw(MultiAgentEnv):
 
             # if target is alive
             if self.status_map[target]:
-                # log
-                self.log(f"Player {target} ({self.role_map[target]}) has been executed")
+
+
+
+
 
 
                 # for every agent alive, [to be executed agent too]
@@ -250,9 +245,7 @@ class TurnEnvWw(MultiAgentEnv):
                 # kill target
                 self.status_map[target] = 0
             else:
-                # penalize agents for executing a dead one
-                for id_ in self.get_ids("all", alive=True):
-                    rewards[id_] += self.penalties.get('execute_dead')
+               raise IndexError("Agents cannot execute dead players... use PA model or TurnEnv_old")
 
 
             # update day
@@ -262,10 +255,8 @@ class TurnEnvWw(MultiAgentEnv):
 
         # call the appropriate method depending on the phase
         if self.is_comm:
-            self.log("Day Time| Voting")
             return rewards
         else:
-            self.log("Day Time| Executing")
 
             rewards = {id_: val + self.penalties.get('day') for id_, val in rewards.items()}
             return execution(actions, rewards)
@@ -279,12 +270,8 @@ class TurnEnvWw(MultiAgentEnv):
         :return: return updated rewards
         """
 
-        if self.is_comm:
-            self.log("Night Time| Voting")
 
-        else:
-            self.log("Night Time| Eating")
-
+        if not self.is_comm:
             # execute wolf actions
             rewards = self.wolf_action(actions, rewards)
 
@@ -313,6 +300,7 @@ class TurnEnvWw(MultiAgentEnv):
 
         signals, targets=self.split_target_signal(actions_dict)
 
+
         # rewards start from zero
         rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
 
@@ -326,10 +314,6 @@ class TurnEnvWw(MultiAgentEnv):
         # prepare for phase shifting
         is_night, is_comm, phase = self.update_phase()
 
-        # print actions
-        if Params.log_step == self.ep_step:
-            filter_ids = self.get_ids(ww, alive=True) if phase in [0, 1] else self.get_ids('all', alive=True)
-            pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger, filter_ids=filter_ids)
 
         # get dones
         dones, rewards = self.check_done(rewards)
@@ -390,7 +374,6 @@ class TurnEnvWw(MultiAgentEnv):
                 for id_ in wolves_ids:
                     rewards[id_] += self.penalties.get("kill")
 
-                self.log(f"Wolves killed {target} ({self.role_map[target]})",level=logging.DEBUG)
 
 
 
@@ -554,8 +537,7 @@ class TurnEnvWw(MultiAgentEnv):
             for idx in self.get_ids(vil, alive=False):
                 rewards[idx] += self.penalties.get('lost')
 
-            self.log(f"{CONFIGS['win_log_str']}Wolves won{CONFIGS['win_log_str']}")
-            self.custom_metrics['win_wolf'] += 1
+
 
         if village_won:
             self.is_done = True
@@ -564,8 +546,6 @@ class TurnEnvWw(MultiAgentEnv):
             for idx in self.get_ids(ww, alive=False):
                 rewards[idx] += self.penalties.get('lost')
 
-            self.log(f"{CONFIGS['win_log_str']} Villagers won {CONFIGS['win_log_str']}")
-            self.custom_metrics['win_vil'] += 1
 
         if self.day_count >= self.max_days - 1:
             self.is_done = True
@@ -610,12 +590,6 @@ class TurnEnvWw(MultiAgentEnv):
 
         return rewards
 
-    def log(self, msg, level=logging.INFO):
-        """
-        Log something if the step is met
-        """
-        if Params.log_step == self.ep_step:
-            logger.log(level=level,msg=msg)
 
     #######################################
     #       SPACES
