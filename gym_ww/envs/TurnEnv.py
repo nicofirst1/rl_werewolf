@@ -1,4 +1,4 @@
-import logging
+import math
 import math
 import random
 
@@ -8,13 +8,13 @@ from gym import spaces
 from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
-from gym_ww import logger, ww, vil
-from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint
+from gym_ww import ww, vil
+from src.other.custom_utils import str_id_map, most_frequent, suicide_num
+
 ####################
 # global vars
 ####################
 # penalty fro breaking a rule
-from utils import Params
 
 ####################
 # names for roles
@@ -58,7 +58,6 @@ CONFIGS = dict(
     # a range value of 2 is equal to binary variable
     signal_length=1,
     signal_range=2,
-
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
 
@@ -135,7 +134,7 @@ class TurnEnvWw(MultiAgentEnv):
         self.is_night = True
         self.is_comm = True
         self.day_count = 0
-        self.phase=0
+        self.phase = 0
         self.is_done = False
         self.custom_metrics = None
         self.role_map = None
@@ -185,8 +184,6 @@ class TurnEnvWw(MultiAgentEnv):
         # reset info dict
         self.initialize_info()
 
-
-
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
 
@@ -229,11 +226,6 @@ class TurnEnvWw(MultiAgentEnv):
             # if target is alive
             if self.status_map[target]:
 
-
-
-
-
-
                 # for every agent alive, [to be executed agent too]
                 for id_ in self.get_ids('all', alive=True):
                     # add/subtract penalty
@@ -245,8 +237,7 @@ class TurnEnvWw(MultiAgentEnv):
                 # kill target
                 self.status_map[target] = 0
             else:
-               raise IndexError("Agents cannot execute dead players... use PA model or TurnEnv_old")
-
+                raise IndexError("Agents cannot execute dead players... use PA model or TurnEnv_old")
 
             # update day
             self.day_count += 1
@@ -269,7 +260,6 @@ class TurnEnvWw(MultiAgentEnv):
         :param rewards: dict, maps agent id_ to curr reward
         :return: return updated rewards
         """
-
 
         if not self.is_comm:
             # execute wolf actions
@@ -298,8 +288,7 @@ class TurnEnvWw(MultiAgentEnv):
         # remove roles from ids
         actions_dict = {int(k.split("_")[1]): v for k, v in actions_dict.items()}
 
-        signals, targets=self.split_target_signal(actions_dict)
-
+        signals, targets = self.split_target_signal(actions_dict)
 
         # rewards start from zero
         rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
@@ -313,7 +302,6 @@ class TurnEnvWw(MultiAgentEnv):
 
         # prepare for phase shifting
         is_night, is_comm, phase = self.update_phase()
-
 
         # get dones
         dones, rewards = self.check_done(rewards)
@@ -434,7 +422,7 @@ class TurnEnvWw(MultiAgentEnv):
         else:
             raise ValueError("Something wrong when shifting phase")
 
-        self.phase=phase
+        self.phase = phase
         return night, comm, phase
 
     #######################################
@@ -456,7 +444,7 @@ class TurnEnvWw(MultiAgentEnv):
         # apply unshuffle
         targets = {k: self.unshuffle_map[v] for k, v in targets.items()}
 
-        return signals,targets
+        return signals, targets
 
     def normalize_metrics(self):
         """
@@ -464,7 +452,6 @@ class TurnEnvWw(MultiAgentEnv):
         Notice that this method needs to be called before the reset.
         :return: None
         """
-
 
         self.custom_metrics["suicide"] /= (self.day_count + 1)
         self.custom_metrics["suicide"] /= self.num_players
@@ -537,15 +524,12 @@ class TurnEnvWw(MultiAgentEnv):
             for idx in self.get_ids(vil, alive=False):
                 rewards[idx] += self.penalties.get('lost')
 
-
-
         if village_won:
             self.is_done = True
             for idx in self.get_ids(vil, alive=False):
                 rewards[idx] += self.penalties.get('victory')
             for idx in self.get_ids(ww, alive=False):
                 rewards[idx] += self.penalties.get('lost')
-
 
         if self.day_count >= self.max_days - 1:
             self.is_done = True
@@ -589,7 +573,6 @@ class TurnEnvWw(MultiAgentEnv):
                 rewards[id_] += penalty
 
         return rewards
-
 
     #######################################
     #       SPACES

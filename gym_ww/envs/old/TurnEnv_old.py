@@ -58,7 +58,7 @@ CONFIGS = dict(
     signal_length=1,
     signal_range=2,
 
-    win_log_str=f"\n{'#' * 20}\n"*3
+    win_log_str=f"\n{'#' * 20}\n" * 3
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
 
@@ -135,7 +135,7 @@ class TurnEnvWw(MultiAgentEnv):
         self.is_night = True
         self.is_comm = True
         self.day_count = 0
-        self.phase=0
+        self.phase = 0
         self.is_done = False
         self.custom_metrics = None
         self.role_map = None
@@ -312,7 +312,7 @@ class TurnEnvWw(MultiAgentEnv):
         # remove roles from ids
         actions_dict = {int(k.split("_")[1]): v for k, v in actions_dict.items()}
 
-        signals, targets=self.split_target_signal(actions_dict)
+        signals, targets = self.split_target_signal(actions_dict)
 
         # rewards start from zero
         rewards = {id_: 0 for id_ in self.get_ids("all", alive=False)}
@@ -455,7 +455,7 @@ class TurnEnvWw(MultiAgentEnv):
         else:
             raise ValueError("Something wrong when shifting phase")
 
-        self.phase=phase
+        self.phase = phase
         return night, comm, phase
 
     #######################################
@@ -477,7 +477,7 @@ class TurnEnvWw(MultiAgentEnv):
         # apply unshuffle
         targets = {k: self.unshuffle_map[v] for k, v in targets.items()}
 
-        return signals,targets
+        return signals, targets
 
     def normalize_metrics(self):
         """
@@ -485,7 +485,6 @@ class TurnEnvWw(MultiAgentEnv):
         Notice that this method needs to be called before the reset.
         :return: None
         """
-
 
         self.custom_metrics["suicide"] /= (self.day_count + 1)
         self.custom_metrics["suicide"] /= self.num_players
