@@ -5,7 +5,7 @@ import numpy as np
 
 from evaluation import Prof, Episode
 from gym_ww import logger, ww, vil
-from other.custom_utils import pprint
+from other.custom_utils import pprint, suicide_num
 from utils import Params
 from wrappers.PaEnv import ParametricActionWrapper
 
@@ -16,6 +16,10 @@ class EvaluationEnv(ParametricActionWrapper):
     """
 
     def log_diffs(self, prev, targets, signals):
+
+        # remove names from ids
+        targets = {int(k.split("_")[1]): v for k, v in targets.items()}
+        signals = {int(k.split("_")[1]): v for k, v in signals.items()}
 
         # is it's not the log step yet, return
         if Params.log_step != self.ep_step:
@@ -40,11 +44,12 @@ class EvaluationEnv(ParametricActionWrapper):
 
         else:
             self.log(f"Phase {self.phase} | Day Time| Executing")
+            self.custom_metrics["suicide"] += suicide_num(targets)
+
 
         # print actions
         filter_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
-        targets = {int(k.split("_")[1]): v for k, v in targets.items()}
-        signals = {int(k.split("_")[1]): v for k, v in signals.items()}
+
         pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger,
                filter_ids=filter_ids)
 
@@ -67,6 +72,13 @@ class EvaluationEnv(ParametricActionWrapper):
             self.log(msg=msg)
 
         if self.is_done:
+
+            # update day count
+            self.custom_metrics["tot_days"] = self.day_count
+            self.normalize_metrics()
+
+
+
             # if episode is over print winner
             alive_ww = self.get_ids(ww, alive=True)
 
@@ -87,6 +99,16 @@ class EvaluationEnv(ParametricActionWrapper):
     def log(self, msg, level=logging.INFO):
 
         logger.log(msg=msg, level=level)
+
+    def normalize_metrics(self):
+        """
+        In here normalization for custom metrics should be executed.
+        Notice that this method needs to be called before the reset.
+        :return: None
+        """
+
+        self.custom_metrics["suicide"] /= (self.day_count + 1)
+        self.custom_metrics["suicide"] /= self.num_players
 
     def step(self, action_dict):
         """
@@ -138,8 +160,20 @@ class EvaluationEnv(ParametricActionWrapper):
         # initialize episode and increase counter
         self.episode = Episode(self.num_players)
         self.episode_count += 1
+
+        # reset info dict
+        self.initialize_info()
+
         return super().reset()
 
+    def initialize_info(self):
+
+        self.custom_metrics = dict(
+            suicide=0,  # number of times a player vote for itself
+            win_wolf=0,  # number of times wolves win
+            win_vil=0,  # number of times villagers win
+            tot_days=0,  # total number of days before a match is over
+        )
     def __init__(self, configs, roles=None, flex=0):
         super().__init__(configs, roles=roles, flex=flex)
 

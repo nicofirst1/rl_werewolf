@@ -144,14 +144,7 @@ class TurnEnvWw(MultiAgentEnv):
     #       INITALIZATION
     #######################################
 
-    def initialize_info(self):
 
-        self.custom_metrics = dict(
-            suicide=0,  # number of times a player vote for itself
-            win_wolf=0,  # number of times wolves win
-            win_vil=0,  # number of times villagers win
-            tot_days=0,  # total number of days before a match is over
-        )
 
     def initialize(self):
         """
@@ -181,8 +174,7 @@ class TurnEnvWw(MultiAgentEnv):
         # reset day
         self.day_count = 0
 
-        # reset info dict
-        self.initialize_info()
+
 
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
@@ -215,7 +207,6 @@ class TurnEnvWw(MultiAgentEnv):
             :return:
             """
 
-            self.custom_metrics["suicide"] += suicide_num(actions)
 
             # get the agent to be executed
             target = most_frequent(actions)
@@ -316,11 +307,9 @@ class TurnEnvWw(MultiAgentEnv):
 
         # if game over reset
         if self.is_done:
-            self.custom_metrics["tot_days"] = self.day_count
 
             dones["__all__"] = True
             # normalize infos
-            self.normalize_metrics()
         else:
             dones["__all__"] = False
 
@@ -340,8 +329,6 @@ class TurnEnvWw(MultiAgentEnv):
 
         def kill(actions, rewards):
 
-            # upvote suicide info
-            self.custom_metrics["suicide"] += suicide_num(actions)
 
             if not len(wolves_ids):
                 raise Exception("Game not done but wolves are dead, have reset been called?")
@@ -446,15 +433,7 @@ class TurnEnvWw(MultiAgentEnv):
 
         return signals, targets
 
-    def normalize_metrics(self):
-        """
-        In here normalization for custom metrics should be executed.
-        Notice that this method needs to be called before the reset.
-        :return: None
-        """
 
-        self.custom_metrics["suicide"] /= (self.day_count + 1)
-        self.custom_metrics["suicide"] /= self.num_players
 
     def convert(self, obs, rewards, dones, info, phase):
         """
