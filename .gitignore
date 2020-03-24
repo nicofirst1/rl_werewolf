@@ -12,3 +12,5 @@ log_dir/
 dist/
 
 Resources/.DS_Store
+
+*.zip
