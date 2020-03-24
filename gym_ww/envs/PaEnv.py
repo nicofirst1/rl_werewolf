@@ -543,7 +543,9 @@ class PaEnv(MultiAgentEnv):
             targets=gym.spaces.Box(low=-1, high=self.num_players, shape=(self.num_players,), dtype=np.int32),
             # signal is a matrix of dimension [num_player, signal_range]
             signal=gym.spaces.Box(low=-1, high=self.signal_range - 1, shape=(self.num_players, self.signal_length),
-                                  dtype=np.int32)
+                                  dtype=np.int32),
+            # own id
+            own_id=gym.spaces.Discrete(self.num_players),
 
         )
         obs = gym.spaces.Dict(obs)
@@ -601,7 +603,8 @@ class PaEnv(MultiAgentEnv):
                 status_map=np.array(st),  # agent_id:alive?
                 phase=phase,
                 targets=tg,
-                signal=signal
+                signal=signal,
+                own_id=idx,
             )
 
             observations[idx] = obs

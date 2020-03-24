@@ -117,6 +117,10 @@ targets=gym.spaces.Box(low=-1, high=self.num_players, shape=(self.num_players,),
 signal=gym.spaces.Box(low=-1, high=self.signal_range - 1, shape=(self.num_players, self.signal_length),
                       dtype=np.int32)
 
+# own id
+own_id=gym.spaces.Discrete(self.num_players),
+
+
 ```
 
 Most of the observations are straight forward but will be described nonetheless:
