@@ -55,6 +55,7 @@ class Params:
     ##########################
     checkpoint_freq=50
     log_step=50
+    max_checkpoint_keep=10
 
     ##########################
     # env params
