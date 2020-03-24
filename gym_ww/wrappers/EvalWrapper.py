@@ -92,7 +92,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.episode = Episode(self.num_players)
         self.episode_count = 1
 
-        self.win_brakets = win_brackets()
+        self.win_brackets = win_brackets()
 
     #########################
     # UTILS
@@ -108,7 +108,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.custom_metrics["suicide"] /= (self.day_count + 1)
         self.custom_metrics["suicide"] /= self.num_players
 
-        self.custom_metrics["accord"] /= (self.day_count + 1)
+        self.custom_metrics["accord"] /= (self.day_count + 1)*2
 
     def initialize_info(self):
 
@@ -137,13 +137,20 @@ class EvaluationWrapper(ParametricActionWrapper):
             self.custom_metrics["suicide"] += suicide_num(targets)
             # update number of differ
             chosen = most_frequent(targets)
-            self.custom_metrics["accord"] += sum([1 for t in targets.values() if t == chosen]) / len(targets)
+            accord=sum([1 for t in targets.values() if t == chosen]) / len(targets)
+            self.custom_metrics["accord"] += accord
+
+            if accord>1: raise AttributeError("Accord garter than 1")
 
         if self.phase == 1:
             were_wolves = self.get_ids(ww, alive=True)
             were_wolves = {k: v for k, v in targets.items() if k in were_wolves}
             chosen = most_frequent(were_wolves)
-            self.custom_metrics["accord"] += sum([1 for t in were_wolves.values() if t == chosen]) / len(were_wolves)
+            accord=sum([1 for t in were_wolves.values() if t == chosen]) / len(were_wolves)
+            self.custom_metrics["accord"] += accord
+
+            if accord>1: raise AttributeError("Accord garter than 1")
+
 
         if self.is_done:
 
@@ -214,14 +221,22 @@ class EvaluationWrapper(ParametricActionWrapper):
             else:
                 msg += "executed"
 
+
+
             self.log(msg=msg)
+
+        else:
+            choice=most_frequent(targets)
+            self.log(msg= f"Most voted is {choice} ({self.role_map[choice]})")
+
+
 
         if self.is_done:
 
             # if episode is over print winner
             alive_ww = self.get_ids(ww, alive=True)
 
-            msg = copy.copy(self.win_brakets)
+            msg = copy.copy(self.win_brackets)
 
             if len(alive_ww) > 0:
                 msg = msg.replace("-", "Wolves won")
