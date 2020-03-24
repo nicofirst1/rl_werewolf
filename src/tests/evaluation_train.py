@@ -68,5 +68,6 @@ if __name__ == '__main__':
         config=configs,
         trial_name_creator=trial_name_creator,
         checkpoint_freq=Params.checkpoint_freq,
+        keep_checkpoints_num=10,
 
     )
