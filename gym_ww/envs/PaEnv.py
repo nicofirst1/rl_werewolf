@@ -584,17 +584,46 @@ class PaEnv(MultiAgentEnv):
 
             return signal, targets
 
+        def shuffle_sort(dictionary, shuffle_map,value_too=True):
+            """
+            Shuffle a dictionary given a map
+            @param dictionary: dict, dictionary to shuffle
+            @param shuffle_map: dict, map
+            @param value_too: bool, if to shuffle the value too
+            @return: shuffled dictionary
+            """
+
+
+            new_dict={}
+            for k, v in dictionary.items():
+                nk = shuffle_map[k]
+
+                if value_too and v in shuffle_map.keys():
+                    nv = shuffle_map[v]
+                    new_dict[nk] = nv
+                else:
+                    new_dict[nk] = v
+
+            new_dict={k: v for k, v in sorted(new_dict.items(), key=lambda item: item[0])}
+
+            return new_dict
+
+
         observations = {}
 
+        # add missing targets
         signal, targets = add_missing(signal, targets)
+        # shuffle
+        signal=shuffle_sort(signal,self.shuffle_map, value_too=False)
+        targets=shuffle_sort(targets,self.shuffle_map)
+
+        # stack observations
         # make matrix out of signals of size [num_player,signal_length]
-        signal = np.stack(list(signal.values()))
+        sg = np.stack(list(signal.values()))
+        tg = np.asarray(list(targets.values()))
+
         # apply shuffle to status map
         st = [self.status_map[self.shuffle_map[idx]] for idx in range(self.num_players)]
-        # generate shuffle function to be applied to numpy matrix
-        shuffler = np.vectorize(lambda x: self.shuffle_map[x] if x in self.shuffle_map.keys() else x)
-        tg = list(targets.values())
-        tg = shuffler(tg)
 
         for idx in self.get_ids("all", alive=False):
             # build obs dict
@@ -603,7 +632,7 @@ class PaEnv(MultiAgentEnv):
                 status_map=np.array(st),  # agent_id:alive?
                 phase=phase,
                 targets=tg,
-                signal=signal,
+                signal=sg,
                 own_id=idx,
             )
 
