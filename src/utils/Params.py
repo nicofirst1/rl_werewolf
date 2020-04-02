@@ -22,7 +22,11 @@ class Params:
     WORKING_DIR = os.getcwd().split("src")[0]
     SRC_DIR = join_paths(WORKING_DIR, "src")
 
-    LOG_DIR = join_paths(WORKING_DIR, "log_dir")
+    if "s4171632" in WORKING_DIR:
+        LOG_DIR=join_paths("/data/s4171632","log_dir")
+    else:
+        LOG_DIR = join_paths(WORKING_DIR, "log_dir")
+
 
     RAY_DIR = join_paths(LOG_DIR, "ray_results")
     GAME_LOG_DIR = join_paths(LOG_DIR, "match_log")
