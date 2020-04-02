@@ -34,6 +34,8 @@ to zero out the logits of illegal actions and re-normalize. This can work for ev
 
 Solved using parametric actions.
 
+Some penalties are now useless, such as the reward for killing (wolves) and execution (all).
+
 ## Implementing communication
 
 Agents need to communicate to either coordinate (wolves with wolves), or to choose who to execute (wolves vs vill).

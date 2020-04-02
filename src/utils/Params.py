@@ -16,6 +16,12 @@ def join_paths(path1, path2):
 
 class Params:
     ##########################
+    # other
+    ##########################
+
+    unique_id = str(uuid.uuid1())[:8]
+
+    ##########################
     #       Path params
     ##########################
 
@@ -28,37 +34,38 @@ class Params:
         LOG_DIR = join_paths(WORKING_DIR, "log_dir")
 
 
+
+    INNER_LOG_DIR=join_paths(LOG_DIR,unique_id)
+
     RAY_DIR = join_paths(LOG_DIR, "ray_results")
     GAME_LOG_DIR = join_paths(LOG_DIR, "match_log")
     EVAL_DIR = join_paths(LOG_DIR, "eval")
 
     episode_file = join_paths(EVAL_DIR, "episode.pkl")
+    log_match_file = join_paths(GAME_LOG_DIR, f"{unique_id}_log.log")
+
 
     ##########################
     # Performance stuff
     ##########################
-    debug = True
+    debug = False
 
     n_cpus = multiprocessing.cpu_count() if not debug else 1
     n_gpus = 1 if not debug else 0
+    n_workers=7 if not debug else 0
 
     ##########################
     # Evaluation params
     ##########################
-    checkpoint_freq=10
+    checkpoint_freq=50
     log_step=50
+    max_checkpoint_keep=10
 
     ##########################
     # env params
     ##########################
     num_player = 20
 
-    ##########################
-    # other
-    ##########################
-
-    unique_id = str(uuid.uuid1())[:8]
-    log_match_file = join_paths(GAME_LOG_DIR, f"{unique_id}_log.log")
 
     ##########################
     #    METHODS

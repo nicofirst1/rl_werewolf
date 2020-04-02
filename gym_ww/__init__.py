@@ -28,8 +28,9 @@ register(
     entry_point='gym_ww.envs:PolicyWw',
 )
 
-# Initialize envs loggers
 
+
+# Initialize envs loggers
 logger = logging.getLogger("WwEnvs")
 logger.setLevel(logging.DEBUG)
 

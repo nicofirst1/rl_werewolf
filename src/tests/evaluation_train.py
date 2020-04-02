@@ -1,8 +1,10 @@
-from models import ParametricActionsModel
+# initialize param class
 from utils import Params
-from wrappers import EvaluationEnv
-
 Params()
+
+from models import ParametricActionsModel
+from wrappers import EvaluationWrapper
+
 
 from policies.SimpleQPolicy import MyTFPolicy
 
@@ -24,12 +26,12 @@ def mapping(agent_id):
 
 
 if __name__ == '__main__':
-    ParametricActionsModel
-    ray.init(local_mode=Params.debug, logging_level=logging.WARN, num_cpus=Params.n_cpus)
+    _=ParametricActionsModel
+    ray.init(local_mode=Params.debug, logging_level=logging.WARN)
 
     env_configs = {'num_players': Params.num_player}
 
-    env = EvaluationEnv(env_configs)
+    env = EvaluationWrapper(env_configs)
     space = (MyTFPolicy, env.observation_space, env.action_space, {})
 
     policies = dict(
@@ -38,11 +40,12 @@ if __name__ == '__main__':
     )
 
     configs = {
-        "env": EvaluationEnv,
+        "env": EvaluationWrapper,
         "env_config": env_configs,
         "eager": False,
         "eager_tracing": False,
-        "num_workers": 0,
+        "num_workers": Params.n_workers,
+        "num_gpus": Params.n_gpus,
         "batch_mode": "complete_episodes",
 
         "callbacks": {"on_episode_end": on_episode_end, },
@@ -64,5 +67,7 @@ if __name__ == '__main__':
         local_dir=Params.RAY_DIR,
         config=configs,
         trial_name_creator=trial_name_creator,
+        checkpoint_freq=Params.checkpoint_freq,
+        keep_checkpoints_num=Params.max_checkpoint_keep,
 
     )
