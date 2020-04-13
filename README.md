@@ -43,7 +43,7 @@ For a detailed adescription on how the whole architecture has been build please 
 
 In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) relative to the developing of each env and the differences between them.
 
-## TODO
+# TODO
 List of todos
 - make shell script to launch together with [ray dashboard](http://localhost:8265/) and [tensorboard](http://localhost:6006)
 - implement some evaluation methods 
