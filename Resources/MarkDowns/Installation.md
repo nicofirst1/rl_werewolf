@@ -6,6 +6,7 @@ To install follow the instructions.
 4. Install [tensorflow](https://www.tensorflow.org/install/pip)
 5. Install [tensorflow probability](https://www.tensorflow.org/probability/install)
 6. Install [Ray](https://ray.readthedocs.io/en/latest/installation.html#latest-stable-version)
+    - Remember to install `ray[tune]`,`ray[debug]` and `ray[rllib]`
 
 ###  Installing Ray [deprecated]
 This repo uses a custom version of rllib so you need to follow the 
