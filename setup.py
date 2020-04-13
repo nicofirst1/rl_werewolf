@@ -8,12 +8,12 @@ requires = [
     "termcolor >= 1.1.0",
     "requests >= 2.22.0",
     "pandas",
-    "ray[rllib]",
-    "ray[tune]"
+    "ray >= 0.8.4 "
+
 
 ]
 
-setup(name='gym_ww',
-      version='0.0.1',
+setup(name='rl_werewolf',
+      version='1.0.0',
       install_requires=requires,
       )
