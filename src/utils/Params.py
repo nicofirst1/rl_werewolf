@@ -6,7 +6,7 @@ import os
 import shutil
 import sys
 import uuid
-
+import tensorflow as tf
 import termcolor
 
 
@@ -28,8 +28,12 @@ class Params:
     WORKING_DIR = os.getcwd().split("src")[0]
     SRC_DIR = join_paths(WORKING_DIR, "src")
 
+    on_peregrine=False
+
     if "s4171632" in WORKING_DIR:
         LOG_DIR=join_paths("/data/s4171632","log_dir")
+        on_peregrine=True
+        print("Working on peregrine")
     else:
         LOG_DIR = join_paths(WORKING_DIR, "log_dir")
 
@@ -50,9 +54,14 @@ class Params:
     ##########################
     debug = False
 
-    n_cpus = multiprocessing.cpu_count() if not debug else 1
-    n_gpus = 1 if not debug else 0
-    n_workers=7 if not debug else 0
+    if on_peregrine:
+        n_cpus = multiprocessing.cpu_count() if not debug else 1
+        n_gpus = 0 if not debug and tf.test.is_gpu_available() else 0
+        n_workers=7 if not debug else 0
+    else:
+        n_cpus = multiprocessing.cpu_count() if not debug else 1
+        n_gpus = 0 if not debug and tf.test.is_gpu_available() else 0
+        n_workers=1 if not debug else 0
 
     ##########################
     # Evaluation params
@@ -76,16 +85,11 @@ class Params:
         Use argparse to change the default values in the param class
         """
 
-        EXAMPLE_USAGE = "python FlowMas/simulation.py {args}"
 
         att = self.__get_attributes()
 
         """Create the parser to capture CLI arguments."""
-        parser = argparse.ArgumentParser(
-            formatter_class=argparse.RawDescriptionHelpFormatter,
-            description='[Flow] Evaluates a reinforcement learning agent '
-                        'given a checkpoint.',
-            epilog=EXAMPLE_USAGE)
+        parser = argparse.ArgumentParser()
 
         # for every attribute add an arg instance
         for k, v in att.items():
