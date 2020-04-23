@@ -39,7 +39,6 @@ class Params:
 
 
 
-    INNER_LOG_DIR=join_paths(LOG_DIR,unique_id)
 
     RAY_DIR = join_paths(LOG_DIR, "ray_results")
     GAME_LOG_DIR = join_paths(LOG_DIR, "match_log")

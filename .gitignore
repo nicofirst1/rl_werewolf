@@ -14,3 +14,6 @@ dist/
 Resources/.DS_Store
 
 *.zip
+
+build/*
+rl_werewolf.egg-info/

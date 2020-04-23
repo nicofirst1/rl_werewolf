@@ -1,4 +1,6 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+
+
 
 requires = [
     "numpy >= 1.17.4",
@@ -8,12 +10,15 @@ requires = [
     "termcolor >= 1.1.0",
     "requests >= 2.22.0",
     "pandas",
-    "ray >= 0.8.4 "
-
+    "ray >= 0.8.2",
 
 ]
 
-setup(name='rl_werewolf',
-      version='1.0.0',
+setup(name='rl-werewolf',
+      version='1.0',
       install_requires=requires,
+      description='Werewolf game with deep reinforcement learning',
+      author='Nicolo Brandizzi',
+      packages = find_packages(),
+
       )

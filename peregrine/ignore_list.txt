@@ -7,3 +7,4 @@ ray_results
 log_dir
 dist
 *.DS_Store
+*.zip
