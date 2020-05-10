@@ -10,6 +10,8 @@
 - 狼人殺 (Werewolf kill, Cinese)
 - Libahunt (Werewolf,Estonia)
 - Loup Garous (Werewolves, French)
+- Werewölfe (Werewolves, German)
+- Weerwolven (Werewolves, Dutch)
 
 In its most basic version there are __villagers__ (aka. vil) and __werewolf__ (aka.  ww). 
 Notice that the number of wolves should always be less than the number of vil.
