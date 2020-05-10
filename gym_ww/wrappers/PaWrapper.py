@@ -66,7 +66,7 @@ class ParametricActionWrapper(PaEnv):
         def mask_signal():
             """
             Generate mask for signal
-            :return: list[bool]: 1 for allowable returns, 0 otehrwise
+            :return: list[bool]: 1 for allowable returns, 0 otherwise
             """
             mask = [0 for _ in range(self.num_players)]
             range_ = self.signal_range
@@ -75,7 +75,9 @@ class ParametricActionWrapper(PaEnv):
             return mask
 
         mask = mask_targets()
-        mask += mask_signal()
+
+        if self.signal_length>0:
+            mask += mask_signal()
         return np.asarray(mask)
 
     def wrap_obs(self, observations):

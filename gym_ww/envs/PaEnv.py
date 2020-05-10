@@ -44,7 +44,7 @@ CONFIGS = dict(
     # signal is used in the communication phase to signal other agents about intentions
     # the length concerns the dimension of the signal while the components is the range of values it can fall into
     # a range value of 2 is equal to binary variable
-    signal_length=1,
+    signal_length=0,
     signal_range=2,
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
@@ -376,11 +376,17 @@ class PaEnv(MultiAgentEnv):
         :param actions_dict: dict[int->obj], map agent id to action
         :return: signals and target
         """
-        # split signals from targets
-        signals = {k: v[1:] for k, v in actions_dict.items()}
 
-        # remove signals from action dict
-        targets = {k: v[0] for k, v in actions_dict.items()}
+        # split signals from targets
+        if self.signal_length>0:
+            signals = {k: v[1:] for k, v in actions_dict.items()}
+            # remove signals from action dict
+            targets = {k: v[0] for k, v in actions_dict.items()}
+        else:
+            signals={}
+            targets=actions_dict
+
+
 
         # apply unshuffle
         targets = {k: self.unshuffle_map[v] for k, v in targets.items()}
@@ -517,7 +523,12 @@ class PaEnv(MultiAgentEnv):
 
         # the action space is made of two parts: the first element is the actual target they want to be executed
         # and the other ones are the signal space
-        space = gym.spaces.MultiDiscrete([self.num_players] * (self.signal_length + 1))
+        if self.signal_length> 0:
+            space = gym.spaces.MultiDiscrete([self.num_players] * (self.signal_length + 1))
+        else:
+            space = gym.spaces.Discrete(self.num_players)
+            space.nvec=[space.n]
+
         # high=[self.num_players]+[self.signal_range-1]*self.signal_length
         # low=[-1]+[0]*self.signal_length
         # space = gym.spaces.Box(low=np.array(low), high=np.array(high), dtype=np.int32)
@@ -541,13 +552,18 @@ class PaEnv(MultiAgentEnv):
             phase=spaces.Discrete(4),
             # targets is now a vector, having an element outputted from each agent
             targets=gym.spaces.Box(low=-1, high=self.num_players, shape=(self.num_players,), dtype=np.int32),
-            # signal is a matrix of dimension [num_player, signal_range]
-            signal=gym.spaces.Box(low=-1, high=self.signal_range - 1, shape=(self.num_players, self.signal_length),
-                                  dtype=np.int32),
             # own id
             own_id=gym.spaces.Discrete(self.num_players),
 
         )
+
+        # add signal if the required
+        if self.signal_length>0:
+            # signal is a matrix of dimension [num_player, signal_range]
+            signal=dict(signal = gym.spaces.Box(low=-1, high=self.signal_range - 1, shape=(self.num_players, self.signal_length),
+                                    dtype=np.int32))
+            obs.update(signal)
+
         obs = gym.spaces.Dict(obs)
 
         return obs
@@ -580,7 +596,9 @@ class PaEnv(MultiAgentEnv):
 
             # update dict with -1
             targets.update({elem: -1 for elem in to_add})
-            signal.update({elem: sg for elem in to_add})
+
+            if len(signal)>0:
+                signal.update({elem: sg for elem in to_add})
 
             return signal, targets
 
@@ -592,6 +610,7 @@ class PaEnv(MultiAgentEnv):
             @param value_too: bool, if to shuffle the value too
             @return: shuffled dictionary
             """
+
 
 
             new_dict={}
@@ -613,14 +632,19 @@ class PaEnv(MultiAgentEnv):
 
         # add missing targets
         signal, targets = add_missing(signal, targets)
+
+
         # shuffle
-        signal=shuffle_sort(signal,self.shuffle_map, value_too=False)
         targets=shuffle_sort(targets,self.shuffle_map)
+        signal = shuffle_sort(signal, self.shuffle_map, value_too=False)
 
         # stack observations
         # make matrix out of signals of size [num_player,signal_length]
-        sg = np.stack(list(signal.values()))
         tg = np.asarray(list(targets.values()))
+        if len(signal)>0:
+            sg = np.stack(list(signal.values()))
+        else:
+            sg={}
 
         # apply shuffle to status map
         st = [self.status_map[self.shuffle_map[idx]] for idx in range(self.num_players)]
@@ -632,9 +656,11 @@ class PaEnv(MultiAgentEnv):
                 status_map=np.array(st),  # agent_id:alive?
                 phase=phase,
                 targets=tg,
-                signal=sg,
                 own_id=idx,
             )
+
+            if self.signal_length>0:
+                obs["signal"]=sg
 
             observations[idx] = obs
 

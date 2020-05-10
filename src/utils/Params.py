@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import uuid
+
 import tensorflow as tf
 import termcolor
 
@@ -28,17 +29,14 @@ class Params:
     WORKING_DIR = os.getcwd().split("src")[0]
     SRC_DIR = join_paths(WORKING_DIR, "src")
 
-    on_peregrine=False
+    on_peregrine = False
 
     if "s4171632" in WORKING_DIR:
-        LOG_DIR=join_paths("/data/s4171632","log_dir")
-        on_peregrine=True
+        LOG_DIR = join_paths("/data/s4171632", "log_dir")
+        on_peregrine = True
         print("Working on peregrine")
     else:
         LOG_DIR = join_paths(WORKING_DIR, "log_dir")
-
-
-
 
     RAY_DIR = join_paths(LOG_DIR, "ray_results")
     GAME_LOG_DIR = join_paths(LOG_DIR, "match_log")
@@ -46,7 +44,6 @@ class Params:
 
     episode_file = join_paths(EVAL_DIR, "episode.pkl")
     log_match_file = join_paths(GAME_LOG_DIR, f"{unique_id}_log.log")
-
 
     ##########################
     # Performance stuff
@@ -56,24 +53,23 @@ class Params:
     if on_peregrine:
         n_cpus = multiprocessing.cpu_count() if not debug else 1
         n_gpus = 0 if not debug and tf.test.is_gpu_available() else 0
-        n_workers=7 if not debug else 0
+        n_workers = 7 if not debug else 0
     else:
         n_cpus = multiprocessing.cpu_count() if not debug else 1
         n_gpus = 0 if not debug and tf.test.is_gpu_available() else 0
-        n_workers=1 if not debug else 0
+        n_workers = 1 if not debug else 0
 
     ##########################
     # Evaluation params
     ##########################
-    checkpoint_freq=50
-    log_step=50
-    max_checkpoint_keep=10
+    checkpoint_freq = 50
+    log_step = 50
+    max_checkpoint_keep = 10
 
     ##########################
     # env params
     ##########################
     num_player = 20
-
 
     ##########################
     #    METHODS
@@ -83,7 +79,6 @@ class Params:
         """
         Use argparse to change the default values in the param class
         """
-
 
         att = self.__get_attributes()
 

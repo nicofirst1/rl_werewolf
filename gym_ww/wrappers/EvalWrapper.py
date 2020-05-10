@@ -45,6 +45,7 @@ class EvaluationWrapper(ParametricActionWrapper):
 
         # remove names from ids
         signals = {int(k.split("_")[1]): v for k, v in signals.items()}
+
         targets = {int(k.split("_")[1]): v for k, v in original_target.items()}
 
         self.log_diffs(prev, targets, signals)

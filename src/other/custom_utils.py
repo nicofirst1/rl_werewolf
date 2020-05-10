@@ -88,7 +88,9 @@ def pprint(votes, signals, roles, logger, signal_length, level=logging.DEBUG, fi
     to_print += "-" * len(to_print) + "\n"
 
     for idx in votes.keys():
-        targets = [f"Ag_{votes[idx]}"] + [f"{sign}" for sign in signals[idx]]
+        targets = [f"Ag_{votes[idx]}"]
+        if len(signals)>0:
+            targets+= [f"{sign}" for sign in signals[idx]]
         name = f"{roles[idx]}_{idx}"
         fr = "|{:<15} |" + separator
         to_print += fr.format(name, *targets) + "\n"
