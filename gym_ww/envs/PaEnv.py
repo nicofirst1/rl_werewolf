@@ -44,7 +44,7 @@ CONFIGS = dict(
     # signal is used in the communication phase to signal other agents about intentions
     # the length concerns the dimension of the signal while the components is the range of values it can fall into
     # a range value of 2 is equal to binary variable
-    signal_length=0,
+    signal_length=10,
     signal_range=2,
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
@@ -524,7 +524,7 @@ class PaEnv(MultiAgentEnv):
         # the action space is made of two parts: the first element is the actual target they want to be executed
         # and the other ones are the signal space
         if self.signal_length> 0:
-            space = gym.spaces.MultiDiscrete([self.num_players] * (self.signal_length + 1))
+            space = gym.spaces.MultiDiscrete([self.num_players] * (1+self.signal_length ))
         else:
             space = gym.spaces.Discrete(self.num_players)
             space.nvec=[space.n]

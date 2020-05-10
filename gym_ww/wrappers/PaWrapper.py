@@ -68,10 +68,12 @@ class ParametricActionWrapper(PaEnv):
             Generate mask for signal
             :return: list[bool]: 1 for allowable returns, 0 otherwise
             """
-            mask = [0 for _ in range(self.num_players)]
+            mask = [0 for _ in range(self.num_players)]*self.signal_length
             range_ = self.signal_range
 
-            mask[:range_] = [1] * range_
+            for i in range(self.signal_length):
+                offset=i*self.num_players
+                mask[offset:offset+range_] = [1] * range_
             return mask
 
         mask = mask_targets()
@@ -111,7 +113,7 @@ class ParametricActionWrapper(PaEnv):
 
 
     @PaEnv.observation_space.getter
-    def observation_space(self):
+    def action_space(self):
         return super().action_space
 
     @PaEnv.observation_space.getter
