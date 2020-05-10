@@ -142,3 +142,10 @@ I opened an [issue on github](https://github.com/ray-project/ray/issues/6757). S
 
 - With low _dead_man_execution_ penalty agents learn to never make the game end by voting dead mans. The game crashes when total number of days exceeds the maximum. For this penalty has been increased from -2 to -10 (same as loosing)
 - Should build abstract policy for player to avoid illegal actions, the class can then be overridden for roles
+
+## Communication influence
+An attempt to run two model for the same time and with same params for both communication with boolean scalar and no communication has been made.
+The results are the following:
+- Results
+
+Next step will be to increase the amount of communication available between agents.

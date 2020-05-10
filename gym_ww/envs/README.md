@@ -49,6 +49,7 @@ Based on _TurnEnvWw_. Has the following updates:
 - It discards the possibility of cannibalism and dead-man kills and rule breaking.
 - Every custom metric\logging has been moved outside the class.
 - Implement signal based communication 
+- Option to not use signals at all
 
 #### TODO
 - move custom metrics outside [X]
