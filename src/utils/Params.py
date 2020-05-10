@@ -44,7 +44,7 @@ class Params:
 
     episode_file = join_paths(EVAL_DIR, "episode.pkl")
     log_match_file = join_paths(GAME_LOG_DIR, f"{unique_id}_log.log")
-    params_file=join_paths(GAME_LOG_DIR,"params.log")
+    params_file = join_paths(GAME_LOG_DIR, "params.log")
 
     ##########################
     # Performance stuff
@@ -105,8 +105,8 @@ class Params:
         self.__parse_args()
 
         # log params to file and out
-        with open(self.params_file,"w+") as f:
-            self.__log_params([sys.stdout,f])
+        with open(self.params_file, "w+") as f:
+            self.__log_params([sys.stdout, f])
 
     def __get_attributes(self):
         """
@@ -146,8 +146,8 @@ class Params:
         color = "yellow"
         msg = termcolor.colored(msg, color=color)
 
-        if not isinstance(out,list):
-            out=[out]
+        if not isinstance(out, list):
+            out = [out]
 
         # print them to given out
         for sts in out:

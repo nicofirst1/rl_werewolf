@@ -2,7 +2,6 @@ from functools import reduce
 
 import gym
 import numpy as np
-from ray.rllib import MultiAgentEnv
 from ray.rllib.models.preprocessors import get_preprocessor
 from ray.rllib.utils.error import UnsupportedSpaceException
 
@@ -68,17 +67,17 @@ class ParametricActionWrapper(PaEnv):
             Generate mask for signal
             :return: list[bool]: 1 for allowable returns, 0 otherwise
             """
-            mask = [0 for _ in range(self.num_players)]*self.signal_length
+            mask = [0 for _ in range(self.num_players)] * self.signal_length
             range_ = self.signal_range
 
             for i in range(self.signal_length):
-                offset=i*self.num_players
-                mask[offset:offset+range_] = [1] * range_
+                offset = i * self.num_players
+                mask[offset:offset + range_] = [1] * range_
             return mask
 
         mask = mask_targets()
 
-        if self.signal_length>0:
+        if self.signal_length > 0:
             mask += mask_signal()
         return np.asarray(mask)
 
@@ -110,8 +109,6 @@ class ParametricActionWrapper(PaEnv):
         # use TurnEnvWw as wrapped env
         super().__init__(configs, roles, flex)
 
-
-
     @PaEnv.observation_space.getter
     def action_space(self):
         return super().action_space
@@ -119,7 +116,7 @@ class ParametricActionWrapper(PaEnv):
     @PaEnv.observation_space.getter
     def observation_space(self):
 
-        super_obs=super().observation_space
+        super_obs = super().observation_space
         # transform original space to box
         obs = _make_box_from_obs(super_obs)
 
@@ -131,6 +128,7 @@ class ParametricActionWrapper(PaEnv):
         })
 
         return observation_space
+
 
 def _make_box_from_obs(space):
     """

@@ -378,15 +378,13 @@ class PaEnv(MultiAgentEnv):
         """
 
         # split signals from targets
-        if self.signal_length>0:
+        if self.signal_length > 0:
             signals = {k: v[1:] for k, v in actions_dict.items()}
             # remove signals from action dict
             targets = {k: v[0] for k, v in actions_dict.items()}
         else:
-            signals={}
-            targets=actions_dict
-
-
+            signals = {}
+            targets = actions_dict
 
         # apply unshuffle
         targets = {k: self.unshuffle_map[v] for k, v in targets.items()}
@@ -523,11 +521,11 @@ class PaEnv(MultiAgentEnv):
 
         # the action space is made of two parts: the first element is the actual target they want to be executed
         # and the other ones are the signal space
-        if self.signal_length> 0:
-            space = gym.spaces.MultiDiscrete([self.num_players] * (1+self.signal_length ))
+        if self.signal_length > 0:
+            space = gym.spaces.MultiDiscrete([self.num_players] * (1 + self.signal_length))
         else:
             space = gym.spaces.Discrete(self.num_players)
-            space.nvec=[space.n]
+            space.nvec = [space.n]
 
         # high=[self.num_players]+[self.signal_range-1]*self.signal_length
         # low=[-1]+[0]*self.signal_length
@@ -558,10 +556,11 @@ class PaEnv(MultiAgentEnv):
         )
 
         # add signal if the required
-        if self.signal_length>0:
+        if self.signal_length > 0:
             # signal is a matrix of dimension [num_player, signal_range]
-            signal=dict(signal = gym.spaces.Box(low=-1, high=self.signal_range - 1, shape=(self.num_players, self.signal_length),
-                                    dtype=np.int32))
+            signal = dict(
+                signal=gym.spaces.Box(low=-1, high=self.signal_range - 1, shape=(self.num_players, self.signal_length),
+                                      dtype=np.int32))
             obs.update(signal)
 
         obs = gym.spaces.Dict(obs)
@@ -597,12 +596,12 @@ class PaEnv(MultiAgentEnv):
             # update dict with -1
             targets.update({elem: -1 for elem in to_add})
 
-            if len(signal)>0:
+            if len(signal) > 0:
                 signal.update({elem: sg for elem in to_add})
 
             return signal, targets
 
-        def shuffle_sort(dictionary, shuffle_map,value_too=True):
+        def shuffle_sort(dictionary, shuffle_map, value_too=True):
             """
             Shuffle a dictionary given a map
             @param dictionary: dict, dictionary to shuffle
@@ -611,9 +610,7 @@ class PaEnv(MultiAgentEnv):
             @return: shuffled dictionary
             """
 
-
-
-            new_dict={}
+            new_dict = {}
             for k, v in dictionary.items():
                 nk = shuffle_map[k]
 
@@ -623,28 +620,26 @@ class PaEnv(MultiAgentEnv):
                 else:
                     new_dict[nk] = v
 
-            new_dict={k: v for k, v in sorted(new_dict.items(), key=lambda item: item[0])}
+            new_dict = {k: v for k, v in sorted(new_dict.items(), key=lambda item: item[0])}
 
             return new_dict
-
 
         observations = {}
 
         # add missing targets
         signal, targets = add_missing(signal, targets)
 
-
         # shuffle
-        targets=shuffle_sort(targets,self.shuffle_map)
+        targets = shuffle_sort(targets, self.shuffle_map)
         signal = shuffle_sort(signal, self.shuffle_map, value_too=False)
 
         # stack observations
         # make matrix out of signals of size [num_player,signal_length]
         tg = np.asarray(list(targets.values()))
-        if len(signal)>0:
+        if len(signal) > 0:
             sg = np.stack(list(signal.values()))
         else:
-            sg={}
+            sg = {}
 
         # apply shuffle to status map
         st = [self.status_map[self.shuffle_map[idx]] for idx in range(self.num_players)]
@@ -659,8 +654,8 @@ class PaEnv(MultiAgentEnv):
                 own_id=idx,
             )
 
-            if self.signal_length>0:
-                obs["signal"]=sg
+            if self.signal_length > 0:
+                obs["signal"] = sg
 
             observations[idx] = obs
 

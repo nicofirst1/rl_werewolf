@@ -1,10 +1,10 @@
 # initialize param class
 from utils import Params
+
 Params()
 
 from models import ParametricActionsModel
 from wrappers import EvaluationWrapper
-
 
 from policies.SimpleQPolicy import MyTFPolicy
 
@@ -26,7 +26,7 @@ def mapping(agent_id):
 
 
 if __name__ == '__main__':
-    _=ParametricActionsModel
+    _ = ParametricActionsModel
     ray.init(local_mode=Params.debug, logging_level=logging.WARN)
 
     env_configs = {'num_players': Params.num_player}

@@ -1,4 +1,5 @@
 import copy
+import json
 import logging
 
 import numpy as np
@@ -9,7 +10,7 @@ from gym_ww import logger, ww, vil
 from other.custom_utils import pprint, suicide_num, most_frequent
 from utils import Params
 from wrappers.PaWrapper import ParametricActionWrapper
-import json
+
 
 class EvaluationWrapper(ParametricActionWrapper):
     """
@@ -58,7 +59,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         """
         Calls reset function initializing the episode class again
         """
-        #self.log("Reset called")
+        # self.log("Reset called")
 
         self.episode.days = self.day_count
 
@@ -91,7 +92,6 @@ class EvaluationWrapper(ParametricActionWrapper):
 
         self.log(f"Config follows:\n{json.dumps(CONFIGS)}")
 
-
         # todo: find a way to split when there are multiple workes
         self.prof = Prof()
         self.episode = Episode(self.num_players)
@@ -113,7 +113,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.custom_metrics["suicide"] /= (self.day_count + 1)
         self.custom_metrics["suicide"] /= self.num_players
 
-        self.custom_metrics["accord"] /= (self.day_count + 1)*2
+        self.custom_metrics["accord"] /= (self.day_count + 1) * 2
 
     def initialize_info(self):
 
@@ -142,20 +142,19 @@ class EvaluationWrapper(ParametricActionWrapper):
             self.custom_metrics["suicide"] += suicide_num(targets)
             # update number of differ
             chosen = most_frequent(targets)
-            accord=sum([1 for t in targets.values() if t == chosen]) / len(targets)
+            accord = sum([1 for t in targets.values() if t == chosen]) / len(targets)
             self.custom_metrics["accord"] += accord
 
-            if accord>1: raise AttributeError("Accord garter than 1")
+            if accord > 1: raise AttributeError("Accord garter than 1")
 
         if self.phase == 1:
             were_wolves = self.get_ids(ww, alive=True)
             were_wolves = {k: v for k, v in targets.items() if k in were_wolves}
             chosen = most_frequent(were_wolves)
-            accord=sum([1 for t in were_wolves.values() if t == chosen]) / len(were_wolves)
+            accord = sum([1 for t in were_wolves.values() if t == chosen]) / len(were_wolves)
             self.custom_metrics["accord"] += accord
 
-            if accord>1: raise AttributeError("Accord garter than 1")
-
+            if accord > 1: raise AttributeError("Accord garter than 1")
 
         if self.is_done:
 
@@ -226,15 +225,11 @@ class EvaluationWrapper(ParametricActionWrapper):
             else:
                 msg += "executed"
 
-
-
             self.log(msg=msg)
 
         else:
-            choice=most_frequent(targets)
-            self.log(msg= f"Most voted is {choice} ({self.role_map[choice]})")
-
-
+            choice = most_frequent(targets)
+            self.log(msg=f"Most voted is {choice} ({self.role_map[choice]})")
 
         if self.is_done:
 

@@ -1,7 +1,5 @@
 from setuptools import setup, find_packages
 
-
-
 requires = [
     "numpy >= 1.17.4",
     "gym >= 0.15.4",
@@ -19,6 +17,6 @@ setup(name='rl-werewolf',
       install_requires=requires,
       description='Werewolf game with deep reinforcement learning',
       author='Nicolo Brandizzi',
-      packages = find_packages(),
+      packages=find_packages(),
 
       )

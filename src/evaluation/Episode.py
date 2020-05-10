@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Episode:
     """
     Class to hold info about a training episode, that is from the start of a game till one wins
@@ -30,9 +27,9 @@ class Episode:
 
     def __init__(self, num_player):
         self.days = 0
-        self.observations=[]
-        self.targets=[]
-        self.signals=[]
+        self.observations = []
+        self.targets = []
+        self.signals = []
 
         self.alive = []
         self.num_players = num_player
@@ -45,4 +42,3 @@ class Episode:
 
     def add_signals(self, signal):
         self.signals.append(signal)
-

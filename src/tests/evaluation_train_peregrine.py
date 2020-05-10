@@ -1,16 +1,16 @@
 # initialize param class
-import sys, os
+import os
+import sys
 
-pwd=os.getcwd().split("rl-werewolf")[0]
+pwd = os.getcwd().split("rl-werewolf")[0]
 sys.path.extend([f'{pwd}/rl-werewolf', f'{pwd}/rl-werewolf/src', f'{pwd}/rl-werewolf/gym_ww'])
 
-
 from utils import Params
+
 Params()
 
 from models import ParametricActionsModel
 from gym_ww.wrappers import EvaluationWrapper
-
 
 from policies.SimpleQPolicy import MyTFPolicy
 
@@ -32,7 +32,7 @@ def mapping(agent_id):
 
 
 if __name__ == '__main__':
-    _=ParametricActionsModel
+    _ = ParametricActionsModel
     ray.init(local_mode=Params.debug, logging_level=logging.INFO,
              num_cpus=8,
              num_gpus=1,
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         "eager": False,
         "eager_tracing": False,
         "num_workers": Params.n_workers,
-        #"num_gpus": Params.n_gpus,
+        # "num_gpus": Params.n_gpus,
         "batch_mode": "complete_episodes",
 
         "callbacks": {"on_episode_end": on_episode_end, },
