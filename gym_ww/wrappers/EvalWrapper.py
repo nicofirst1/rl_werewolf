@@ -3,12 +3,13 @@ import logging
 
 import numpy as np
 
+from envs.PaEnv import CONFIGS
 from evaluation import Prof, Episode
 from gym_ww import logger, ww, vil
 from other.custom_utils import pprint, suicide_num, most_frequent
 from utils import Params
 from wrappers.PaWrapper import ParametricActionWrapper
-
+import json
 
 class EvaluationWrapper(ParametricActionWrapper):
     """
@@ -57,7 +58,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         """
         Calls reset function initializing the episode class again
         """
-        self.log("Reset called")
+        #self.log("Reset called")
 
         self.episode.days = self.day_count
 
@@ -87,6 +88,9 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.log(
             f"Starting game with {self.num_players} players: {self.num_players - self.num_wolves}"
             f" {vil} and {self.num_wolves} {ww}")
+
+        self.log(f"Config follows:\n{json.dumps(CONFIGS)}")
+
 
         # todo: find a way to split when there are multiple workes
         self.prof = Prof()
