@@ -17,3 +17,5 @@ Resources/.DS_Store
 
 build/*
 rl_werewolf.egg-info/
+
+.DS_Store

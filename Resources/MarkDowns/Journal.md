@@ -144,8 +144,14 @@ I opened an [issue on github](https://github.com/ray-project/ray/issues/6757). S
 - Should build abstract policy for player to avoid illegal actions, the class can then be overridden for roles
 
 ## Communication influence
-An attempt to run two model for the same time and with same params for both communication with boolean scalar and no communication has been made.
+As today three cases has been trained from zero, where the only difference lays in the communication:
+- No communication 
+- single bit communication
+- 10 bit communication
 The results are the following:
-- Results
+- There seems to be no difference between victories and losses
+- The single bit case has a day length increase sharper than the other two at the start, but then it converges
+- suicide is slightly lower for single bit communication
+- accord is the same for everyone
 
 Next step will be to increase the amount of communication available between agents.
