@@ -651,7 +651,7 @@ class PaEnv(MultiAgentEnv):
                 status_map=np.array(st),  # agent_id:alive?
                 phase=phase,
                 targets=tg,
-                own_id=idx,
+                own_id=self.shuffle_map[idx],
             )
 
             if self.signal_length > 0:
