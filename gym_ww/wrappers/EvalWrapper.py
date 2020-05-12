@@ -33,7 +33,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         targets = np.stack(list(original_target.values()))
         eval_obs = dict(
             day=self.day_count,
-            status_map=self.status_map,
+            status_map=copy.deepcopy(self.status_map),
             phase=self.phase,
 
         )
@@ -42,7 +42,11 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.episode.add_target(targets)
         self.episode.add_signals(signals)
 
+        # save current config before changing
         prev = copy.deepcopy(self)
+
+        # execute step in super to change info, do not move this line
+        obs, rewards, dones, info = super().step(action_dict)
 
         # remove names from ids
         signals = {int(k.split("_")[1]): v for k, v in signals.items()}
@@ -53,7 +57,6 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.update_metrics(targets)
 
 
-        obs, rewards, dones, info = super().step(action_dict)
         return obs, rewards, dones, info
 
     def reset(self):
