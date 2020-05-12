@@ -43,7 +43,6 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.episode.add_signals(signals)
 
         prev = copy.deepcopy(self)
-        obs, rewards, dones, info = super().step(action_dict)
 
         # remove names from ids
         signals = {int(k.split("_")[1]): v for k, v in signals.items()}
@@ -53,6 +52,8 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.log_diffs(prev, targets, signals)
         self.update_metrics(targets)
 
+
+        obs, rewards, dones, info = super().step(action_dict)
         return obs, rewards, dones, info
 
     def reset(self):
