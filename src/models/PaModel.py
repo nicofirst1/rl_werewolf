@@ -20,6 +20,8 @@ class ParametricActionsModel(TFModelV2):
                  model_config,
                  name,
                  ):
+
+        name="Pa_model"
         super(ParametricActionsModel, self).__init__(
             obs_space, action_space, num_outputs, model_config, name)
 
@@ -53,9 +55,6 @@ class ParametricActionsModel(TFModelV2):
         action_mask = obs['action_mask']
         # extract original observations [batch size, obs size]
         original_obs = obs['original_obs']
-
-        # copy it on the second dimension to match action embed shape
-        # so now it will be [batch size, num players ]
 
         # Compute the predicted action embedding
         # size [batch size, num players * num players]
