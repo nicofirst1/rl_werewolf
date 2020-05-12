@@ -39,8 +39,8 @@ A reward dictionary is initialize with
         # lost
         lost=-25,
         # penalty used for punishing votes that are not chosen during execution/kill.
-        # If agent1 outputs [4,2,3,1,0] as a target list and agent2 get executed then agent1 get
-        # a penalty equal to index_of(agent2,targets)*penalty
+        # If agent1 outputs [4] as a target and agent2 get executed then agent1 get
+        # a penalty of trg_accord
         trg_accord=-1,
 
     ),
