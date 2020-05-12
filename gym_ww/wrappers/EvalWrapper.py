@@ -112,7 +112,6 @@ class EvaluationWrapper(ParametricActionWrapper):
         """
 
         self.custom_metrics["suicide"] /= (self.day_count + 1)
-        self.custom_metrics["suicide"] /= self.num_players
 
         self.custom_metrics["accord"] /= (self.day_count + 1) * 2
 
@@ -140,7 +139,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         # update suicide num
         if self.phase == 3:
             # add number of suicides
-            self.custom_metrics["suicide"] += suicide_num(targets)
+            self.custom_metrics["suicide"] += suicide_num(targets)/len(targets)
             # update number of differ
             chosen = most_frequent(targets)
             accord = sum([1 for t in targets.values() if t == chosen]) / len(targets)
@@ -148,7 +147,7 @@ class EvaluationWrapper(ParametricActionWrapper):
 
             if accord > 1: raise AttributeError("Accord garter than 1")
 
-        if self.phase == 1:
+        elif self.phase == 1:
             were_wolves = self.get_ids(ww, alive=True)
             were_wolves = {k: v for k, v in targets.items() if k in were_wolves}
             chosen = most_frequent(were_wolves)
