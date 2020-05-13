@@ -330,7 +330,7 @@ class TurnEnvWw(MultiAgentEnv):
         # print actions
         if Params.log_step == self.ep_step:
             filter_ids = self.get_ids(ww, alive=True) if phase in [0, 1] else self.get_ids('all', alive=True)
-            pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger, filter_ids=filter_ids)
+            pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger, filtered_ids=filter_ids)
 
         # get dones
         dones, rewards = self.check_done(rewards)

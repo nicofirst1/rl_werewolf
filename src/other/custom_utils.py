@@ -65,10 +65,10 @@ def suicide_num(votes):
     return res
 
 
-def pprint(votes, signals, roles, logger, signal_length, level=logging.DEBUG, filter_ids=None):
+def pprint(votes, signals, roles, logger, signal_length, level=logging.DEBUG, filtered_ids=None):
     """
     Print in a meaningful way the agent choices
-    :param filter_ids: list[str], optional, list of ids to consider
+    :param filtered_ids: list[str], optional, list of ids to consider
     :param votes: dict[int->list[int]], maps voter to targets
     :param roles: list[str], list of roles, ordered
     :param logger: logger
@@ -77,8 +77,8 @@ def pprint(votes, signals, roles, logger, signal_length, level=logging.DEBUG, fi
     """
 
     # filter ids
-    if filter_ids is not None:
-        votes = {k: v for k, v in votes.items() if k in filter_ids}
+    if filtered_ids is not None:
+        votes = {k: v for k, v in votes.items() if k in filtered_ids}
 
     separator = "| {:<6} |" * (1 + signal_length)
 

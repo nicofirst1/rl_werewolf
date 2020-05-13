@@ -54,7 +54,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         targets = {int(k.split("_")[1]): v for k, v in original_target.items()}
 
         #fixme: comment + fix
-        #self.log_diffs(prev, targets, signals)
+        self.log_diffs(prev, targets, signals)
         self.update_metrics(targets)
 
 
@@ -97,7 +97,7 @@ class EvaluationWrapper(ParametricActionWrapper):
 
         self.log(f"Config follows:\n{json.dumps(CONFIGS)}")
 
-        # todo: find a way to split when there are multiple workes
+        # todo: find a way to split when there are multiple workers
         self.prof = Prof()
         self.episode = Episode(self.num_players)
         self.episode_count = 1
@@ -208,10 +208,10 @@ class EvaluationWrapper(ParametricActionWrapper):
             self.log(f"Phase {self.phase} | Day Time| Executing")
 
         # print actions
-        filter_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
+        filtered_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
 
         pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger,
-               filter_ids=filter_ids)
+               filtered_ids=filtered_ids)
 
         # notify of dead agents
         if self.phase in [1, 3]:
@@ -223,7 +223,7 @@ class EvaluationWrapper(ParametricActionWrapper):
             # build msg
             msg = f"Player {dead} ({self.role_map[dead]}) has been "
 
-            # personalize for context
+            # personalize for role
             if self.phase == 1:
                 msg += "eaten"
             else:
@@ -231,8 +231,9 @@ class EvaluationWrapper(ParametricActionWrapper):
 
             self.log(msg=msg)
 
+        # else report most voted
         else:
-            choice = most_frequent([elem for elem in targets if elem not in filter_ids])
+            choice = most_frequent(filtered_ids)
             self.log(msg=f"Most voted is {choice} ({self.role_map[choice]})")
 
         if self.is_done:
