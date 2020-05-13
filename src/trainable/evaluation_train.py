@@ -1,4 +1,6 @@
 # initialize param class
+from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
+
 from utils import Params
 
 Params()
@@ -32,7 +34,7 @@ if __name__ == '__main__':
     env_configs = {'num_players': Params.num_player}
 
     env = EvaluationWrapper(env_configs)
-    space = (MyTFPolicy, env.observation_space, env.action_space, {})
+    space = (PPOTFPolicy, env.observation_space, env.action_space, {})
 
     policies = dict(
         wolf_p=space,
@@ -47,6 +49,17 @@ if __name__ == '__main__':
         "num_workers": Params.n_workers,
         "num_gpus": Params.n_gpus,
         "batch_mode": "complete_episodes",
+
+        # PPO parameter taken from OpenAi paper
+        "lr": 3e-4,
+        "lambda": .95,
+        "gamma": .998,
+        "entropy_coeff": 0.01,
+        "kl_coeff": 1.0,
+        "clip_param": 0.2,
+        "use_critic": True,
+        "use_gae": True,
+        "grad_clip": 5,
 
         "callbacks": {"on_episode_end": on_episode_end, },
         "model": {
@@ -63,7 +76,7 @@ if __name__ == '__main__':
     }
 
     analysis = tune.run(
-        "A2C",
+        "PPO",
         local_dir=Params.RAY_DIR,
         config=configs,
         trial_name_creator=trial_name_creator,

@@ -69,7 +69,7 @@ List of todos
 - [Docs](https://ray.readthedocs.io/en/latest/index.html)
 - [Model configs](https://ray.readthedocs.io/en/latest/rllib-models.html#built-in-model-parameters)
 - [Common config](https://ray.readthedocs.io/en/latest/rllib-training.html#common-parameters)
-- []()
+- [SelfPlay](https://github.com/ray-project/ray/issues/6669)
 - []()
 - []()
 - []()

@@ -1,3 +1,4 @@
+from ray.rllib.examples.centralized_critic import CentralizedCriticModel
 from ray.rllib.models.tf.fcnet_v2 import FullyConnectedNetwork
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from ray.rllib.utils import try_import_tf
@@ -5,15 +6,12 @@ from ray.rllib.utils import try_import_tf
 tf = try_import_tf()
 
 
-class ParametricActionsModel(TFModelV2):
+class ParametricActionsModel(CentralizedCriticModel):
     """
     Parametric action model used to filter out invalid action from environment
     """
 
     def import_from_h5(self, h5_file):
-        pass
-
-    def value_function(self):
         pass
 
     def __init__(self,
@@ -74,3 +72,7 @@ class ParametricActionsModel(TFModelV2):
 
         # return masked action embed and state
         return masked_actions, state
+
+
+    def value_function(self):
+        return self.action_embed_model.value_function()
