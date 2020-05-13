@@ -57,8 +57,8 @@ class Params:
         n_workers = 7 if not debug else 0
     else:
         n_cpus = multiprocessing.cpu_count() if not debug else 1
-        n_gpus = 0 if not debug and tf.test.is_gpu_available() else 0
-        n_workers = 1 if not debug else 0
+        n_gpus = 1 if not debug and tf.test.is_gpu_available() else 0
+        n_workers = 6 if not debug else 0
 
     ##########################
     # Evaluation params
