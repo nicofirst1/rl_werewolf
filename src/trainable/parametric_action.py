@@ -4,7 +4,7 @@ from utils import Params
 Params()
 
 from wrappers import ParametricActionWrapper
-from policies.SimpleQPolicy import MyTFPolicy
+from policies.RandomTarget import MyTFPolicy
 
 import logging
 import ray

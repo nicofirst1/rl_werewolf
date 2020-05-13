@@ -12,7 +12,7 @@ Params()
 from models import ParametricActionsModel
 from gym_ww.wrappers import EvaluationWrapper
 
-from policies.SimpleQPolicy import MyTFPolicy
+from policies.RandomTarget import MyTFPolicy
 
 import logging
 import ray

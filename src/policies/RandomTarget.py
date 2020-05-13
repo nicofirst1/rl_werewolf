@@ -1,6 +1,6 @@
 from ray.rllib import Policy
 
-class TargetRandom(Policy):
+class RandomTarget(Policy):
     """Hand-coded policy that returns random actions."""
 
     def compute_actions(self,
