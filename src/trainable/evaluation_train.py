@@ -8,7 +8,7 @@ Params()
 from models import ParametricActionsModel
 from wrappers import EvaluationWrapper
 
-from policies.SimpleQPolicy import MyTFPolicy
+from policies.RandomTarget import  RandomTarget
 
 import logging
 import ray
@@ -34,11 +34,15 @@ if __name__ == '__main__':
     env_configs = {'num_players': Params.num_player}
 
     env = EvaluationWrapper(env_configs)
-    space = (PPOTFPolicy, env.observation_space, env.action_space, {})
 
+    # define policies
+    vill_p = (PPOTFPolicy, env.observation_space, env.action_space, {})
+    ww_p=(RandomTarget, env.observation_space, env.action_space, {})
+
+    #todo: apply correct policies
     policies = dict(
-        wolf_p=space,
-        vill_p=space,
+        wolf_p=vill_p,
+        vill_p=vill_p,
     )
 
     configs = {
@@ -61,7 +65,9 @@ if __name__ == '__main__':
         "use_gae": True,
         "grad_clip": 5,
 
+
         "callbacks": {"on_episode_end": on_episode_end, },
+
         "model": {
             "use_lstm": True,
             # "max_seq_len": 10,
