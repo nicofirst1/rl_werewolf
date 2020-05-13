@@ -53,7 +53,8 @@ class EvaluationWrapper(ParametricActionWrapper):
 
         targets = {int(k.split("_")[1]): v for k, v in original_target.items()}
 
-        self.log_diffs(prev, targets, signals)
+        #fixme: comment + fix
+        #self.log_diffs(prev, targets, signals)
         self.update_metrics(targets)
 
 
