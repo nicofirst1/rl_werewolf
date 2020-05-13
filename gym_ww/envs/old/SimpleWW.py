@@ -62,7 +62,6 @@ class SimpleWW(gym.Env):
         # action space is just an agent id
         self.action_space = gym.spaces.Discrete(1)
 
-        # todo: define obs space
         self.observation_space = gym.spaces.Dict(
             dict(
                 agent_role=spaces.Discrete(1),
@@ -108,7 +107,6 @@ class SimpleWW(gym.Env):
         :return: updated rewards
         """
 
-        # todo: make so that agents cannot choose dead player
 
         # update vote list
         for idx in range(self.num_players):
@@ -153,7 +151,6 @@ class SimpleWW(gym.Env):
         # execute wolf actions
         rewards = self.wolf_action(actions, rewards)
 
-        # todo: implement other roles actions
 
         return rewards
 
@@ -176,7 +173,6 @@ class SimpleWW(gym.Env):
 
         logger.debug(f"wolves votes :{actions}")
 
-        # todo: add penalty if wolves do not agree
         # get agent to be eaten
         target = most_frequent(actions)
         # if target is alive
@@ -223,7 +219,6 @@ class SimpleWW(gym.Env):
         else:  # else go with day
             logger.debug("Day Time")
             # penalize since a day has passed
-            # todo: should penalize dead players?
             rewards = {id: val + self.penalties.get('day') for id, val in rewards.items()}
             rewards = self.day(actions, rewards)
             self.is_night = not self.is_night

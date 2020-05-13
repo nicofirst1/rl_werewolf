@@ -271,7 +271,6 @@ class ComMaWw(MultiAgentEnv):
         # execute wolf actions
         rewards = self.wolf_action(actions, rewards)
 
-        # todo: implement other roles actions
 
         return rewards
 
@@ -354,7 +353,6 @@ class ComMaWw(MultiAgentEnv):
             # get agent to be eaten
             target = most_frequent(actions)
 
-            # todo: should penalize when dead man kill?
             # penalize for different ids
             rewards = self.target_accord(target, rewards, wolves_ids)
 
@@ -591,7 +589,6 @@ class ComMaWw(MultiAgentEnv):
 
         for id_ in voter_ids:
             votes = self.targets[id_][id_]
-            # fixme: remove this when targets are exclusive
             try:
                 target_idx = np.where(votes == chosen_target)[0][0]
             except IndexError:
@@ -610,7 +607,6 @@ class ComMaWw(MultiAgentEnv):
         """
         :return:
         """
-        # fixme: make targets exclusive
 
         # should be a list of targets
         return gym.spaces.MultiDiscrete([self.num_players] * self.num_players)

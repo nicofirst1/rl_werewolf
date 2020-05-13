@@ -67,7 +67,6 @@ class MaWw(MultiAgentEnv):
         self.roles = roles
         self.penalties = CONFIGS['penalties']
 
-        # todo: define obs space
         self.observation_space = gym.spaces.Dict(
             dict(
                 agent_role=spaces.Discrete(len(CONFIGS['existing_roles'])),
@@ -137,7 +136,6 @@ class MaWw(MultiAgentEnv):
         :return: updated rewards
         """
 
-        # todo: make so that agents cannot choose dead player
 
         # update vote list
         for idx in range(self.num_players):
@@ -190,7 +188,6 @@ class MaWw(MultiAgentEnv):
         # execute wolf actions
         rewards = self.wolf_action(actions, rewards)
 
-        # todo: implement other roles actions
 
         return rewards
 
@@ -218,7 +215,6 @@ class MaWw(MultiAgentEnv):
 
         logger.debug(f"wolves votes :{actions}")
 
-        # todo: add penalty if wolves do not agree
         # get agent to be eaten
         target = most_frequent(actions)
         # if target is alive
@@ -279,7 +275,6 @@ class MaWw(MultiAgentEnv):
         else:  # else go with day
             logger.debug("Day Time")
             # penalize since a day has passed
-            # todo: should penalize dead players?
             rewards = {id: val + self.penalties.get('day') for id, val in rewards.items()}
             rewards = self.day(actions, rewards)
             self.is_night = not self.is_night
