@@ -10,6 +10,9 @@ class ParametricActionsModel(TFModelV2):
     Parametric action model used to filter out invalid action from environment
     """
 
+    def import_from_h5(self, h5_file):
+        pass
+
     def value_function(self):
         pass
 
