@@ -26,7 +26,7 @@ CONFIGS = dict(
     penalties=dict(
         # penalty dictionary
         # penalty to give for each day that has passed
-        day=-1,
+        day=0,
         # when a player dies
         death=-5,
         # victory
@@ -44,7 +44,7 @@ CONFIGS = dict(
     # signal is used in the communication phase to signal other agents about intentions
     # the length concerns the dimension of the signal while the components is the range of values it can fall into
     # a range value of 2 is equal to binary variable
-    signal_length=10,
+    signal_length=0,
     signal_range=2,
 
     # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
@@ -126,6 +126,7 @@ class PaEnv(MultiAgentEnv):
         self.is_done = False
         self.custom_metrics = None
         self.role_map = None
+        self.just_died = None
         self.initialize()
 
     #######################################
@@ -159,6 +160,9 @@ class PaEnv(MultiAgentEnv):
 
         # reset day
         self.day_count = 0
+
+        # rest just died
+        self.just_died = None
 
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
@@ -199,8 +203,10 @@ class PaEnv(MultiAgentEnv):
 
             # penalize target agent
             rewards[target] += self.penalties.get("death")
+
             # kill him
             self.status_map[target] = 0
+            self.just_died = target
 
             # update day
             self.day_count += 1
@@ -310,8 +316,10 @@ class PaEnv(MultiAgentEnv):
             # penalize for different ids
             rewards = self.target_accord(target, rewards, actions)
 
-            # kill agent
+            # kill agent and remember
             self.status_map[target] = 0
+            self.just_died = target
+
             # penalize dead player
             rewards[target] += self.penalties.get("death")
 
@@ -393,28 +401,31 @@ class PaEnv(MultiAgentEnv):
 
     def convert(self, obs, rewards, dones, info, phase):
         """
-        Convert everything in correct format
-        :param obs:
-        :param rewards:
-        :param dones:
-        :param info:
-        :return:
+        Convert everything in correct format.
+        1. Filter out vill when phase is 0
+        2. Filter out dead agents if they did not just died (done in order to penalize just dead agents)
+        3. add name to agents
+        4. convert reward to floats
         """
 
         # remove villagers from night phase
-        if phase in [0, 1] and False:
-            rewards = {id_: rw for id_, rw in rewards.items() if self.get_ids(ww, alive=False)}
-            obs = {id_: rw for id_, rw in obs.items() if self.get_ids(ww, alive=False)}
-            dones = {id_: rw for id_, rw in dones.items() if self.get_ids(ww, alive=False)}
-            info = {id_: rw for id_, rw in info.items() if self.get_ids(ww, alive=False)}
+        if phase == 0:
+            rewards = {id_: val for id_, val in rewards.items() if id_ in self.get_ids(ww, alive=False)}
+            obs = {id_: val for id_, val in obs.items() if id_ in self.get_ids(ww, alive=False)}
+            info = {id_: val for id_, val in info.items() if id_ in self.get_ids(ww, alive=False)}
 
         # if the match is not done yet remove dead agents
         if not self.is_done:
-            # filter out dead agents from rewards
-            rewards = {id_: rw for id_, rw in rewards.items() if self.status_map[id_]}
-            obs = {id_: rw for id_, rw in obs.items() if self.status_map[id_]}
-            dones = {id_: rw for id_, rw in dones.items() if self.status_map[id_]}
-            info = {id_: rw for id_, rw in info.items() if self.status_map[id_]}
+            # filter out dead agents from rewards, not the one just died tho
+            if phase in [1, 3]:
+                rewards = {id_: val for id_, val in rewards.items() if
+                           self.status_map[id_] or id_ == self.just_died}
+                obs = {id_: val for id_, val in obs.items() if self.status_map[id_] or id_ == self.just_died}
+                info = {id_: val for id_, val in info.items() if self.status_map[id_] or id_ == self.just_died}
+            else:
+                rewards = {id_: val for id_, val in rewards.items() if self.status_map[id_]}
+                obs = {id_: val for id_, val in obs.items() if self.status_map[id_]}
+                info = {id_: val for id_, val in info.items() if self.status_map[id_]}
 
         # add roles to ids for policy choosing
         rewards = {f"{self.roles[k]}_{k}": v for k, v in rewards.items()}
@@ -429,18 +440,14 @@ class PaEnv(MultiAgentEnv):
 
     def check_done(self, rewards):
         """
-        Check if the game is over, moreover return true for dead agent in done
+        Check if the game is over
         :param rewards: dict, maps agent id_ to curr reward
         :return:
             dones: list of bool statement
             rewards: update rewards
         """
-        dones = {id_: 0 for id_ in rewards.keys()}
+        dones = {id_: False for id_ in rewards.keys()}
 
-        for idx in range(self.num_players):
-            # done if the player is not alive
-            done = not self.status_map[idx]
-            dones[idx] = done
 
         # get list of alive agents
         alives = self.get_ids('all', alive=True)
@@ -624,27 +631,61 @@ class PaEnv(MultiAgentEnv):
 
             return new_dict
 
+        def get_targets_signal(signal_p, targets_p):
+            """
+            Given some initial values of signal and target perform:
+            1. insertion of missing elements (dead players)
+            2. shuffle of ids
+            3. numpy stack
+            """
+            # add missing targets
+            signal_p, targets_p = add_missing(signal_p, targets_p)
+
+            # shuffle
+            targets_p = shuffle_sort(targets_p, self.shuffle_map)
+            signal_p = shuffle_sort(signal_p, self.shuffle_map, value_too=False)
+
+            # stack observations
+            # make matrix out of signals of size [num_player,signal_length]
+            tg = np.asarray(list(targets_p.values()))
+            if len(signal_p) > 0:
+                sg = np.stack(list(signal_p.values()))
+            else:
+                sg = {}
+
+            return tg,sg
+
+
         observations = {}
 
-        # add missing targets
-        signal, targets = add_missing(signal, targets)
-
-        # shuffle
-        targets = shuffle_sort(targets, self.shuffle_map)
-        signal = shuffle_sort(signal, self.shuffle_map, value_too=False)
-
-        # stack observations
-        # make matrix out of signals of size [num_player,signal_length]
-        tg = np.asarray(list(targets.values()))
-        if len(signal) > 0:
-            sg = np.stack(list(signal.values()))
-        else:
-            sg = {}
+        tg,sg=get_targets_signal(signal,targets)
 
         # apply shuffle to status map
-        st = [self.status_map[self.shuffle_map[idx]] for idx in range(self.num_players)]
+        st = [self.status_map[self.unshuffle_map[idx]] for idx in range(self.num_players)]
 
-        for idx in self.get_ids("all", alive=False):
+        # add observation for ww
+        for idx in self.get_ids(ww,alive=False):
+            # build obs dict
+            obs = dict(
+                day=self.day_count,  # day passed
+                status_map=np.array(st),  # agent_id:alive?
+                phase=phase,
+                targets=tg,
+                own_id=self.shuffle_map[idx],
+            )
+
+            if self.signal_length > 0:
+                obs["signal"] = sg
+
+            observations[idx] = obs
+
+        # add observation for villagers
+        # if the phase is 1 then the villagers are not allowed to see what the wolves voted so pad everything to -1
+
+        if phase==1:
+            tg, sg = get_targets_signal({}, {})
+
+        for idx in self.get_ids(vil, alive=False):
             # build obs dict
             obs = dict(
                 day=self.day_count,  # day passed
