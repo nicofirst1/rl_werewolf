@@ -138,6 +138,17 @@ The previous link refers to the grouping of agents which will then behave as a s
 
 I opened an [issue on github](https://github.com/ray-project/ray/issues/6757). Solved
 
+### Observation after ww turn (phase 1->2) [Solved]
+Since we are skipping turns, at the end of phase 1, where the ww have killed someone, the observation is passed to the ww only.
+So that, at the start of phase 2 (vill communication), the vill will not know immediatly who died. The dead agent will
+ be the one with -1 as target and signal but the actual status map will be upated only on the next phase (3).
+I can either leave it as it is and let the agent understand that the agent suddenly outputting -1 is dead, or do the following:
+- at the end of phase 1 update only the targets for ww while keeping the previous one for everyone else
+The second approach must be taken since, if we pass the just the ww at the end of phase 1, the observation for phase 2 will be just coming from ww
+
+Solution:
+The solution has been to pass a padded array (-1) to the vill while leaving the changes for the ww.
+
 ## Observations
 
 - With low _dead_man_execution_ penalty agents learn to never make the game end by voting dead mans. The game crashes when total number of days exceeds the maximum. For this penalty has been increased from -2 to -10 (same as loosing)
