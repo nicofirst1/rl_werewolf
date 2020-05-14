@@ -157,9 +157,40 @@ The problem of evaluation is strictly tied to the understanding of the agents po
 the project will focus on the evaluation of learning villagers against fixed policy werewolves.
 The evaluation will be split in consecutive steps.
 
+
+
 ## Baseline
 First we will run a sufficient number of iteration for stupid random players (both ww and vil). 
 This will give us a baseline of how more probable is for ww to win.
+
+For 8 players for 1000 runs:
+- Mean value of win_wolf is : 0.619 +- 0.4856325771609643
+- Mean value of win_vil is : 0.381 +- 0.4856325771609643
+- Mean value of tot_days is : 4.796 +- 3.0578397603537044
+- Mean value of accord is : 0.524575440287226 +- 0.12915321871016025
+
+For 9 players for 10000 runs:
+- Mean value of suicide is : 0.06612089805366592 +- 0.04744384486583312
+- Mean value of win_wolf is : 0.813 +- 0.3899115284266419
+- Mean value of win_vil is : 0.187 +- 0.3899115284266419
+- Mean value of tot_days is : 4.996 +- 3.1698555172121017
+- Mean value of accord is : 0.475078605914588 +- 0.1261403740559999
+
+For 10 players for 10000 runs:
+- Mean value of suicide is : 0.0626846341962711 +- 0.04274308308186182
+- Mean value of win_wolf is : 0.806 +- 0.39542888108988705
+- Mean value of win_vil is : 0.194 +- 0.39542888108988705
+- Mean value of tot_days is : 6.101 +- 2.860209607703603
+- Mean value of accord is : 0.4786981222442681 +- 0.11413458787911061
+
+For 20 players for 1000 runs:
+- Mean value of win_wolf is : 0.94 +- 0.23748684174075838
+- Mean value of win_vil is : 0.06 +- 0.23748684174075838
+- Mean value of tot_days is : 8.85 +- 0.7235329985563893
+- Mean value of accord is : 0.327086161883342 +- 0.05682728858310628
+
+Based on these results, the environment will be trained with 9 agents (3 ww and 6 vill)
+
 
 ## Learning Vill
 Then the vill will be able to learn against random ww.
