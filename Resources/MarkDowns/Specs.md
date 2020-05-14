@@ -21,7 +21,7 @@ This requires to have static ids which leads to agents to map id to role, defeat
 To avoid this behavior a shuffling dictionary is randomly initialize at every _env.reset()_ call. 
 This dictionary maps an agent id to another random id without any repetition. 
 Each time a _env.step()_ function comes to an end, it shuffles the return ids using the latter dict.
-An inverse unshuffl dictionary is then used at each _env.step()_ on the _action\_dict_ to fix the correct indices
+An inverse unshuffle dictionary is then used at each _env.step()_ on the _action\_dict_ to fix the correct indices
 
 ## Rewards
 A reward dictionary is initialize with 
@@ -142,3 +142,7 @@ This speeds up the training and renders the reward shaping for such invalid acti
 
 ## Eval Wrapper
 An evaluation wrapper has been used to implement logging, custom metrics and more. It is built around the Pa Wrapper.
+
+## Complete Example
+A diagram example game can be found ![here](Resources/Imgs/Example_run.svg).
+The image shows how observations and action are handled by the environment during a match.
