@@ -1,4 +1,3 @@
-import copy
 from functools import reduce
 
 import gym
@@ -14,12 +13,13 @@ class ParametricActionWrapper(PaEnv):
     """
     Wrapper around TurnEnvWw for implementing parametric actions
     """
+
     def __init__(self, configs, roles=None, flex=0):
         super().__init__(configs, roles, flex)
 
-        obs_space=super().observation_space
+        obs_space = super().observation_space
         self.obs_size = get_preprocessor(obs_space)(obs_space, None).size
-        self.obs_spaces=obs_space.spaces
+        self.obs_spaces = obs_space.spaces
 
     def reset(self):
         """
@@ -102,7 +102,7 @@ class ParametricActionWrapper(PaEnv):
         # for every agent
         for agent_id, obs in observations.items():
             # make array out of observation (flatten)
-            obs = _make_array_from_obs(obs, self.obs_size,self.obs_spaces)
+            obs = _make_array_from_obs(obs, self.obs_size, self.obs_spaces)
 
             # add action mask
             new_obs[agent_id] = dict(
@@ -111,8 +111,6 @@ class ParametricActionWrapper(PaEnv):
             )
 
         return new_obs
-
-
 
     @PaEnv.observation_space.getter
     def action_space(self):

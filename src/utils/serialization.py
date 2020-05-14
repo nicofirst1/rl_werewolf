@@ -14,7 +14,7 @@ def dump_pkl(df, file_name):
     with open(file_name, "wb") as file:
         cPickle.dump(df, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-    #print(f"{name} dumped")
+    # print(f"{name} dumped")
 
 
 def load_pkl(file_name):

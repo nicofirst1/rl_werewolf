@@ -170,18 +170,18 @@ For 8 players for 1000 runs:
 - Mean value of accord is : 0.524575440287226 +- 0.12915321871016025
 
 For 9 players for 10000 runs:
-- Mean value of suicide is : 0.06612089805366592 +- 0.04744384486583312
-- Mean value of win_wolf is : 0.813 +- 0.3899115284266419
-- Mean value of win_vil is : 0.187 +- 0.3899115284266419
-- Mean value of tot_days is : 4.996 +- 3.1698555172121017
-- Mean value of accord is : 0.475078605914588 +- 0.1261403740559999
+- Mean value of suicide is : 0.06687913955026455 +- 0.04895929378627972
+- Mean value of win_wolf is : 0.8034 +- 0.39742727636638125
+- Mean value of win_vil is : 0.1966 +- 0.39742727636638125
+- Mean value of tot_days is : 5.0051 +- 3.174031189197737
+- Mean value of accord is : 0.47307137294501134 +- 0.12586971391904286
 
 For 10 players for 10000 runs:
-- Mean value of suicide is : 0.0626846341962711 +- 0.04274308308186182
-- Mean value of win_wolf is : 0.806 +- 0.39542888108988705
-- Mean value of win_vil is : 0.194 +- 0.39542888108988705
-- Mean value of tot_days is : 6.101 +- 2.860209607703603
-- Mean value of accord is : 0.4786981222442681 +- 0.11413458787911061
+- Mean value of suicide is : 0.0623946782249937 +- 0.040843111129795454
+- Mean value of win_wolf is : 0.7881 +- 0.40865436495894675
+- Mean value of win_vil is : 0.2119 +- 0.40865436495894675
+- Mean value of tot_days is : 6.1423 +- 2.870792697148298
+- Mean value of accord is : 0.4771211064184933 +- 0.11400048019209393
 
 For 20 players for 1000 runs:
 - Mean value of win_wolf is : 0.94 +- 0.23748684174075838

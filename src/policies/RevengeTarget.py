@@ -1,5 +1,6 @@
 from ray.rllib import Policy
 
+
 class RevengeTarget(Policy):
     """Hand-coded policy that returns the id of an agent who chose the current one in the last run, if none then random """
 
@@ -17,7 +18,6 @@ class RevengeTarget(Policy):
             t + 1 for t in state_batches[0]
         ]]
         return [], new_state_batches, {}
-
 
     def get_initial_state(self):
         """Returns initial RNN state for the current policy."""

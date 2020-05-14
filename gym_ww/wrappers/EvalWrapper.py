@@ -43,9 +43,9 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.episode.add_signals(signals)
 
         # save current config before changing
-        prev=dict(
+        prev = dict(
             phase=copy.copy(self.phase),
-            day_count = copy.copy(self.day_count)
+            day_count=copy.copy(self.day_count)
         )
 
         # execute step in super to change info, do not move this line
@@ -56,10 +56,9 @@ class EvaluationWrapper(ParametricActionWrapper):
 
         targets = {int(k.split("_")[1]): v for k, v in original_target.items()}
 
-        #fixme: comment + fix
+        # fixme: comment + fix
         self.log_diffs(prev, targets, signals)
         self.update_metrics(targets)
-
 
         return obs, rewards, dones, info
 
@@ -146,7 +145,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         # update suicide num
         if self.phase == 3:
             # add number of suicides
-            self.custom_metrics["suicide"] += suicide_num(targets)/len(targets)
+            self.custom_metrics["suicide"] += suicide_num(targets) / len(targets)
             # update number of differ
             chosen = most_frequent(targets)
             accord = sum([1 for t in targets.values() if t == chosen]) / len(targets)
@@ -211,10 +210,10 @@ class EvaluationWrapper(ParametricActionWrapper):
             self.log(f"Phase {self.phase} | Day Time| Executing")
 
         # print actions
-        #fixme
+        # fixme
         filtered_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
 
-        if self.phase in [1,3]:
+        if self.phase in [1, 3]:
             filtered_ids.append(self.just_died)
 
         pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger,
@@ -238,7 +237,7 @@ class EvaluationWrapper(ParametricActionWrapper):
 
         # else report most voted
         else:
-            choice = most_frequent([v for k,v in targets.items() if k in filtered_ids])
+            choice = most_frequent([v for k, v in targets.items() if k in filtered_ids])
             self.log(msg=f"Most voted is {choice} ({self.role_map[choice]})")
 
         if self.is_done:

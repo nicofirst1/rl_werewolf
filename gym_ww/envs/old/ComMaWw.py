@@ -271,7 +271,6 @@ class ComMaWw(MultiAgentEnv):
         # execute wolf actions
         rewards = self.wolf_action(actions, rewards)
 
-
         return rewards
 
     def step(self, actions_dict):

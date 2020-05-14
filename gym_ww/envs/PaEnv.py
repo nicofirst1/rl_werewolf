@@ -428,7 +428,7 @@ class PaEnv(MultiAgentEnv):
                 info = {id_: val for id_, val in info.items() if self.status_map[id_]}
 
         # add observation into info for policies
-        for k,v in info.items():
+        for k, v in info.items():
             v.update(dict(obs=obs[k]))
 
         # add roles to ids for policy choosing
@@ -451,7 +451,6 @@ class PaEnv(MultiAgentEnv):
             rewards: update rewards
         """
         dones = {id_: False for id_ in rewards.keys()}
-
 
         # get list of alive agents
         alives = self.get_ids('all', alive=True)
@@ -660,18 +659,17 @@ class PaEnv(MultiAgentEnv):
             else:
                 sg = {}
 
-            return tg,sg
-
+            return tg, sg
 
         observations = {}
 
-        tg,sg=get_targets_signal(signal,targets)
+        tg, sg = get_targets_signal(signal, targets)
 
         # apply shuffle to status map
         st = [self.status_map[self.unshuffle_map[idx]] for idx in range(self.num_players)]
 
         # add observation for ww
-        for idx in self.get_ids(ww,alive=False):
+        for idx in self.get_ids(ww, alive=False):
             # build obs dict
             obs = dict(
                 day=self.day_count,  # day passed
@@ -689,7 +687,7 @@ class PaEnv(MultiAgentEnv):
         # add observation for villagers
         # if the phase is 1 then the villagers are not allowed to see what the wolves voted so pad everything to -1
 
-        if phase==1:
+        if phase == 1:
             tg, sg = get_targets_signal({}, {})
 
         for idx in self.get_ids(vil, alive=False):

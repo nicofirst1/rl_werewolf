@@ -136,7 +136,6 @@ class MaWw(MultiAgentEnv):
         :return: updated rewards
         """
 
-
         # update vote list
         for idx in range(self.num_players):
             # use -1 if agent is dead
@@ -187,7 +186,6 @@ class MaWw(MultiAgentEnv):
 
         # execute wolf actions
         rewards = self.wolf_action(actions, rewards)
-
 
         return rewards
 

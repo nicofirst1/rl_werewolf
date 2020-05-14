@@ -3,19 +3,18 @@ import random
 import numpy as np
 from tqdm import tqdm
 
-from utils import Params
 from wrappers import EvaluationWrapper
 
 if __name__ == '__main__':
 
     # initialize environment
-    env_configs = {'num_players': 10}
+    env_configs = {'num_players': 9}
     env = EvaluationWrapper(env_configs)
     # get agent ids
     agent_ids = env.reset().keys()
 
     metrics = {k: [] for k in env.custom_metrics.keys()}
-    eps = 1000
+    eps = 10000
     pbar = tqdm(total=eps)
     # perform 10000 episodes
     ep = 0

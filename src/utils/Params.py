@@ -49,7 +49,7 @@ class Params:
     ##########################
     # Performance stuff
     ##########################
-    debug = False
+    debug = True
 
     if on_peregrine:
         n_cpus = multiprocessing.cpu_count() if not debug else 1
@@ -66,7 +66,7 @@ class Params:
     checkpoint_freq = 50
     log_step = 50
     max_checkpoint_keep = 10
-    resume_training=False
+    resume_training = False
 
     ##########################
     # env params
