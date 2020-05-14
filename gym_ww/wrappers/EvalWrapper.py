@@ -211,15 +211,16 @@ class EvaluationWrapper(ParametricActionWrapper):
         #fixme
         filtered_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
 
+        if self.phase in [1,3]:
+            filtered_ids.append(self.just_died)
+
         pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger,
                filtered_ids=filtered_ids)
 
         # notify of dead agents
         if self.phase in [1, 3]:
             # get dead ids
-            dead = [p - c for p, c in zip(prev.status_map, self.status_map)]
-            dead = np.asarray(dead)
-            dead = np.nonzero(dead)[0][0]
+            dead = self.just_died
 
             # build msg
             msg = f"Player {dead} ({self.role_map[dead]}) has been "
@@ -234,7 +235,7 @@ class EvaluationWrapper(ParametricActionWrapper):
 
         # else report most voted
         else:
-            choice = most_frequent(filtered_ids)
+            choice = most_frequent([v for k,v in targets.items() if k in filtered_ids])
             self.log(msg=f"Most voted is {choice} ({self.role_map[choice]})")
 
         if self.is_done:
