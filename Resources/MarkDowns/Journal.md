@@ -149,20 +149,25 @@ The second approach must be taken since, if we pass the just the ww at the end o
 Solution:
 The solution has been to pass a padded array (-1) to the vill while leaving the changes for the ww.
 
-## Observations
-
-- With low _dead_man_execution_ penalty agents learn to never make the game end by voting dead mans. The game crashes when total number of days exceeds the maximum. For this penalty has been increased from -2 to -10 (same as loosing)
-- Should build abstract policy for player to avoid illegal actions, the class can then be overridden for roles
 
 ## Communication influence
-As today three cases has been trained from zero, where the only difference lays in the communication:
-- No communication 
-- single bit communication
-- 10 bit communication
-The results are the following:
-- There seems to be no difference between victories and losses
-- The single bit case has a day length increase sharper than the other two at the start, but then it converges
-- suicide is slightly lower for single bit communication
-- accord is the same for everyone
 
-Next step will be to increase the amount of communication available between agents.
+# Evaluation
+The problem of evaluation is strictly tied to the understanding of the agents policies. Since there is no easy way to do it, 
+the project will focus on the evaluation of learning villagers against fixed policy werewolves.
+The evaluation will be split in consecutive steps.
+
+## Baseline
+First we will run a sufficient number of iteration for stupid random players (both ww and vil). 
+This will give us a baseline of how more probable is for ww to win.
+
+## Learning Vill
+Then the vill will be able to learn against random ww.
+In this phase we will vary the communication length and range to see if there are differences.
+
+### Revenge WW
+Then the ww's policy will change, and they will become revengeful ww.
+Again in this phase the communication will be varied 
+
+### Defensive WW
+Finally ww's the policy will switch again to the defense one.

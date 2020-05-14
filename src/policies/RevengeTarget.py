@@ -1,8 +1,7 @@
 from ray.rllib import Policy
 
-
-class RandomTarget(Policy):
-    """Hand-coded policy that returns random actions."""
+class RevengeTarget(Policy):
+    """Hand-coded policy that returns the id of an agent who chose the current one in the last run, if none then random """
 
     def compute_actions(self,
                         obs_batch,

@@ -427,6 +427,10 @@ class PaEnv(MultiAgentEnv):
                 obs = {id_: val for id_, val in obs.items() if self.status_map[id_]}
                 info = {id_: val for id_, val in info.items() if self.status_map[id_]}
 
+        # add observation into info for policies
+        for k,v in info.items():
+            v.update(dict(obs=obs[k]))
+
         # add roles to ids for policy choosing
         rewards = {f"{self.roles[k]}_{k}": v for k, v in rewards.items()}
         obs = {f"{self.roles[k]}_{k}": v for k, v in obs.items()}

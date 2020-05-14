@@ -1,6 +1,7 @@
 # initialize param class
 from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
 
+from policies.RevengeTarget import RevengeTarget
 from utils import Params
 
 Params()
@@ -37,11 +38,10 @@ if __name__ == '__main__':
 
     # define policies
     vill_p = (PPOTFPolicy, env.observation_space, env.action_space, {})
-    ww_p=(RandomTarget, env.observation_space, env.action_space, {})
+    ww_p=(RevengeTarget, env.observation_space, env.action_space, {})
 
-    #todo: apply correct policies
     policies = dict(
-        wolf_p=vill_p,
+        wolf_p=ww_p,
         vill_p=vill_p,
     )
 
@@ -65,6 +65,8 @@ if __name__ == '__main__':
         "use_gae": True,
         "grad_clip": 5,
 
+        #todo: remove this [here](https://github.com/ray-project/ray/issues/7991)
+        "simple_optimizer": True,
 
         "callbacks": {"on_episode_end": on_episode_end, },
 
