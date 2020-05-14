@@ -12,7 +12,16 @@ class RevengeTarget(Policy):
                         episodes=None,
                         **kwargs):
         """Compute actions on a batch of observations."""
-        return [self.action_space.sample() for _ in obs_batch], [], {}
+        assert len(state_batches) == len(self.get_initial_state())
+        new_state_batches = [[
+            t + 1 for t in state_batches[0]
+        ]]
+        return [], new_state_batches, {}
+
+
+    def get_initial_state(self):
+        """Returns initial RNN state for the current policy."""
+        return [0]  # list of single state element (t=0)
 
     def get_weights(self):
         return None

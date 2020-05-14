@@ -17,7 +17,9 @@ class ParametricActionWrapper(PaEnv):
     def __init__(self, configs, roles=None, flex=0):
         super().__init__(configs, roles, flex)
 
-        self.static_observation_space=copy.deepcopy(super().observation_space)
+        obs_space=super().observation_space
+        self.obs_size = get_preprocessor(obs_space)(obs_space, None).size
+        self.obs_spaces=obs_space.spaces
 
     def reset(self):
         """
@@ -100,7 +102,7 @@ class ParametricActionWrapper(PaEnv):
         # for every agent
         for agent_id, obs in observations.items():
             # make array out of observation (flatten)
-            obs = _make_array_from_obs(obs, self.static_observation_space)
+            obs = _make_array_from_obs(obs, self.obs_size,self.obs_spaces)
 
             # add action mask
             new_obs[agent_id] = dict(
@@ -176,19 +178,17 @@ def _make_box_from_obs(space):
     return gym.spaces.Box(high=highs, low=lows)
 
 
-def _make_array_from_obs(obs, original_spaces):
+def _make_array_from_obs(obs, size, spaces):
     """
     Transform original obs dict to one dimensional np.array
     :param obs: dict, original observation dictionary
-    :param original_spaces: gym.spaces.Dict, gym observation space as given by the wrapped env
+    :param size: total size of the wrapped env
     :return: np.array, flatten out array of observations
     """
     # get size of space
-    size = get_preprocessor(original_spaces)(original_spaces, None).size
     # initialize zeros array with correct shape
     array = np.zeros(size)
     # get space dict
-    spaces = original_spaces.spaces
     offset = 0
     # for every observation
     for k in spaces.keys():
