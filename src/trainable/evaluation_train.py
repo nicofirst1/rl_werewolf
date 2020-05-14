@@ -78,6 +78,7 @@ if __name__ == '__main__':
         "multiagent": {
             "policies": policies,
             "policy_mapping_fn": mapping,
+            "policies_to_train":["vill_p"]
 
         },
 
