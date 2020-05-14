@@ -152,7 +152,7 @@ class EvaluationWrapper(ParametricActionWrapper):
             if accord > 1: raise AttributeError("Accord garter than 1")
 
         elif self.phase == 1:
-            were_wolves = self.get_ids(ww, alive=True)
+            were_wolves = self.get_ids(ww, alive=True, include_just_died=True)
             were_wolves = {k: v for k, v in targets.items() if k in were_wolves}
             chosen = most_frequent(were_wolves)
             accord = sum([1 for t in were_wolves.values() if t == chosen]) / len(were_wolves)
@@ -208,6 +208,7 @@ class EvaluationWrapper(ParametricActionWrapper):
             self.log(f"Phase {self.phase} | Day Time| Executing")
 
         # print actions
+        #fixme
         filtered_ids = self.get_ids(ww, alive=True) if self.phase in [0, 1] else self.get_ids('all', alive=True)
 
         pprint(targets, signals, self.roles, signal_length=self.signal_length, logger=logger,

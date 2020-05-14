@@ -482,11 +482,12 @@ class PaEnv(MultiAgentEnv):
 
         return dones, rewards
 
-    def get_ids(self, role, alive=True):
+    def get_ids(self, role, alive=True, include_just_died=False):
         """
         Return a list of ids given a role
         :param role: str, the role of the wanted ids
         :param alive: bool, if to get just alive players or everyone
+        :param include_just_died: bool, if to include the player that just died, makes sense only if alive is True
         :return: list of ints
         """
 
@@ -499,6 +500,8 @@ class PaEnv(MultiAgentEnv):
         # filter out dead ones
         if alive:
             ids = [id_ for id_ in ids if self.status_map[id_]]
+            if include_just_died:
+                ids.append(self.just_died)
 
         return ids
 
