@@ -33,7 +33,7 @@ class EvaluationWrapper(ParametricActionWrapper):
         targets = np.stack(list(original_target.values()))
         eval_obs = dict(
             day=self.day_count,
-            status_map=copy.deepcopy(self.status_map),
+            status_map=copy.copy(self.status_map),
             phase=self.phase,
 
         )
@@ -43,7 +43,10 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.episode.add_signals(signals)
 
         # save current config before changing
-        prev = copy.deepcopy(self)
+        prev=dict(
+            phase=copy.copy(self.phase),
+            day_count = copy.copy(self.day_count)
+        )
 
         # execute step in super to change info, do not move this line
         obs, rewards, dones, info = super().step(action_dict)
@@ -188,11 +191,11 @@ class EvaluationWrapper(ParametricActionWrapper):
             return
 
         # if there is no difference between phases then return
-        if prev.phase == self.phase:
+        if prev['phase'] == self.phase:
             return
 
         # log day
-        self.log(f"Day {prev.day_count})")
+        self.log(f"Day {prev['day_count']})")
 
         # log phase
         if self.phase == 0:
