@@ -66,6 +66,7 @@ class Params:
     checkpoint_freq = 50
     log_step = 50
     max_checkpoint_keep = 10
+    resume_training=False
 
     ##########################
     # env params
@@ -98,7 +99,10 @@ class Params:
 
     def __init__(self):
         print("Params class initialized")
-        self.__empty_dirs([self.LOG_DIR])
+
+        if not self.resume_training:
+            self.__empty_dirs([self.LOG_DIR])
+
         self.__initialize_dirs()
 
         # change values based on argparse
