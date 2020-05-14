@@ -70,7 +70,7 @@ class Params:
     ##########################
     # env params
     ##########################
-    num_player = 8
+    num_player = 9
 
     ##########################
     #    METHODS
