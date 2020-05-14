@@ -91,5 +91,5 @@ if __name__ == '__main__':
         trial_name_creator=trial_name_creator,
         checkpoint_freq=Params.checkpoint_freq,
         keep_checkpoints_num=Params.max_checkpoint_keep,
-
+        resume=Params.resume_training
     )
