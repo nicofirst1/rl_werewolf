@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     # define policies
     vill_p = (PPOTFPolicy, env.observation_space, env.action_space, {})
-    ww_p=(RevengeTarget, env.observation_space, env.action_space, {})
+    ww_p=(RandomTarget, env.observation_space, env.action_space, {})
 
     policies = dict(
         wolf_p=ww_p,

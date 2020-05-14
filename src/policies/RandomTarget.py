@@ -1,5 +1,7 @@
 from ray.rllib import Policy
 
+from policies.utils import random_non_wolf
+
 
 class RandomTarget(Policy):
     """Hand-coded policy that returns random actions."""
@@ -13,7 +15,7 @@ class RandomTarget(Policy):
                         episodes=None,
                         **kwargs):
         """Compute actions on a batch of observations."""
-        return [self.action_space.sample() for _ in obs_batch], [], {}
+        return random_non_wolf(self.action_space, info_batch), [], {}
 
     def get_weights(self):
         return None
