@@ -1,10 +1,11 @@
+from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
+
 from models import ParametricActionsModel
 from utils import Params
 
 Params()
 
 from wrappers import ParametricActionWrapper
-from policies.RandomTarget import MyTFPolicy
 
 import logging
 import ray
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     env_configs = {'num_players': Params.num_player}
 
     env = ParametricActionWrapper(env_configs)
-    space = (MyTFPolicy, env.observation_space, env.action_space, {})
+    space = (PPOTFPolicy, env.observation_space, env.action_space, {})
 
     policies = dict(
         wolf_p=space,
