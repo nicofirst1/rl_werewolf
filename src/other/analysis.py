@@ -67,6 +67,18 @@ def measure_influence(cur_targets, prev_targets, flexibility):
 
 
 def load_analyze_csv(path2file, min_step=0):
+    """
+    Analyze the csv output of tensorboard, printing mean and std for the last min_step components
+    Parameters
+    ----------
+    path2file : str, path to csv file
+    min_step : int, last steps to take from the csv
+
+    Returns
+    -------
+
+    """
+
 
     with open(path2file, mode='r') as csv_file:
         reader = csv.reader(csv_file)
@@ -77,4 +89,4 @@ def load_analyze_csv(path2file, min_step=0):
         print(f"{np.mean(data)} +- {np.std(data)}")
 
 
-load_analyze_csv("/home/dizzi/Downloads/accord_mean.csv",min_step=100)
+#load_analyze_csv("/home/dizzi/Downloads/accord_mean.csv",min_step=100)
