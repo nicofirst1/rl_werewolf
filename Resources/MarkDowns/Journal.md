@@ -233,11 +233,11 @@ In this phase we will vary the communication length and range to see if there ar
 ### Unite ww
 A run has been performed with the unite parameters and random policy.
 The results are the following:
-- Mean value of suicide is : 0.0206 +- 0.025279605293041844
-- Mean value of win_wolf is : 0.9781 +- 0.14635706337584117
-- Mean value of win_vil is : 0.0219 +- 0.14635706337584117
-- Mean value of tot_days is : 6.8074 +- 0.912088394839009
-- Mean value of accord is : 0.2898264962307907 +- 0.045353553067294335
+- Mean value of suicide is : 0.02089570107107813 +- 0.0021828652956149943
+- Mean value of win_wolf is : 0.9801947618975784 +- 0.007372277796002038
+- Mean value of win_vil is : 0.0199488903456979 +- 0.007551618906925212
+- Mean value of tot_days is : 1.2435764086366905 +- 0.030432197919724718
+- Mean value of accord is : 0.36918299848383124 +- 0.004762853298497309
 
 ### Revenge WW
 Then the ww's policy will change, and they will become revengeful ww.
