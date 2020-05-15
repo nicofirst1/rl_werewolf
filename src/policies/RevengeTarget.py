@@ -1,8 +1,17 @@
+from collections import Counter
+
 from ray.rllib import Policy
+
+from policies.utils import revenge_target
 
 
 class RevengeTarget(Policy):
     """Hand-coded policy that returns the id of an agent who chose the current one in the last run, if none then random """
+
+    def __init__(self, observation_space, action_space, config):
+        super().__init__(observation_space, action_space, config)
+
+        self.to_kill_list = []
 
     def compute_actions(self,
                         obs_batch,
@@ -13,15 +22,12 @@ class RevengeTarget(Policy):
                         episodes=None,
                         **kwargs):
         """Compute actions on a batch of observations."""
-        assert len(state_batches) == len(self.get_initial_state())
-        new_state_batches = [[
-            t + 1 for t in state_batches[0]
-        ]]
-        return [], new_state_batches, {}
 
-    def get_initial_state(self):
-        """Returns initial RNN state for the current policy."""
-        return [0]  # list of single state element (t=0)
+        observations=[elem.get('obs',{}) for elem in info_batch]
+
+        actions, self.to_kill_list = revenge_target(self.action_space, observations, self.to_kill_list)
+
+        return actions, [], {}
 
     def get_weights(self):
         return None

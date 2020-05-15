@@ -102,12 +102,13 @@ class ParametricActionWrapper(PaEnv):
         # for every agent
         for agent_id, obs in observations.items():
             # make array out of observation (flatten)
-            obs = _make_array_from_obs(obs, self.obs_size, self.obs_spaces)
+            array_obs = _make_array_from_obs(obs, self.obs_size, self.obs_spaces)
 
             # add action mask
             new_obs[agent_id] = dict(
                 action_mask=action_mask,
-                original_obs=obs
+                original_obs=array_obs,
+                dict_obs=obs
             )
 
         return new_obs
@@ -128,6 +129,7 @@ class ParametricActionWrapper(PaEnv):
 
             "action_mask": gym.spaces.Box(low=0, high=1, shape=(sum(self.action_space.nvec),)),
             "original_obs": obs,
+            "dict_obs":super_obs
         })
 
         return observation_space

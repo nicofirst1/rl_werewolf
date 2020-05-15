@@ -1,4 +1,6 @@
-This dir contains the policies used in the training.
+This dir contains the policies used in the training specifically for werewolves. 
+
+**DO NOT use these policies on villagers**
 
 ### RandomTarget
 Stupid policy to select a random target every time

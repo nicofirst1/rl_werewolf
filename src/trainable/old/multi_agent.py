@@ -3,55 +3,60 @@ import random
 import numpy as np
 from tqdm import tqdm
 
+from policies.utils import random_non_wolf, revenge_target
 from wrappers import EvaluationWrapper
 
 if __name__ == '__main__':
 
     # initialize environment
-    env_configs = {'num_players': 20}
+    env_configs = {'num_players': 9}
     env = EvaluationWrapper(env_configs)
     # get agent ids
-    agent_ids = env.reset().keys()
+    obs = env.reset()
+    obs = {k: v['dict_obs'] for k, v in obs.items()}
 
     # variables
-    ww_unite=True # false if ww can target each other during day
+    ww_unite = True  # false if ww can target each other during day
     metrics = {k: [] for k in env.custom_metrics.keys()}
     eps = 10000
-    pbar = tqdm(total=eps) # to get counter
+    pbar = tqdm(total=eps)  # to get counter
+    action_space=env.action_space
+    to_kill_list=[]
 
     ep = 0
     while ep < eps:
 
-        actions={}
+        actions = {}
+
         # filter out dead players
         valid_ids = np.where(np.array(env.status_map) == 1)[0]
 
-        # get shuffled werewolf ids
-        ww_trg_ids=[env.shuffle_map[id_] for id_ in env.get_ids("werewolf", alive=True)]
-        vill_trg_ids=[env.shuffle_map[id_] for id_ in env.get_ids("villager", alive=True)]
-        all_trg_ids= ww_trg_ids + vill_trg_ids
+        # get all other ids
+        all_trg_ids = [env.shuffle_map[id_] for id_ in env.get_ids("all", alive=True)]
+
+        # perform all ww actions
+        ww_actions,to_kill_list = random_non_wolf(action_space, list(obs.values()),unite=False)
 
         # for every agent
-        for id_ in agent_ids:
+        for idx, id_ in enumerate(obs.keys()):
             if "werewolf" in id_:
-                # perform ww actions
-                if env.phase in [0, 1] or ww_unite:
-                    actions[id_]=random.choice(vill_trg_ids)
-                else:
-                    actions[id_]=random.choice(all_trg_ids)
+                # assign action to agent
+                actions[id_] = ww_actions[idx]
             else:
                 # perform vill actions
                 actions[id_] = random.choice(all_trg_ids)
 
-        #step
+        # step
         obs, rewards, dones, info = env.step(actions)
-        # update agent ids
-        agent_ids = obs.keys()
+        obs = {k: v['dict_obs'] for k, v in obs.items() if "werewolf" in k}
 
         if dones["__all__"]:
             for k, v in env.custom_metrics.items():
                 metrics[k].append(v)
-            env.reset()
+
+            obs = env.reset()
+            obs = {k: v['dict_obs'] for k, v in obs.items()}
+
             ep += 1
             pbar.update(1)
 

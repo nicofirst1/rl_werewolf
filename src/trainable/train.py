@@ -1,6 +1,7 @@
 # initialize param class
 from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
 
+from policies.RevengeTarget import RevengeTarget
 from utils import Params
 
 Params()
