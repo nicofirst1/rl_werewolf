@@ -52,6 +52,9 @@ if __name__ == '__main__':
         "num_workers": Params.n_workers,
         "num_gpus": Params.n_gpus,
         "batch_mode": "complete_episodes",
+        "train_batch_size": 400,
+        "rollout_fragment_length": 300,
+
 
         # PPO parameter taken from OpenAi paper
         "lr": 3e-4,
