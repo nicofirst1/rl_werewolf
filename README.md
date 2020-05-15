@@ -65,7 +65,7 @@ In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) 
 - [Model configs](https://ray.readthedocs.io/en/latest/rllib-models.html#built-in-model-parameters)
 - [Common config](https://ray.readthedocs.io/en/latest/rllib-training.html#common-parameters)
 - [SelfPlay](https://github.com/ray-project/ray/issues/6669)
-- []()
+- [PPO Configs](https://github.com/ray-project/ray/blob/4633d81c390fd33d54aa62a5eb43fe104062bb41/rllib/agents/ppo/ppo.py#L19)
 - []()
 - []()
 
