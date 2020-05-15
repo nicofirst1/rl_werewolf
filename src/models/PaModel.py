@@ -1,11 +1,11 @@
-from ray.rllib.examples.centralized_critic import CentralizedCriticModel
 from ray.rllib.models.tf.fcnet_v2 import FullyConnectedNetwork
+from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from ray.rllib.utils import try_import_tf
 
 tf = try_import_tf()
 
 
-class ParametricActionsModel(CentralizedCriticModel):
+class ParametricActionsModel(TFModelV2):
     """
     Parametric action model used to filter out invalid action from environment
     """
