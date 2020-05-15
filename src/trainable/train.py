@@ -63,11 +63,12 @@ if __name__ == '__main__':
         "lambda": .95,
         "gamma": .998,
         "entropy_coeff": 0.01,
-        "kl_coeff": 1.0,
+        "kl_coeff": 0.4,
         "clip_param": 0.2,
         "use_critic": True,
         "use_gae": True,
         "grad_clip": 5,
+        "num_sgd_iter":10,
 
         # todo: remove this [here](https://github.com/ray-project/ray/issues/7991)
         "simple_optimizer": True,
@@ -75,7 +76,7 @@ if __name__ == '__main__':
         "callbacks": {"on_episode_end": on_episode_end, },
 
         "model": {
-            "use_lstm": True,
+            "use_lstm": False,
             # "max_seq_len": 10,
             "custom_model": "pa_model",  # using custom parametric action model
         },
