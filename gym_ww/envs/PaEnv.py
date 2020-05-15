@@ -8,7 +8,7 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
 from gym_ww import ww, vil
-from src.other.custom_utils import str_id_map, most_frequent
+from src.other.custom_utils import  most_frequent
 
 ####################
 # global vars
@@ -20,45 +20,11 @@ from src.other.custom_utils import str_id_map, most_frequent
 ####################
 
 
-CONFIGS = dict(
-
-    existing_roles=[ww, vil],  # list of existing roles [werewolf, villanger]
-    penalties=dict(
-        # penalty dictionary
-        # penalty to give for each day that has passed
-        day=0,
-        # when a player dies
-        death=-5,
-        # victory
-        victory=+25,
-        # lost
-        lost=-25,
-        # penalty used for punishing votes that are not chosen during execution/kill.
-        # If agent1 outputs [4,2,3,1,0] as a target list and agent2 get executed then agent1 get
-        # a penalty equal to index_of(agent2,targets)*penalty
-        trg_accord=-1,
-
-    ),
-    max_days=10,
-
-    # signal is used in the communication phase to signal other agents about intentions
-    # the length concerns the dimension of the signal while the components is the range of values it can fall into
-    # a range value of 2 is equal to binary variable
-    signal_length=0,
-    signal_range=2,
-
-    # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
-
-)
-CONFIGS['role2id'], CONFIGS['id2role'] = str_id_map(CONFIGS['existing_roles'])
-
-
 class PaEnv(MultiAgentEnv):
     """
 
 
     """
-    metadata = {'players': ['human']}
 
     def __init__(self, configs, roles=None, flex=0):
         """
@@ -102,10 +68,13 @@ class PaEnv(MultiAgentEnv):
         self.num_players = num_players
         self.num_wolves = num_wolves
         self.roles = roles
-        self.penalties = CONFIGS['penalties']
-        self.max_days = CONFIGS['max_days']
-        self.signal_length = CONFIGS['signal_length']
-        self.signal_range = CONFIGS['signal_range']
+        self.penalties = configs['penalties']
+        self.max_days = configs['max_days']
+
+        assert configs['signal_length']<= num_players, "Signal length must be not greater than the number of players"
+
+        self.signal_length = configs['signal_length']
+        self.signal_range = configs['signal_range']
 
         # used for logging game
         self.ep_step = 0
@@ -609,7 +578,7 @@ class PaEnv(MultiAgentEnv):
             # update dict with -1
             targets.update({elem: -1 for elem in to_add})
 
-            if len(signal) > 0:
+            if self.signal_length > 0:
                 signal.update({elem: sg for elem in to_add})
 
             return signal, targets

@@ -1,6 +1,7 @@
 # initialize param class
 from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
 
+from envs import CONFIGS
 from policies.RevengeTarget import RevengeTarget
 from utils import Params
 
@@ -32,13 +33,13 @@ if __name__ == '__main__':
     _ = ParametricActionsModel
     ray.init(local_mode=Params.debug, logging_level=logging.DEBUG)
 
-    env_configs = {'num_players': Params.num_player}
+    env_configs = CONFIGS
 
     env = EvaluationWrapper(env_configs)
 
     # define policies
     vill_p = (PPOTFPolicy, env.observation_space, env.action_space, {})
-    ww_p = (RandomTarget, env.observation_space, env.action_space, {})
+    ww_p = (RevengeTarget, env.observation_space, env.action_space, {})
 
     policies = dict(
         wolf_p=ww_p,

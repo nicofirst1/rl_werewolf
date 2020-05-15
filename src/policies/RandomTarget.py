@@ -15,9 +15,16 @@ class RandomTarget(Policy):
                         episodes=None,
                         **kwargs):
         """Compute actions on a batch of observations."""
-        observations=[elem.get('obs',{}) for elem in info_batch]
 
-        return random_non_wolf(self.action_space, observations, unite=False), [], {}
+        observations = [elem.get('obs', {}) for elem in info_batch]
+        signal_conf = self.config['env_config']['signal_length'], self.config['env_config']['signal_range']
+
+        action = random_non_wolf(self.action_space, observations, signal_conf, unite=False)
+
+        if not self.action_space.contains(action[0]):
+            s=1
+        #[self.action_space.sample() for _ in obs_batch]
+        return action, [], {}
 
     def get_weights(self):
         return None

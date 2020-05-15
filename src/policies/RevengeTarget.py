@@ -1,5 +1,3 @@
-from collections import Counter
-
 from ray.rllib import Policy
 
 from policies.utils import revenge_target
@@ -24,8 +22,9 @@ class RevengeTarget(Policy):
         """Compute actions on a batch of observations."""
 
         observations=[elem.get('obs',{}) for elem in info_batch]
+        signal_conf = self.config['env_config']['signal_length'], self.config['env_config']['signal_range']
 
-        actions, self.to_kill_list = revenge_target(self.action_space, observations, self.to_kill_list)
+        actions, self.to_kill_list = revenge_target(self.action_space, observations, self.to_kill_list,signal_conf)
 
         return actions, [], {}
 

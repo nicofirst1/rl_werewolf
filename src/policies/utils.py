@@ -4,31 +4,71 @@ from collections import Counter
 import numpy as np
 
 
-def random_non_wolf(action_space, obs, unite=False):
+def random_non_wolf(action_space, obs, signal_conf, unite=False):
     """
-    Return a random id for ww filtering out other ww and dead agents
-    @param action_space: the action space passed by the policy
-    @param unite: bool, false to enable ww to target each other during day
-    @param obs: a list of observations
-    @return: list[int]
+     Return a random id for ww filtering out other ww and dead agents
+    Parameters
+    ----------
+    action_space :  the action space passed by the policy
+    obs :  a list of observations
+    signal_conf : tuple[int,int], length and range of the signal
+    unite :  bool, false to enable ww to target each other during day
+    Returns
+    -------
+    batch of actions
     """
 
     # if the batch is empty then return random stuff
     if not any(obs):
-        return [action_space.sample() for _ in obs]
+        targets= [action_space.sample()[0] for _ in obs]
+        return add_random_signal(signal_conf, targets)
 
     # get the roles from the ids
     all_ids, ww_ids, vil_ids, _ = roles_from_info(obs, alive=True)
 
     # is use phase then ww are allowed to target each other during day
+
     if unite or obs[0]['phase'] in [0, 1]:
 
-        return [random.choice(vil_ids) for _ in obs]
+        targets = [random.choice(vil_ids) for _ in obs]
 
     else:
 
         # return random choice
-        return [random.choice(all_ids) for _ in obs]
+        targets = [random.choice(all_ids) for _ in obs]
+
+    return add_random_signal(signal_conf, targets)
+
+
+def add_random_signal(signal_conf, targets):
+    """
+    Add a random signal to the targets for output
+    Parameters
+    ----------
+    signal_conf : tuple[int,int], length and range of the signal
+    targets : list[int], batched list of targets
+
+    Returns
+    -------
+
+    """
+    # extract the configs
+    s_len, s_range = signal_conf
+
+    # if there is no signal return the targets
+    if s_len == 0:
+        return targets
+
+    to_ret = []
+
+    # for every target
+    for idx in range(len(targets)):
+        # generate random signal
+        to_ret.append([random.choice(range(s_range)) for _ in range(s_len)])
+        # append target at start
+        to_ret[idx].insert(0, targets[idx])
+
+    return to_ret
 
 
 def roles_from_info(obs, alive=True):
@@ -73,14 +113,15 @@ def roles_from_info(obs, alive=True):
     return all_ids, ww_ids, vil_ids, dead_ids
 
 
-def revenge_target(action_space, obs, to_kill_list, unite=False):
-
+def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
     def chose_target(to_kill_lst):
         """
         Choose the most common out of the kill list
         Parameters
         ----------
         to_kill_lst : list[int], kill list
+        signal_conf : tuple[int,int], length and range of the signal
+
 
         Returns
         -------
@@ -89,7 +130,7 @@ def revenge_target(action_space, obs, to_kill_list, unite=False):
         return Counter(to_kill_lst).most_common(1)[0][1]
 
     if not any(obs):
-        return random_non_wolf(action_space, obs, unite=unite), []
+        return random_non_wolf(action_space, obs, signal_conf, unite=unite), []
 
     # get infos
     phase = obs[0]['phase']
@@ -112,16 +153,19 @@ def revenge_target(action_space, obs, to_kill_list, unite=False):
 
     # if the list is empty return random
     if len(to_kill_list) == 0:
-        return random_non_wolf(action_space, obs, unite=unite), to_kill_list
+        return random_non_wolf(action_space, obs, signal_conf, unite=unite), to_kill_list
 
     # if unite then return non ww ids every time
     if unite:
-        return [chose_target(to_kill_list) for _ in obs], to_kill_list
+        targets = [chose_target(to_kill_list) for _ in obs]
+        return add_random_signal(signal_conf, targets), to_kill_list
 
     # else return most common on kill list when eating
     elif phase == 1:
-        return [chose_target(to_kill_list) for _ in obs], to_kill_list
+        targets = [chose_target(to_kill_list) for _ in obs]
+
+        return add_random_signal(signal_conf, targets), to_kill_list
 
     # else random ( we don't care about communication)
     else:
-        return random_non_wolf(action_space, obs, unite=unite), to_kill_list
+        return random_non_wolf(action_space, obs, signal_conf, unite=unite), to_kill_list
