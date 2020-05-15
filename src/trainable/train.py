@@ -29,7 +29,7 @@ def mapping(agent_id):
 
 if __name__ == '__main__':
     _ = ParametricActionsModel
-    ray.init(local_mode=Params.debug, logging_level=logging.WARN)
+    ray.init(local_mode=Params.debug, logging_level=logging.DEBUG)
 
     env_configs = {'num_players': Params.num_player}
 
