@@ -4,7 +4,7 @@ from policies.utils import random_non_wolf
 
 
 class RandomTarget(Policy):
-    """Hand-coded policy that returns random actions for ww."""
+    """Hand-coded policy that returns random actions. WW will always return a non ww index."""
 
     def compute_actions(self,
                         obs_batch,
@@ -15,7 +15,7 @@ class RandomTarget(Policy):
                         episodes=None,
                         **kwargs):
         """Compute actions on a batch of observations."""
-        return random_non_wolf(self.action_space, info_batch, unite=False), [], {}
+        return random_non_wolf(self.action_space, info_batch, unite=True), [], {}
 
     def get_weights(self):
         return None
