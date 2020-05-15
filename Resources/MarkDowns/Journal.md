@@ -163,6 +163,9 @@ The evaluation will be split in consecutive steps.
 First we will run a sufficient number of iteration for stupid random players (both ww and vil). 
 This will give us a baseline of how more probable is for ww to win.
 
+### Normal ww
+In this setting we tested the average distribution of the metrics under the default rules
+
 For 8 players for 1000 runs:
 - Mean value of win_wolf is : 0.619 +- 0.4856325771609643
 - Mean value of win_vil is : 0.381 +- 0.4856325771609643
@@ -191,10 +194,50 @@ For 20 players for 1000 runs:
 
 Based on these results, the environment will be trained with 9 agents (3 ww and 6 vill)
 
+### Unite ww
+Here the werewolves are unite, that is they are not allowed to target each other even during daytime.
+
+
+For 8 players for 1000 runs:
+- Mean value of suicide is : 0.0851652380952381 +- 0.06349965734726412
+- Mean value of win_wolf is : 0.9324 +- 0.25105824025512485
+- Mean value of win_vil is : 0.0676 +- 0.25105824025512485
+- Mean value of tot_days is : 2.256 +- 0.4364218143035474
+- Mean value of accord is : 0.3772810714285714 +- 0.07760008451154535
+
+For 9 players for 10000 runs:
+- Mean value of suicide is : 0.04365381944444444 +- 0.04758147819074315
+- Mean value of win_wolf is : 0.9977 +- 0.047903131421651354
+- Mean value of win_vil is : 0.0023 +- 0.047903131421651354
+- Mean value of tot_days is : 1.1528 +- 0.41042923872453335
+- Mean value of accord is : 0.35892065972222215 +- 0.07580325968064038
+
+For 10 players for 10000 runs:
+- Mean value of suicide is : 0.06034538624338625 +- 0.046984357500601155
+- Mean value of win_wolf is : 0.9897 +- 0.10096489488926336
+- Mean value of win_vil is : 0.0103 +- 0.10096489488926336
+- Mean value of tot_days is : 2.2975 +- 0.5608865749864227
+- Mean value of accord is : 0.30114200529100527 +- 0.06429557080382997
+
+For 20 players for 1000 runs:
+- Mean value of suicide is : 0.0517158449505049 +- 0.025279605293041844
+- Mean value of win_wolf is : 0.9781 +- 0.14635706337584117
+- Mean value of win_vil is : 0.0219 +- 0.14635706337584117
+- Mean value of tot_days is : 6.8074 +- 0.912088394839009
+- Mean value of accord is : 0.2898264962307907 +- 0.045353553067294335
 
 ## Learning Vill
 Then the vill will be able to learn against random ww.
 In this phase we will vary the communication length and range to see if there are differences.
+
+### Unite ww
+A run has been performed with the unite parameters and random policy.
+The results are the following:
+- Mean value of suicide is : 0.0206 +- 0.025279605293041844
+- Mean value of win_wolf is : 0.9781 +- 0.14635706337584117
+- Mean value of win_vil is : 0.0219 +- 0.14635706337584117
+- Mean value of tot_days is : 6.8074 +- 0.912088394839009
+- Mean value of accord is : 0.2898264962307907 +- 0.045353553067294335
 
 ### Revenge WW
 Then the ww's policy will change, and they will become revengeful ww.
