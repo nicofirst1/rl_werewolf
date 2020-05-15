@@ -25,7 +25,7 @@ class ParametricActionsModel(CentralizedCriticModel):
             obs_space, action_space, num_outputs, model_config, name)
 
         # get real obs space, discarding action mask
-        real_obs_space = obs_space.original_space.spaces['original_obs']
+        real_obs_space = obs_space.original_space.spaces['array_obs']
 
         # define action embed model
         self.action_embed_model = FullyConnectedNetwork(real_obs_space, action_space, num_outputs, model_config,
@@ -53,12 +53,12 @@ class ParametricActionsModel(CentralizedCriticModel):
         # extract action mask  [batch size, num players]
         action_mask = obs['action_mask']
         # extract original observations [batch size, obs size]
-        original_obs = obs['original_obs']
+        array_obs = obs['array_obs']
 
         # Compute the predicted action embedding
         # size [batch size, num players * num players]
         action_embed, _ = self.action_embed_model({
-            "obs": original_obs
+            "obs": array_obs
         })
 
         # Mask out invalid actions (use tf.float32.min for stability)
