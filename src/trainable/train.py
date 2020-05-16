@@ -6,7 +6,6 @@ from policies.RevengeTarget import RevengeTarget
 from trainers.AlternatePPOTrainer import AlternatePPOTrainer
 from utils import Params
 
-Params()
 
 from models import ParametricActionsModel
 from wrappers import EvaluationWrapper

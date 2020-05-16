@@ -15,6 +15,18 @@ def join_paths(path1, path2):
     return os.path.join(path1, path2)
 
 
+def singleton(cls):
+    instances = {}
+
+    def getinstance():
+        if cls not in instances:
+            instances[cls] = cls()
+        return instances[cls]
+
+    return getinstance
+
+
+@singleton
 class Params:
     ##########################
     # other
@@ -49,7 +61,7 @@ class Params:
     ##########################
     # Performance stuff
     ##########################
-    debug = False
+    debug = True
 
     if on_peregrine:
         n_cpus = multiprocessing.cpu_count() if not debug else 1
@@ -199,3 +211,4 @@ class Params:
                         print(e)
             except Exception:
                 continue
+
