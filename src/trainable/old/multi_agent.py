@@ -3,14 +3,14 @@ import random
 import numpy as np
 from tqdm import tqdm
 
+from envs import CONFIGS
 from policies.utils import random_non_wolf, revenge_target
 from wrappers import EvaluationWrapper
 
 if __name__ == '__main__':
 
     # initialize environment
-    env_configs = {'num_players': 9}
-    env = EvaluationWrapper(env_configs)
+    env = EvaluationWrapper(CONFIGS)
     # get agent ids
     obs = env.reset()
     obs = {k: v['dict_obs'] for k, v in obs.items()}
@@ -22,6 +22,7 @@ if __name__ == '__main__':
     pbar = tqdm(total=eps)  # to get counter
     action_space=env.action_space
     to_kill_list=[]
+    signal_conf=(CONFIGS['signal_length'],CONFIGS['signal_range'])
 
     ep = 0
     while ep < eps:
@@ -35,7 +36,8 @@ if __name__ == '__main__':
         all_trg_ids = [env.shuffle_map[id_] for id_ in env.get_ids("all", alive=True)]
 
         # perform all ww actions
-        ww_actions,to_kill_list = random_non_wolf(action_space, list(obs.values()),unite=False)
+        #ww_actions,to_kill_list = revenge_target(action_space, list(obs.values()),signal_conf,unite=False)
+        ww_actions = random_non_wolf(action_space, list(obs.values()),signal_conf,unite=False)
 
         # for every agent
         for idx, id_ in enumerate(obs.keys()):
