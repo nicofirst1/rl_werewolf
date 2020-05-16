@@ -20,8 +20,15 @@ def random_non_wolf(action_space, obs, signal_conf, unite=False):
 
     # if the batch is empty then return random stuff
     if not any(obs):
-        targets= [action_space.sample()[0] for _ in obs]
-        return add_random_signal(signal_conf, targets)
+        # if there is a signal, sample target and add signal
+        if signal_conf[0]>0:
+            targets= [action_space.sample()[0] for _ in obs]
+            targets=add_random_signal(signal_conf, targets)
+        else:
+            # just sample target
+            targets= [action_space.sample()for _ in obs]
+
+        return targets
 
     # get the roles from the ids
     all_ids, ww_ids, vil_ids, _ = roles_from_info(obs, alive=True)
