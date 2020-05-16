@@ -63,7 +63,6 @@ if __name__ == '__main__':
         "lambda": .95,
         "gamma": .998,
         "entropy_coeff": 0.01,
-        "kl_coeff": 0.4,
         "clip_param": 0.2,
         "use_critic": True,
         "use_gae": True,
