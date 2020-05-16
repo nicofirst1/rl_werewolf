@@ -89,8 +89,8 @@ class EvaluationWrapper(ParametricActionWrapper):
 
         return super().reset()
 
-    def __init__(self, configs, roles=None, flex=0):
-        super().__init__(configs, roles=roles, flex=flex)
+    def __init__(self, configs, roles=None):
+        super().__init__(configs, roles=roles)
 
         self.log(
             f"Starting game with {self.num_players} players: {self.num_players - self.num_wolves}"

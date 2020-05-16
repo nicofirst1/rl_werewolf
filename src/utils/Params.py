@@ -71,7 +71,17 @@ class Params:
     ##########################
     # env params
     ##########################
+    # check
     num_player = 9
+
+    # maximum number of day before a match forcefully ends
+    max_days = 10
+
+    # signal is used in the communication phase to signal other agents about intentions
+    # the length concerns the dimension of the signal while the components is the range of values it can fall into
+    # a range value of 2 is equal to binary variable
+    signal_length = 0
+    signal_range = 9
 
     ##########################
     #    METHODS

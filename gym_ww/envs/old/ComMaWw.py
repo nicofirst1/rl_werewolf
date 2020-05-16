@@ -9,6 +9,7 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 from ray.rllib.utils.error import UnsupportedSpaceException
 
+from envs import CONFIGS
 from gym_ww import logger
 from src.other.analysis import vote_difference, measure_influence
 from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint
@@ -24,42 +25,6 @@ vil = "villager"
 ####################
 # penalty fro breaking a rule
 rule_break_penalty = -50
-
-CONFIGS = dict(
-
-    existing_roles=[ww, vil],  # list of existing roles [werewolf, villanger]
-    penalties=dict(
-        # penalty dictionary
-        # penalty to give for each day that has passed
-        day=-1,
-        # when wolves kill someone
-        kill=5,
-        # when an execution is successful (no dead man execution)
-        execution=2,
-        # when a player dies
-        death=-5,
-        # victory
-        victory=+25,
-        # lost
-        lost=-25,
-        # when a dead man is executed
-        execute_dead=rule_break_penalty,
-        # given to wolves when they kill one of their kind
-        kill_wolf=rule_break_penalty,
-        # penalty used for punishing votes that are not chosen during execution/kill.
-        # If agent1 outputs [4,2,3,1,0] as a target list and agent2 get executed then agent1 get
-        # a penalty equal to index_of(agent2,targets)*penalty
-        trg_accord=-1,
-        # targets should be a list of DIFFERENT ids for each agent, those which output same ids shall be punished
-        trg_all_diff=rule_break_penalty,
-
-    ),
-    max_days=1000,
-
-    # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
-
-)
-CONFIGS['role2id'], CONFIGS['id2role'] = str_id_map(CONFIGS['existing_roles'])
 
 
 class ComMaWw(MultiAgentEnv):

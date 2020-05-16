@@ -5,30 +5,13 @@ import gym
 from gym import spaces
 from ray.rllib.env import EnvContext
 
+from envs import CONFIGS
 from gym_ww import logger
 from src.other.custom_utils import str_id_map, most_frequent
 
 # names for roles
 ww = "werewolf"
 vil = "villager"
-
-CONFIGS = dict(
-
-    existing_roles=[ww, vil],  # list of existing roles [werewolf, villanger]
-    penalties=dict(  # penalty dictionary
-        day=-1,
-        kill=5,
-        execution=2,
-        death=-5,
-        victory=+10,
-        lost=-10,
-
-    ),
-
-    # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
-
-)
-CONFIGS['role2id'], CONFIGS['id2role'] = str_id_map(CONFIGS['existing_roles'])
 
 
 class SimpleWW(gym.Env):
