@@ -7,6 +7,7 @@ from gym import spaces
 from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
+from envs import CONFIGS
 from gym_ww import logger, ww, vil
 from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint
 ####################
@@ -20,50 +21,6 @@ from utils import Params
 ####################
 
 rule_break_penalty = -50
-
-CONFIGS = dict(
-
-    existing_roles=[ww, vil],  # list of existing roles [werewolf, villanger]
-    penalties=dict(
-        # penalty dictionary
-        # penalty to give for each day that has passed
-        day=-1,
-        # when wolves kill someone
-        kill=5,
-        # when an execution is successful (no dead man execution)
-        execution=2,
-        # when a player dies
-        death=-5,
-        # victory
-        victory=+25,
-        # lost
-        lost=-25,
-        # when a dead man is executed
-        execute_dead=rule_break_penalty,
-        # given to wolves when they kill one of their kind
-        kill_wolf=rule_break_penalty,
-        # penalty used for punishing votes that are not chosen during execution/kill.
-        # If agent1 outputs [4,2,3,1,0] as a target list and agent2 get executed then agent1 get
-        # a penalty equal to index_of(agent2,targets)*penalty
-        trg_accord=-1,
-        # targets should be a list of DIFFERENT ids for each agent, those which output same ids shall be punished
-        trg_all_diff=2,
-
-    ),
-    max_days=10,
-
-    # signal is used in the communication phase to signal other agents about intentions
-    # the length concerns the dimension of the signal while the components is the range of values it can fall into
-    # a range value of 2 is equal to binary variable
-    signal_length=1,
-    signal_range=2,
-
-    win_log_str=f"\n{'#' * 20}\n" * 3
-
-    # {'agent': 5, 'attackVoteList': [], 'attackedAgent': -1, 'cursedFox': -1, 'divineResult': None, 'executedAgent': -1,  'guardedAgent': -1, 'lastDeadAgentList': [], 'latestAttackVoteList': [], 'latestExecutedAgent': -1, 'latestVoteList': [], 'mediumResult': None,  , 'talkList': [], 'whisperList': []}
-
-)
-CONFIGS['role2id'], CONFIGS['id2role'] = str_id_map(CONFIGS['existing_roles'])
 
 
 class TurnEnvWw(MultiAgentEnv):

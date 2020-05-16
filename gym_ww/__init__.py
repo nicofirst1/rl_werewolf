@@ -7,26 +7,26 @@ from utils import Params
 ww = "werewolf"
 vil = "villager"
 
-# Register envs
-register(
-    id='simpleWW-v0',
-    entry_point='gym_ww.envs:SimpleWW',
-)
-
-register(
-    id='MaWw-v0',
-    entry_point='gym_ww.envs:MaWw',
-)
-
-register(
-    id='ComMaWw-v0',
-    entry_point='gym_ww.envs:ComMaWw',
-)
-
-register(
-    id='PolicyWw-v0',
-    entry_point='gym_ww.envs:PolicyWw',
-)
+# # Register envs
+# register(
+#     id='simpleWW-v0',
+#     entry_point='gym_ww.envs:SimpleWW',
+# )
+#
+# register(
+#     id='MaWw-v0',
+#     entry_point='gym_ww.envs:MaWw',
+# )
+#
+# register(
+#     id='ComMaWw-v0',
+#     entry_point='gym_ww.envs:ComMaWw',
+# )
+#
+# register(
+#     id='PolicyWw-v0',
+#     entry_point='gym_ww.envs:PolicyWw',
+# )
 
 # Initialize envs loggers
 logger = logging.getLogger("WwEnvs")

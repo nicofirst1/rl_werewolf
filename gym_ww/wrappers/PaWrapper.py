@@ -14,8 +14,8 @@ class ParametricActionWrapper(PaEnv):
     Wrapper around TurnEnvWw for implementing parametric actions
     """
 
-    def __init__(self, configs, roles=None, flex=0):
-        super().__init__(configs, roles, flex)
+    def __init__(self, configs, roles=None):
+        super().__init__(configs, roles)
 
         obs_space = super().observation_space
         self.obs_size = get_preprocessor(obs_space)(obs_space, None).size

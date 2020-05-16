@@ -26,7 +26,7 @@ class PaEnv(MultiAgentEnv):
 
     """
 
-    def __init__(self, configs, roles=None, flex=0):
+    def __init__(self, configs, roles=None):
         """
 
         :param num_players: int, number of player, must be grater than 4
@@ -79,10 +79,6 @@ class PaEnv(MultiAgentEnv):
         # used for logging game
         self.ep_step = 0
 
-        if flex == 0:
-            self.flex = 1
-        else:
-            self.flex = math.floor(num_players * flex)
 
         # define empty attributes, refer to initialize method for more info
         self.status_map = None
