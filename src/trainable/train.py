@@ -75,7 +75,9 @@ if __name__ == '__main__':
         # todo: remove this [here](https://github.com/ray-project/ray/issues/7991)
         "simple_optimizer": True,
 
-        "callbacks": {"on_episode_end": on_episode_end, },
+        "callbacks": {
+            "on_episode_end": on_episode_end,
+        },
 
         "model": {
             "use_lstm": False,

@@ -30,7 +30,7 @@ def post_train(trainer, result):
     else:
         trainer.config['multiagent']['policies_to_train'] = "vill_p"
 
-    result['custom_metrics']=trainer.config['multiagent']['policies_to_train']
+    result['custom_metrics']['training_policy']=trainer.config['multiagent']['policies_to_train']
 
 AlternatePPOTrainer = build_trainer(
     name="AlternatePPO",
