@@ -3,6 +3,7 @@ from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
 
 from envs import CONFIGS
 from policies.RevengeTarget import RevengeTarget
+from trainers.AlternatePPOTrainer import AlternatePPOTrainer
 from utils import Params
 
 Params()
@@ -20,13 +21,14 @@ from callbacks import on_episode_end
 from other.custom_utils import trial_name_creator
 
 
-def mapping(agent_id):
+def mapping_static(agent_id):
     if "wolf" in agent_id:
-        return "wolf_p"
+        return "wolf_p_static"
     elif "vil" in agent_id:
         return "vill_p"
     else:
         raise NotImplementedError(f"Policy for role {agent_id} not implemented")
+
 
 
 if __name__ == '__main__':
@@ -42,7 +44,8 @@ if __name__ == '__main__':
     ww_p = (RevengeTarget, env.observation_space, env.action_space, {})
 
     policies = dict(
-        wolf_p=ww_p,
+        wolf_p_static=ww_p,
+        wolf_p=vill_p,
         vill_p=vill_p,
     )
 
@@ -81,15 +84,15 @@ if __name__ == '__main__':
         },
         "multiagent": {
             "policies": policies,
-            "policy_mapping_fn": mapping,
-            "policies_to_train": ["vill_p"]
+            "policy_mapping_fn": mapping_static,
+            "policies_to_train": "vill_p"
 
         },
 
     }
 
     analysis = tune.run(
-        "PPO",
+        AlternatePPOTrainer,
         local_dir=Params.RAY_DIR,
         config=configs,
         trial_name_creator=trial_name_creator,
