@@ -26,13 +26,11 @@ class PaEnv(MultiAgentEnv):
 
     """
 
-    def __init__(self, configs, roles=None):
+    def __init__(self, configs, ww_num=None):
         """
 
-        :param num_players: int, number of player, must be grater than 4
-        :param roles: list of str, list of roles for each agent
-        :param flex: float [0,1), percentage of targets to consider when voting, 0 is just one, depend on the number of player.
-            EG:  if num_players=10 -> targets are list of 10 elements, 10*0.5=5 -> first 5 player are considered when voting
+        :param ww_num: int, number of werewolves
+
         """
 
         # if config is dict
@@ -53,17 +51,18 @@ class PaEnv(MultiAgentEnv):
         # number of player should be more than 5
         assert num_players >= 5, "Number of player should be >= 5"
 
-        if roles is None:
+        if ww_num is None:
             # number of wolves should be less than villagers
             num_wolves = math.floor(math.sqrt(num_players))
             num_villagers = num_players - num_wolves
-            roles = [ww] * num_wolves + [vil] * num_villagers
             # random.shuffle(roles)
 
         else:
-            assert len(
-                roles) == num_players, f"Length of role list ({len(roles)}) should be equal to number of players ({num_players})"
-            num_wolves = len([elem for elem in roles if elem == ww])
+            assert ww_num < num_players, f"The number of werewolves  should be less than the number of players ({num_players})"
+            num_wolves = ww_num
+            num_villagers=num_players-num_wolves
+
+        roles = [ww] * num_wolves + [vil] * num_villagers
 
         self.num_players = num_players
         self.num_wolves = num_wolves

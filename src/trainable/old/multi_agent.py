@@ -1,16 +1,34 @@
+import math
 import random
-
+from functools import reduce
+from itertools import combinations
+import operator as op
 import numpy as np
 from tqdm import tqdm
-
 from envs import CONFIGS
 from policies.utils import random_non_wolf, revenge_target
 from wrappers import EvaluationWrapper
 
+
+def doublefactorial(n):
+    if n <= 0:
+        return 1
+    else:
+        return n * doublefactorial(n - 2)
+
+def comb(n, r):
+    r = min(r, n-r)
+    numer = reduce(op.mul, range(n, n-r, -1), 1)
+    denom = reduce(op.mul, range(1, r+1), 1)
+    return numer / denom
+
 if __name__ == '__main__':
 
+    config=CONFIGS
+    config['num_players']=21
+    config['max_days']=10
     # initialize environment
-    env = EvaluationWrapper(CONFIGS)
+    env = EvaluationWrapper(config)
     # get agent ids
     obs = env.reset()
     obs = {k: v['dict_obs'] for k, v in obs.items()}
@@ -18,7 +36,7 @@ if __name__ == '__main__':
     # variables
     ww_unite = True  # false if ww can target each other during day
     metrics = {k: [] for k in env.custom_metrics.keys()}
-    eps = 10000
+    eps = 1000
     pbar = tqdm(total=eps)  # to get counter
     action_space=env.action_space
     to_kill_list=[]
@@ -62,6 +80,22 @@ if __name__ == '__main__':
             ep += 1
             pbar.update(1)
 
+    del pbar
     print()
+    m=env.num_wolves
+    n=env.num_players
+
+    teoretical_p_win=1
+
+
+    for i in range(m+1):
+        num=comb(m,i)*doublefactorial(n-i)
+        num*=(-1)**i
+        den=doublefactorial(n)*doublefactorial((n%2)-i)
+        nd=num/den
+        teoretical_p_win-=nd
+
+
+    print(f"The theoretical ww win is : {teoretical_p_win}")
     for k, v in metrics.items():
         print(f"Mean value of {k} is : {np.mean(v)} +- {np.std(v)}")
