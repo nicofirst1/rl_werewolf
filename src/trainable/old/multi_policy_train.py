@@ -9,7 +9,7 @@ import ray
 
 from ray import tune
 
-from gym_ww.envs import PaEnv
+from gym_ww.envs import WwEnv
 
 from callbacks import on_episode_end
 from other.custom_utils import trial_name_creator
@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     env_configs = {'num_players': Params.num_player, "use_act_box": True}
 
-    env = PaEnv(env_configs)
+    env = WwEnv(env_configs)
     space = (None, env.observation_space, env.action_space, {})
 
     policies = dict(

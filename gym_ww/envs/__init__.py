@@ -1,5 +1,5 @@
 from gym_ww import ww,vil
-from gym_ww.envs.PaEnv import PaEnv
+from gym_ww.envs.WwEnv import WwEnv
 from utils import Params
 
 CONFIGS = dict(

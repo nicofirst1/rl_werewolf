@@ -5,11 +5,11 @@ import numpy as np
 from ray.rllib.models.preprocessors import get_preprocessor
 from ray.rllib.utils.error import UnsupportedSpaceException
 
-from envs.PaEnv import PaEnv
+from envs.WwEnv import WwEnv
 from gym_ww import ww
 
 
-class ParametricActionWrapper(PaEnv):
+class ParametricActionWrapper(WwEnv):
     """
     Wrapper around TurnEnvWw for implementing parametric actions
     """
@@ -113,11 +113,11 @@ class ParametricActionWrapper(PaEnv):
 
         return new_obs
 
-    @PaEnv.observation_space.getter
+    @WwEnv.observation_space.getter
     def action_space(self):
         return super().action_space
 
-    @PaEnv.observation_space.getter
+    @WwEnv.observation_space.getter
     def observation_space(self):
 
         super_obs = super().observation_space

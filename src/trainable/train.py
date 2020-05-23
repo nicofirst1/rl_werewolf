@@ -1,23 +1,17 @@
-# initialize param class
-from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
-
-from envs import CONFIGS
-from policies.RevengeTarget import RevengeTarget
-from trainers.AlternatePPOTrainer import AlternatePPOTrainer
-from utils import Params
-
-
-from models import ParametricActionsModel
-from wrappers import EvaluationWrapper
-
-from policies.RandomTarget import RandomTarget
-
 import logging
+
 import ray
 from ray import tune
+from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
 
 from callbacks import on_episode_end
+from envs import CONFIGS
+from models import ParametricActionsModel
 from other.custom_utils import trial_name_creator
+from policies.RandomTarget import RandomTarget
+from trainers.AlternatePPOTrainer import AlternatePPOTrainer
+from utils import Params
+from wrappers import EvaluationWrapper
 
 
 def mapping_static(agent_id):
@@ -27,7 +21,6 @@ def mapping_static(agent_id):
         return "vill_p"
     else:
         raise NotImplementedError(f"Policy for role {agent_id} not implemented")
-
 
 
 if __name__ == '__main__':
@@ -59,7 +52,6 @@ if __name__ == '__main__':
         "train_batch_size": 400,
         "rollout_fragment_length": 300,
 
-
         # PPO parameter taken from OpenAi paper
         "lr": 3e-4,
         "lambda": .95,
@@ -69,7 +61,7 @@ if __name__ == '__main__':
         "use_critic": True,
         "use_gae": True,
         "grad_clip": 5,
-        "num_sgd_iter":10,
+        "num_sgd_iter": 10,
 
         # todo: remove this [here](https://github.com/ray-project/ray/issues/7991)
         "simple_optimizer": True,
@@ -80,7 +72,6 @@ if __name__ == '__main__':
 
         "model": {
             "use_lstm": False,
-            # "max_seq_len": 10,
             "custom_model": "pa_model",  # using custom parametric action model
         },
         "multiagent": {

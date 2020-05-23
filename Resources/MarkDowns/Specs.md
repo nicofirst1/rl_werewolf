@@ -2,10 +2,10 @@
 
 As shown in the following diagram, the workflow is straightforward. It is divided into 4 phases:
 
-* 0. __Communication during Night__ : Non villager (aka wolves) agents cast a vote.
-* 1. __Execution during Night__ : Non villager agents execute action. Wolves will eat an agent.
-* 2. __Communication during Day__ : Every agents cast a vote.
-* 3. __Communication during Night__ : Every agent vote and the majority wins.
+0. __Communication during Night__ : Non villager (aka wolves) agents cast a vote.
+1. __Execution during Night__ : Non villager agents execute action. Wolves will eat an agent.
+2. __Communication during Day__ : Every agents cast a vote.
+3. __Communication during Night__ : Every agent vote and the majority wins.
 
 This four phases are manages by the _is_night_ and _is_com_ boolean flags. Moreover each phase has an unique id which is fed as an observation to the model.
 

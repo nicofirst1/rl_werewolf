@@ -15,7 +15,7 @@ def mapping_dynamic(agent_id):
 
 def post_train(trainer, result):
     win_ww = result['custom_metrics']['win_wolf_mean']
-    #training_policy = trainer.config['multiagent']['policies_to_train'][0]
+    # training_policy = trainer.config['multiagent']['policies_to_train'][0]
     mapping = trainer.config['multiagent']['policy_mapping_fn'].__name__
 
     # if the ww are loosing
@@ -30,7 +30,8 @@ def post_train(trainer, result):
     else:
         trainer.config['multiagent']['policies_to_train'] = "vill_p"
 
-    result['custom_metrics']['training_policy']=trainer.config['multiagent']['policies_to_train']
+    result['custom_metrics']['training_policy'] = trainer.config['multiagent']['policies_to_train']
+
 
 AlternatePPOTrainer = build_trainer(
     name="AlternatePPO",

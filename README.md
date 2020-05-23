@@ -46,6 +46,10 @@ For a detailed adescription on how the whole architecture has been build please 
 In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) relative to the developing of each env and the differences between them.
 
 
+## TODO
+- make period policy swapping
+- make playable env
+
 ## Helpful Links
 
 ### Custom gym env

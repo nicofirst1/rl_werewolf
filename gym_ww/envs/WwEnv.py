@@ -20,7 +20,7 @@ from src.other.custom_utils import  most_frequent
 ####################
 
 
-class PaEnv(MultiAgentEnv):
+class WwEnv(MultiAgentEnv):
     """
 
 
