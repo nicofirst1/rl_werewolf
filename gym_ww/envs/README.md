@@ -43,8 +43,9 @@ Moreover this implementation skips villagers during night time
 #### TODO
 - Make logging every n episode [X]
 
-### PaEnv
-[PaEnv](gym_ww/envs/PaEnv.py) stands for  Parametric action  environment.
+### WwEnv
+[WwEnv](gym_ww/envs/WwEnv.py) stands for Werewolf environment and is the last environment used.
+
 Based on _TurnEnvWw_. Has the following updates:
 - It discards the possibility of cannibalism and dead-man kills and rule breaking.
 - Every custom metric\logging has been moved outside the class.

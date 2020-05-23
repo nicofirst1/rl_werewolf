@@ -4,14 +4,14 @@ import ray
 from ray import tune
 
 from callbacks import on_episode_end
-from gym_ww.envs import PaEnv
+from gym_ww.envs import WwEnv
 from other.custom_utils import trial_name_creator
 from utils import Params
 
 ray.init(local_mode=True, logging_level=logging.WARN)
 
 configs = {
-    "env": PaEnv,
+    "env": WwEnv,
     "env_config": {'num_players': 5},  # config to pass to env class
 
     "callbacks": {
