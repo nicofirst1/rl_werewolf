@@ -14,47 +14,6 @@ from policies.utils import random_non_wolf, revenge_target
 from wrappers import EvaluationWrapper
 
 
-def double_factorial(n):
-    """
-    Return the double factorial of a number
-    """
-
-    if n <= 0:
-        return 1
-    else:
-        return n * double_factorial(n - 2)
-
-
-def comb(n, r):
-    """
-    Return the combination of n elements in r sets
-    """
-    r = min(r, n - r)
-    numer = reduce(op.mul, range(n, n - r, -1), 1)
-    denom = reduce(op.mul, range(1, r + 1), 1)
-    return numer / denom
-
-
-def theo_win_wolf(env):
-    """
-    Return the theoretical win prob for wolves given the env
-    """
-    m = env.num_wolves
-    n = env.num_players
-
-    teoretical_p_win = 1
-
-    for i in range(m + 1):
-        num = comb(m, i) * double_factorial(n - i)
-        num *= (-1) ** i
-        den = double_factorial(n) * double_factorial((n % 2) - i)
-        nd = num / den
-        teoretical_p_win -= nd
-
-    print(f"The theoretical ww win is : {teoretical_p_win}")
-    return theo_win_wolf()
-
-
 def experiment(args):
     """
     Run an experiment
@@ -185,12 +144,12 @@ def tune(combs, config, eps):
 if __name__ == '__main__':
     config = CONFIGS
     config['max_days'] = 1000000  # remove limit for max days
-    eps = 500  # number of episodes
+    eps = 100  # number of episodes
     # combination of the following parameters: number of players, use unite policy, use random policy
-    combs = [[9, 21, 31, 51, 71, 101, 151, 201, 251, 301], [False], [True]]
+    combs = [list(range(5,100)), [False], [False]]
     # generate a combination of the previous
     combs = list(itertools.product(*combs))
     # start the tuning
     metrics = tune(combs, config, eps)
     # save results to csv
-    save_results(metrics, 'prov.csv')
+    save_results(metrics, 'prov3.csv')
