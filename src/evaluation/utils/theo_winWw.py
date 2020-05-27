@@ -58,17 +58,21 @@ def save_results(rows : list , f_name):
         wr = csv.writer(file, dialect='excel')
         wr.writerows(rows)
 
-def unite_vill_prob(N):
+def theo_ww_revenge(N):
 
     try:
-        return 1 / math.pow(N , math.floor(math.sqrt(N)) + 1)
+        return 1- 1 / math.pow(N , math.floor(math.sqrt(N)) + 1)
     except ZeroDivisionError:
-        return 0
+        return 1
+
+def theo_unite(N):
+    return 1
 
 if __name__ == '__main__':
     rg=15.0
-    num_p=list(np.arange(5,rg,0.01))
-    #p_win=[theo_win_wolf(i) for i in range(rg)]
-    v_win=[unite_vill_prob(i) for i in num_p]
-    save_results(list(zip(num_p, v_win)),"vill_theo_win_unite.csv")
+    num_p=list(range(5,100))
+    #v_win=[theo_win_wolf(i) for i in num_p]
+    v_win = [theo_ww_revenge(i) for i in num_p]
+    v_win = [theo_unite(i) for i in num_p]
+    save_results(list(zip(num_p, v_win)),"theo_ww_revenge.csv")
 

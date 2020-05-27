@@ -4,7 +4,7 @@ import csv
 
 if __name__ == '__main__':
 
-    file_name= '/evaluation/ww_theo_win.csv'
+    file_name= '/Resources/CSVs/practical_ww_revenge.csv'
 
     with open(file_name,"r+") as f:
         rows = csv.reader(f, delimiter=',')
