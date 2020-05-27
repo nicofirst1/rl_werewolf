@@ -18,6 +18,7 @@ google==2.0.3
 google-auth==1.14.2
 google-auth-oauthlib==0.4.1
 google-pasta==0.2.0
+gputils==1.0.6
 grpcio==1.28.1
 gym==0.17.2
 h5py==2.10.0
@@ -46,7 +47,7 @@ pyrsistent==0.16.0
 python-dateutil==2.8.1
 pytz==2020.1
 PyYAML==5.3.1
-ray==0.8.4
+ray==0.8.5
 redis==3.4.1
 requests==2.23.0
 requests-oauthlib==1.3.0
@@ -63,6 +64,7 @@ tensorflow-estimator==2.2.0
 termcolor==1.1.0
 torch==1.5.0
 torchvision==0.6.0
+tqdm==4.46.0
 urllib3==1.25.9
 Werkzeug==1.0.1
 wrapt==1.12.1
