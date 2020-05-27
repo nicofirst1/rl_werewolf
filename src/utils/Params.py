@@ -26,7 +26,7 @@ def singleton(cls):
     return getinstance
 
 
-@singleton
+#@singleton
 class Params:
     ##########################
     # other

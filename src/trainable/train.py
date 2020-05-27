@@ -1,3 +1,9 @@
+from policies.RandomTargetUnite import RandomTargetUnite
+from policies.RevengeTarget import RevengeTarget
+from utils import Params
+
+_ = Params()
+
 import logging
 
 import ray
@@ -10,7 +16,6 @@ from envs import CONFIGS
 from models import ParametricActionsModel
 from other.custom_utils import trial_name_creator
 from policies.RandomTarget import RandomTarget
-from utils import Params
 from wrappers import EvaluationWrapper
 
 
@@ -24,6 +29,7 @@ def mapping_static(agent_id):
 
 
 if __name__ == '__main__':
+
     _ = ParametricActionsModel
     ray.init(local_mode=Params.debug, logging_level=logging.DEBUG)
 
@@ -33,7 +39,7 @@ if __name__ == '__main__':
 
     # define policies
     vill_p = (PPOTFPolicy, env.observation_space, env.action_space, {})
-    ww_p = (RandomTarget, env.observation_space, env.action_space, {})
+    ww_p = (RevengeTarget, env.observation_space, env.action_space, {})
 
     policies = dict(
         wolf_p_static=ww_p,
@@ -64,7 +70,7 @@ if __name__ == '__main__':
         "num_sgd_iter": 10,
 
         # todo: remove this [here](https://github.com/ray-project/ray/issues/7991)
-        "simple_optimizer": True,
+        #"simple_optimizer": True,
 
         "callbacks": {
             "on_episode_end": on_episode_end,

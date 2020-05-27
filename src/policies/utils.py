@@ -134,7 +134,7 @@ def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
         -------
             most common: int
         """
-        return Counter(to_kill_lst).most_common(1)[0][1]
+        return Counter(to_kill_lst).most_common(1)[0][0]
 
     if not any(obs):
         return random_non_wolf(action_space, obs, signal_conf, unite=unite), []
@@ -142,6 +142,9 @@ def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
     # get infos
     phase = obs[0]['phase']
     targets = obs[0]['targets']
+
+    if phase ==0:
+        return random_non_wolf(action_space, obs, signal_conf, unite=unite), to_kill_list
 
     # get the roles from the ids
     all_ids, ww_ids, vil_ids, dead_ids = roles_from_info(obs, alive=True)
@@ -151,12 +154,12 @@ def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
         to_kill_list = list(filter(lambda a: a != dead, to_kill_list))
 
     # update kill list with vil that voted for ww
-    if phase in [3, 4]:
+    if phase in [2, 3]:
         for ww in ww_ids:
             to_kill_list += np.where(targets == ww)[0].tolist()
 
         # remove ww ids
-        to_kill_list = list(np.delete(to_kill_list, ww_ids))
+        to_kill_list = [elem for elem in to_kill_list if elem not in ww_ids]
 
     # if the list is empty return random
     if len(to_kill_list) == 0:
