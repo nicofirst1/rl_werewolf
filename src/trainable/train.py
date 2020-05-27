@@ -2,6 +2,7 @@ import logging
 
 import ray
 from ray import tune
+from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
 
 from callbacks import on_episode_end
@@ -9,7 +10,6 @@ from envs import CONFIGS
 from models import ParametricActionsModel
 from other.custom_utils import trial_name_creator
 from policies.RandomTarget import RandomTarget
-from trainers.AlternatePPOTrainer import AlternatePPOTrainer
 from utils import Params
 from wrappers import EvaluationWrapper
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     # define policies
     vill_p = (PPOTFPolicy, env.observation_space, env.action_space, {})
-    ww_p = (RevengeTarget, env.observation_space, env.action_space, {})
+    ww_p = (RandomTarget, env.observation_space, env.action_space, {})
 
     policies = dict(
         wolf_p_static=ww_p,
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     }
 
     analysis = tune.run(
-        AlternatePPOTrainer,
+        PPOTrainer,
         local_dir=Params.RAY_DIR,
         config=configs,
         trial_name_creator=trial_name_creator,

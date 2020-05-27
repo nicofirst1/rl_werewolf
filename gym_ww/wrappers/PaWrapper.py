@@ -129,7 +129,7 @@ class ParametricActionWrapper(WwEnv):
 
             "action_mask": gym.spaces.Box(low=0, high=1, shape=(sum(self.action_space.nvec),)),
             "array_obs": obs,
-            "dict_obs":super_obs
+            "dict_obs": super_obs
         })
 
         return observation_space

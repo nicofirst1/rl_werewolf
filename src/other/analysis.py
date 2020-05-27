@@ -1,6 +1,6 @@
+import csv
 import math
 from collections import Counter
-import csv
 
 import numpy as np
 
@@ -79,14 +79,12 @@ def load_analyze_csv(path2file, min_step=0):
 
     """
 
-
     with open(path2file, mode='r') as csv_file:
         reader = csv.reader(csv_file)
         data = list(reader)[-min_step:]
-        data=data[1:]
-        data=[elem[2] for elem in data]
-        data=[float(elem) for elem in data]
+        data = data[1:]
+        data = [elem[2] for elem in data]
+        data = [float(elem) for elem in data]
         print(f"{np.mean(data)} +- {np.std(data)}")
 
-
-#load_analyze_csv("/home/dizzi/Downloads/accord_mean.csv",min_step=100)
+# load_analyze_csv("/home/dizzi/Downloads/accord_mean.csv",min_step=100)

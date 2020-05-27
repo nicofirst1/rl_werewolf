@@ -22,8 +22,8 @@ class RandomTarget(Policy):
         action = random_non_wolf(self.action_space, observations, signal_conf, unite=False)
 
         if not self.action_space.contains(action[0]):
-            s=1
-        #[self.action_space.sample() for _ in obs_batch]
+            s = 1
+        # [self.action_space.sample() for _ in obs_batch]
         return action, [], {}
 
     def get_weights(self):

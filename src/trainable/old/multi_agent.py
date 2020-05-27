@@ -1,9 +1,7 @@
 import csv
 import itertools
-import operator as op
 import random
 import sys
-from functools import reduce
 from multiprocessing.pool import ThreadPool
 
 import numpy as np
@@ -146,10 +144,10 @@ if __name__ == '__main__':
     config['max_days'] = 1000000  # remove limit for max days
     eps = 100  # number of episodes
     # combination of the following parameters: number of players, use unite policy, use random policy
-    combs = [list(range(5,100)), [False], [False]]
+    combs = [list(range(5, 100)), [False], [False]]
     # generate a combination of the previous
     combs = list(itertools.product(*combs))
     # start the tuning
     metrics = tune(combs, config, eps)
     # save results to csv
-    save_results(metrics, 'prov3.csv')
+    save_results(metrics, 'practical_ww_revenge.csv')

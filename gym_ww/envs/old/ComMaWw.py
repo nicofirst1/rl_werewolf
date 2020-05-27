@@ -12,7 +12,7 @@ from ray.rllib.utils.error import UnsupportedSpaceException
 from envs import CONFIGS
 from gym_ww import logger
 from src.other.analysis import vote_difference, measure_influence
-from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint
+from src.other.custom_utils import most_frequent, suicide_num, pprint
 
 ####################
 # names for roles

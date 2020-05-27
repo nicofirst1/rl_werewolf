@@ -9,7 +9,7 @@ from ray.rllib.env import EnvContext
 
 from envs import CONFIGS
 from gym_ww import logger, ww, vil
-from src.other.custom_utils import str_id_map, most_frequent, suicide_num, pprint
+from src.other.custom_utils import most_frequent, suicide_num, pprint
 ####################
 # global vars
 ####################

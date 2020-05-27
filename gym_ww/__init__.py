@@ -1,7 +1,5 @@
 import logging
 
-from gym.envs.registration import register
-
 from utils import Params
 
 ww = "werewolf"

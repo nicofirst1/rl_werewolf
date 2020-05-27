@@ -1,11 +1,11 @@
-from gym_ww import ww,vil
+from gym_ww import ww, vil
 from gym_ww.envs.WwEnv import WwEnv
 from utils import Params
 
 CONFIGS = dict(
 
     existing_roles=[ww, vil],  # list of existing roles [werewolf, villanger]
-    num_players= Params.num_player,
+    num_players=Params.num_player,
     penalties=dict(
         # penalty dictionary
         # penalty to give for each day that has passed
@@ -30,7 +30,5 @@ CONFIGS = dict(
     signal_length=Params.signal_length,
     signal_range=Params.signal_range,
 
-
 )
-#CONFIGS['role2id'], CONFIGS['id2role'] = str_id_map(CONFIGS['existing_roles'])
-
+# CONFIGS['role2id'], CONFIGS['id2role'] = str_id_map(CONFIGS['existing_roles'])

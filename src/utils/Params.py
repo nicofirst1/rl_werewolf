@@ -61,7 +61,7 @@ class Params:
     ##########################
     # Performance stuff
     ##########################
-    debug = True
+    debug = False
 
     if on_peregrine:
         n_cpus = multiprocessing.cpu_count() if not debug else 1
@@ -211,4 +211,3 @@ class Params:
                         print(e)
             except Exception:
                 continue
-

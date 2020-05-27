@@ -1,5 +1,4 @@
 import copy
-import json
 import logging
 
 import numpy as np
@@ -95,7 +94,6 @@ class EvaluationWrapper(ParametricActionWrapper):
         self.log(
             f"Starting game with {self.num_players} players: {self.num_players - self.num_wolves}"
             f" {vil} and {self.num_wolves} {ww}")
-
 
         # todo: find a way to split when there are multiple workers
         self.prof = Prof()

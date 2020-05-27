@@ -1,8 +1,7 @@
 import csv
 import math
-from functools import reduce
-import numpy as np
 import operator as op
+from functools import reduce
 
 
 def double_factorial(n):
@@ -30,7 +29,7 @@ def theo_win_wolf(n_players):
     """
     Return the theoretical win prob for wolves given the env
     """
-    m  = math.floor(math.sqrt(n_players))
+    m = math.floor(math.sqrt(n_players))
     n = n_players
 
     teoretical_p_win = 1
@@ -45,34 +44,35 @@ def theo_win_wolf(n_players):
     return teoretical_p_win
 
 
-def save_results(rows : list , f_name):
+def save_results(rows: list, f_name):
     """
     Save the result of a tuning experiment in csv format
     """
     # the headers
-    headers = ['num players','mean']
+    headers = ['num players', 'mean']
 
-    rows.insert(0,headers)
+    rows.insert(0, headers)
 
     with open(f_name, "w") as file:
         wr = csv.writer(file, dialect='excel')
         wr.writerows(rows)
 
-def theo_ww_revenge(N):
 
+def theo_ww_revenge(N):
     try:
-        return 1- 1 / math.pow(N , math.floor(math.sqrt(N)) + 1)
+        return 1 - 1 / math.pow(N, math.floor(math.sqrt(N)) + 1)
     except ZeroDivisionError:
         return 1
+
 
 def theo_unite(N):
     return 1
 
+
 if __name__ == '__main__':
-    rg=15.0
-    num_p=list(range(5,100))
-    #v_win=[theo_win_wolf(i) for i in num_p]
+    rg = 15.0
+    num_p = list(range(5, 100))
+    # v_win=[theo_win_wolf(i) for i in num_p]
     v_win = [theo_ww_revenge(i) for i in num_p]
     v_win = [theo_unite(i) for i in num_p]
-    save_results(list(zip(num_p, v_win)),"theo_ww_revenge.csv")
-
+    save_results(list(zip(num_p, v_win)), "theo_ww_revenge.csv")

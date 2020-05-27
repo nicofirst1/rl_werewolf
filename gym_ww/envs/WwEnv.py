@@ -8,7 +8,8 @@ from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 
 from gym_ww import ww, vil
-from src.other.custom_utils import  most_frequent
+from src.other.custom_utils import most_frequent
+
 
 ####################
 # global vars
@@ -60,7 +61,7 @@ class WwEnv(MultiAgentEnv):
         else:
             assert ww_num < num_players, f"The number of werewolves  should be less than the number of players ({num_players})"
             num_wolves = ww_num
-            num_villagers=num_players-num_wolves
+            num_villagers = num_players - num_wolves
 
         roles = [ww] * num_wolves + [vil] * num_villagers
 
@@ -70,14 +71,13 @@ class WwEnv(MultiAgentEnv):
         self.penalties = configs['penalties']
         self.max_days = configs['max_days']
 
-        assert configs['signal_length']<= num_players, "Signal length must be not greater than the number of players"
+        assert configs['signal_length'] <= num_players, "Signal length must be not greater than the number of players"
 
         self.signal_length = configs['signal_length']
         self.signal_range = configs['signal_range']
 
         # used for logging game
         self.ep_step = 0
-
 
         # define empty attributes, refer to initialize method for more info
         self.status_map = None
