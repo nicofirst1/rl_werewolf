@@ -37,7 +37,7 @@ def random_non_wolf(action_space, obs, signal_conf, unite=False):
     all_ids, ww_ids, vil_ids, _ = roles_from_info(obs, alive=True)
 
     # communication phase
-    if phase in [0, 2]:
+    if phase in [1, 3]:
         targets = [random.choice(all_ids) for _ in obs]
 
     elif unite:
@@ -49,7 +49,7 @@ def random_non_wolf(action_space, obs, signal_conf, unite=False):
 
     else:
         # if night do not vote for each other
-        if phase == 1:
+        if phase == 0:
             targets = [random.choice(vil_ids) for _ in obs]
         # else vote randomly
         else:
@@ -155,7 +155,7 @@ def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
     phase = obs[0]['phase']
     targets = obs[0]['targets']
 
-    if phase == 0:
+    if phase == 3:
         return random_non_wolf(action_space, obs, signal_conf, unite=unite), to_kill_list
 
     # get the roles from the ids
@@ -166,7 +166,7 @@ def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
         to_kill_list = list(filter(lambda a: a != dead, to_kill_list))
 
     # update kill list with vil that voted for ww
-    if phase in [2, 3]:
+    if phase in [3, 0]:
         for ww in ww_ids:
             to_kill_list += np.where(targets == ww)[0].tolist()
 
@@ -183,7 +183,7 @@ def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
         return add_random_signal(signal_conf, targets), to_kill_list
 
     # else return most common on kill list when eating
-    elif phase == 1:
+    elif phase == 2:
         targets = [chose_target(to_kill_list) for _ in obs]
 
         return add_random_signal(signal_conf, targets), to_kill_list
