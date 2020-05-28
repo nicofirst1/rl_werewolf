@@ -1,5 +1,6 @@
-from policies.RandomTargetUnite import RandomTargetUnite
-from policies.RevengeTarget import RevengeTarget
+from ray.rllib.agents.ppo.appo_tf_policy import AsyncPPOTFPolicy
+
+from policies import *
 from utils import Params
 
 _ = Params()
@@ -8,7 +9,7 @@ import logging
 
 import ray
 from ray import tune
-from ray.rllib.agents.ppo import PPOTrainer
+from ray.rllib.agents.ppo import PPOTrainer, APPOTrainer
 from ray.rllib.agents.ppo.ppo_tf_policy import PPOTFPolicy
 
 from callbacks import on_episode_end
@@ -31,15 +32,15 @@ def mapping_static(agent_id):
 if __name__ == '__main__':
 
     _ = ParametricActionsModel
-    ray.init(local_mode=Params.debug, logging_level=logging.DEBUG)
+    ray.init(local_mode=Params.debug, logging_level=logging.DEBUG, num_gpus=1)
 
     env_configs = CONFIGS
 
     env = EvaluationWrapper(env_configs)
 
     # define policies
-    vill_p = (PPOTFPolicy, env.observation_space, env.action_space, {})
-    ww_p = (RevengeTarget, env.observation_space, env.action_space, {})
+    vill_p = (AsyncPPOTFPolicy, env.observation_space, env.action_space, {})
+    ww_p = (RandomTargetUnite, env.observation_space, env.action_space, {})
 
     policies = dict(
         wolf_p_static=ww_p,
@@ -55,27 +56,23 @@ if __name__ == '__main__':
         "num_workers": Params.n_workers,
         "num_gpus": Params.n_gpus,
         "batch_mode": "complete_episodes",
-        "train_batch_size": 400,
-        "rollout_fragment_length": 300,
+        "train_batch_size": 1000,
+        "rollout_fragment_length": 100,
 
         # PPO parameter taken from OpenAi paper
         "lr": 3e-4,
         "lambda": .95,
         "gamma": .998,
-        "entropy_coeff": 0.01,
-        "clip_param": 0.2,
-        "use_critic": True,
-        "use_gae": True,
-        "grad_clip": 5,
-        "num_sgd_iter": 10,
+        "num_sgd_iter": 3, #default 1
+        "replay_proportion":0.05,
 
-        # todo: remove this [here](https://github.com/ray-project/ray/issues/7991)
-        #"simple_optimizer": True,
+
 
         "callbacks": {
             "on_episode_end": on_episode_end,
         },
 
+        # model configs
         "model": {
             "use_lstm": False,
             "custom_model": "pa_model",  # using custom parametric action model
@@ -90,7 +87,7 @@ if __name__ == '__main__':
     }
 
     analysis = tune.run(
-        PPOTrainer,
+        APPOTrainer,
         local_dir=Params.RAY_DIR,
         config=configs,
         trial_name_creator=trial_name_creator,

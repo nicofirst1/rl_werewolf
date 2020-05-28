@@ -30,19 +30,31 @@ def random_non_wolf(action_space, obs, signal_conf, unite=False):
 
         return targets
 
+    # get phase
+    phase = obs[0]['phase']
+
     # get the roles from the ids
     all_ids, ww_ids, vil_ids, _ = roles_from_info(obs, alive=True)
 
+    # communication phase
+    if phase in [0, 2]:
+        targets = [random.choice(all_ids) for _ in obs]
+
+    elif unite:
+
+        t = random.choice(vil_ids)
+        targets = [t for _ in obs]
+
     # is use phase then ww are allowed to target each other during day
 
-    if unite or obs[0]['phase'] in [0, 1]:
-
-        targets = [random.choice(vil_ids) for _ in obs]
-
     else:
-
-        # return random choice
-        targets = [random.choice(all_ids) for _ in obs]
+        # if night do not vote for each other
+        if phase == 1:
+            targets = [random.choice(vil_ids) for _ in obs]
+        # else vote randomly
+        else:
+            # return random choice
+            targets = [random.choice(all_ids) for _ in obs]
 
     return add_random_signal(signal_conf, targets)
 
@@ -134,7 +146,7 @@ def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
         -------
             most common: int
         """
-        return Counter(to_kill_lst).most_common(1)[0][0]
+        return Counter(to_kill_lst).most_common(1)[0][1]
 
     if not any(obs):
         return random_non_wolf(action_space, obs, signal_conf, unite=unite), []
@@ -143,7 +155,7 @@ def revenge_target(action_space, obs, to_kill_list, signal_conf, unite=False):
     phase = obs[0]['phase']
     targets = obs[0]['targets']
 
-    if phase ==0:
+    if phase == 0:
         return random_non_wolf(action_space, obs, signal_conf, unite=unite), to_kill_list
 
     # get the roles from the ids
