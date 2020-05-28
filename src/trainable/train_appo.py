@@ -51,7 +51,7 @@ if __name__ == '__main__':
     configs = {
         "env": EvaluationWrapper,
         "env_config": env_configs,
-        "eager": False,
+        "eager": False ,
         "eager_tracing": False,
         "num_workers": Params.n_workers,
         "num_gpus": Params.n_gpus,
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
         # model configs
         "model": {
-            "use_lstm": False,
+            "use_lstm": True,
             "custom_model": "pa_model",  # using custom parametric action model
         },
         "multiagent": {
