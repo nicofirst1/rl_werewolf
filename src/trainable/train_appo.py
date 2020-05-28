@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # define policies
     vill_p = (AsyncPPOTFPolicy, env.observation_space, env.action_space, {})
-    ww_p = (RandomTargetUnite, env.observation_space, env.action_space, {})
+    ww_p = (RandomTarget, env.observation_space, env.action_space, {})
 
     policies = dict(
         wolf_p_static=ww_p,
