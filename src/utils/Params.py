@@ -75,7 +75,7 @@ class Params:
     ##########################
     # Evaluation params
     ##########################
-    checkpoint_freq = 400
+    checkpoint_freq = 50
     log_step = 500
     max_checkpoint_keep = 10
     resume_training = False
