@@ -41,14 +41,7 @@ class Params:
     WORKING_DIR = os.getcwd().split("src")[0]
     SRC_DIR = join_paths(WORKING_DIR, "src")
 
-    on_peregrine = False
-
-    if "s4171632" in WORKING_DIR:
-        LOG_DIR = join_paths("/data/s4171632", "log_dir")
-        on_peregrine = True
-        print("Working on peregrine")
-    else:
-        LOG_DIR = join_paths(WORKING_DIR, "log_dir")
+    LOG_DIR = join_paths(WORKING_DIR, "log_dir")
 
     RAY_DIR = join_paths(LOG_DIR, "ray_results")
     GAME_LOG_DIR = join_paths(LOG_DIR, "match_log")
@@ -63,14 +56,10 @@ class Params:
     ##########################
     debug = False
 
-    if on_peregrine:
-        n_cpus = multiprocessing.cpu_count() if not debug else 1
-        n_gpus = 0 if not debug and tf.test.is_gpu_available() else 0
-        n_workers = 7 if not debug else 0
-    else:
-        n_cpus = multiprocessing.cpu_count() if not debug else 1
-        n_gpus = 1 if not debug and tf.test.is_gpu_available() else 0
-        n_workers = 7 if not debug else 1
+
+    n_cpus = multiprocessing.cpu_count() if not debug else 1
+    n_gpus = 1 if not debug and tf.test.is_gpu_available() else 0
+    n_workers = 7 if not debug else 1
 
     ##########################
     # Evaluation params
@@ -130,9 +119,10 @@ class Params:
         # change values based on argparse
         self.__parse_args()
 
-        # log params to file and out
-        with open(self.params_file, "w+") as f:
-            self.__log_params([sys.stdout, f])
+        if not self.resume_training:
+            # log params to file and out
+            with open(self.params_file, "w+") as f:
+                self.__log_params([sys.stdout, f])
 
     def __get_attributes(self):
         """
