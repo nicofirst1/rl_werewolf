@@ -29,6 +29,14 @@ def mapping_static(agent_id):
         raise NotImplementedError(f"Policy for role {agent_id} not implemented")
 
 
+def mapping_dynamic(agent_id):
+    if "wolf" in agent_id:
+        return "wolf_p"
+    elif "vil" in agent_id:
+        return "vill_p"
+    else:
+        raise NotImplementedError(f"Policy for role {agent_id} not implemented")
+
 if __name__ == '__main__':
 
 
@@ -92,5 +100,7 @@ if __name__ == '__main__':
         trial_name_creator=trial_name_creator,
         checkpoint_freq=Params.checkpoint_freq,
         keep_checkpoints_num=Params.max_checkpoint_keep,
-        resume=Params.resume_training
+        resume=Params.resume_training,
+        reuse_actors=True
+
     )

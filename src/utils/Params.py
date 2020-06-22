@@ -68,6 +68,7 @@ class Params:
     log_step = 500
     max_checkpoint_keep = 10
     resume_training = False
+    alternating=False
 
     ##########################
     # env params

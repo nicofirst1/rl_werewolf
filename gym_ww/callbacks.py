@@ -1,5 +1,7 @@
 from ray.rllib.agents.callbacks import DefaultCallbacks
 
+from utils import Params
+
 
 class CustomCallbacks(DefaultCallbacks):
 
@@ -36,20 +38,24 @@ class CustomCallbacks(DefaultCallbacks):
             raise NotImplementedError(f"Policy for role {agent_id} not implemented")
 
     def on_train_result(self, trainer, result, **kwargs):
-        vill_ww = result['custom_metrics']['win_vill_mean']
+        vill_ww = result['custom_metrics']['win_vil_mean']
         # training_policy = trainer.config['multiagent']['policies_to_train'][0]
         mapping = trainer.config['multiagent']['policy_mapping_fn'].__name__
 
-        # if the ww are loosing
-        if vill_ww >= 0.65:
-            # is the start and switch the mapping to the dynamic one
-            if "static" in mapping:
-                trainer.config['multiagent']['policy_mapping_fn'] = self.mapping_dynamic
+        if Params.alternating:
+            # if the ww are loosing
+            if vill_ww >= 0.65:
+                # is the start and switch the mapping to the dynamic one
+                if "static" in mapping:
+                    trainer.config['multiagent']['policy_mapping_fn'] = self.mapping_dynamic
 
-            trainer.config['multiagent']['policies_to_train'] = "wolf_p"
-            self.training_policy = 1
+                trainer.config['multiagent']['policies_to_train'] = "wolf_p"
+                self.training_policy = 1
+                print(f"Wolf Trainig: {vill_ww}")
 
-        # if is the start and the ww are loosing
-        elif vill_ww <= 0.35:
-            trainer.config['multiagent']['policies_to_train'] = "vill_p"
-            self.training_policy = 0
+            # if is the start and the ww are loosing
+            elif vill_ww <= 0.35:
+                trainer.config['multiagent']['policies_to_train'] = "vill_p"
+                self.training_policy = 0
+                print(f"Will Trainig {vill_ww}")
+
