@@ -1,5 +1,5 @@
 ## Paper is out!
-Check out the [paper](https://arxiv.org/abs/2106.05018) for this project on arxiv or the [video presentation](https://youtu.be/i8lyvepGODw) on youtube.
+Check out the [paper on arxiv](https://arxiv.org/abs/2106.05018) or the [video presentation](https://youtu.be/i8lyvepGODw) on youtube.
 
 # WereWolf Game
 [Werewolf](https://en.wikipedia.org/wiki/Werewolf_social_deduction_game) is a simple deduction game that can be played with at least 5 players. It is also knows as:
