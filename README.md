@@ -1,85 +1,47 @@
-## Paper is out!
-Check out the [paper on arxiv](https://arxiv.org/abs/2106.05018) or the [video presentation](https://youtu.be/i8lyvepGODw) on youtube.
+Welcome to the repository dedicated to the study of cooperation and emergent communication in social deduction games, specifically, the Werewolf game.
 
-# WereWolf Game
-[Werewolf](https://en.wikipedia.org/wiki/Werewolf_social_deduction_game) is a simple deduction game that can be played with at least 5 players. It is also knows as:
+## Publication 
 
-- Mafia (Mafia, International)
-- Lupus in fabula (Wolf from fable, Latin)
-- Pueblo duerme (Sleeping villagers, Spain)
-- Los Hombres Lobo de Castronegro (Spanish, Spain)
-- Μια Νύχτα στο Palermo (One night in Palermo, Greek)
-- Městečko palermo (Town of Palermo, Check)
-- 狼人殺 (Werewolf kill, Cinese)
-- Libahunt (Werewolf,Estonia)
-- Loup Garous (Werewolves, French)
-- Werewölfe (Werewolves, German)
-- Weerwolven (Werewolves, Dutch)
+Our work, "RLupus: Cooperation through emergent communication in The Werewolf social deduction game," has been published! For an in-depth understanding of the problem statement, our proposed solutions, and experimental results, check out the paper on [arXiv](https://arxiv.org/abs/2106.05018). 
 
-In its most basic version there are __villagers__ (aka. vil) and __werewolf__ (aka.  ww). 
-Notice that the number of wolves should always be less than the number of vil.
+You can also watch our [video presentation](https://youtu.be/i8lyvepGODw) on YouTube for an overview of our research.
 
-The game develops into tho phases, _night_ and _day_.
+Cite our paper using the following citation:
+```
+@article{brandizzi2021rlupus,
+  author    = {Brandizzi, Nicolo' and
+               Grossi, Davide and
+               Iocchi, Luca},
+  title     = {RLupus: Cooperation through emergent communication in The Werewolf
+               social deduction game},
+  journal={Intelligenza Artificiale},
+  volume={15},
+  number={2},
+  pages={55--70},
+  year={2021},
+  publisher={IOS Press}
+}
+```
 
-### Night
-At _night_ time everyone closes their eyes, this prevents players to know which roles are assigned to other playser. 
-Taking turnes each non vil player open his eyes and choose an action.
-When only ww are present they open their eyes and choose someone to eat.
+## Werewolf Game: A Study in Emergent Communication
 
-### Day
-During the day everyone open their eyes, assert the events of the night before (eaten players) and decide who is to be executed.
-Here wolves have to be smart not to get catch and executed, to do so they lie.
+Werewolf is a simple yet fascinating social deduction game, known across the globe by different names. In this game, the cooperation and cunning of players, divided into villagers and werewolves, shape the outcome.
 
-### Game over
-The game ends when either there are no more ww alive or there are more wolves than vil.
+The game unfolds in two phases: night and day. During the night, all players close their eyes, and werewolves choose their victims. During the day, everyone assesses the events of the previous night and decides who to execute. The game continues until there are no more werewolves or the werewolves outnumber the villagers.
 
+The essence of our study lies in understanding the importance of communication signals in affecting the winning chances of players and studying the effect of signal's length and range on overall performance.
 
+## Getting Started with the Repository
 
-# Install
+### Installation
+Start by installing the necessary components. For step-by-step instructions, refer to our detailed [Installation Guide](Resources/MarkDowns/Installation.md).
 
-To install follow the instructions in the [Installation](Resources/MarkDowns/Installation.md) markdown.
+### Understanding the Architecture
+The repository contains a wealth of information explaining different aspects of the implementation:
 
-## Markdowns & READMEs
-The [Markdowns dir](Resources/MarkDowns) contains usefull markdowns file covering different aspect of the implementation.
+- For an in-depth understanding of the entire architecture, see the [Specification Document](Resources/MarkDowns/Specs.md).
+- To track the development process and issues encountered, refer to our [Journal](Resources/MarkDowns/Journal.md).
+- For details about each environment and their differences, check out the [Environment Directory](gym_ww/envs) and the associated [README](gym_ww/envs/README.md).
+- The findings and methodologies of this project are documented in the [Thesis](Resources/thesis.pdf).
 
-Most of the developing phase in reported in the [Journal](Resources/MarkDowns/Journal.md). For current and past issue please refer to it.
-
-For a detailed adescription on how the whole architecture has been build please refer to the [Specs file](Resources/MarkDowns/Specs.md).
-
-In the [enviroment dir](gym_ww/envs) there is a [README](gym_ww/envs/README.md) relative to the developing of each env and the differences between them.
-
-Finally you can find my [theis](Resources/thesis.pdf) in which all the findings and procedures are described.
-
-
-## TODO
-- make period policy swapping
-- make playable env
-
-## Helpful Links
-
-### Custom gym env
-- [basics](https://medium.com/@apoddar573/making-your-own-custom-environment-in-gym-c3b65ff8cdaa)
-- [examples](https://stackoverflow.com/questions/45068568/how-to-create-a-new-gym-environment-in-openai)
-- [Tutorial](https://ai-mrkogao.github.io/reinforcement%20learning/openaigymtutorial/)
-- []()
-
-#### Multi agent
-- [MA obs/action spaces utils](https://github.com/koulanurag/ma-gym/tree/master/ma_gym/envs/utils)
-- [Discussion on ma openAi](https://github.com/openai/gym/issues/934)
-
-##### Ray/Rllib
-- [Ray Example](https://github.com/ray-project/ray/blob/master/rllib/examples/rock_paper_scissors_multiagent.py)
-- [multi-agent-and-hierarchical](https://ray.readthedocs.io/en/latest/rllib-env.html#multi-agent-and-hierarchical)
-- [Docs](https://ray.readthedocs.io/en/latest/index.html)
-- [Model configs](https://ray.readthedocs.io/en/latest/rllib-models.html#built-in-model-parameters)
-- [Common config](https://ray.readthedocs.io/en/latest/rllib-training.html#common-parameters)
-- [SelfPlay](https://github.com/ray-project/ray/issues/6669)
-- [PPO Configs](https://github.com/ray-project/ray/blob/4633d81c390fd33d54aa62a5eb43fe104062bb41/rllib/agents/ppo/ppo.py#L19)
-- [Understanding of ppo plots](https://medium.com/aureliantactics/understanding-ppo-plots-in-tensorboard-cbc3199b9ba2)
-- []()
-
-### RL frameworks
-- [Comparison between rl framework](https://winderresearch.com/a-comparison-of-reinforcement-learning-frameworks-dopamine-rllib-keras-rl-coach-trfl-tensorforce-coach-and-more/)
-- []()
-- []()
-- []()
+We hope our research sparks your interest and helps you in your study of social deduction games. Enjoy exploring the repository!
