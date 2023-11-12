@@ -32,7 +32,7 @@ lz4==3.0.2
 Markdown==3.2.2
 msgpack==0.6.2
 multidict==4.7.5
-numpy==1.18.4
+numpy==1.22.0
 oauthlib==3.1.0
 opencv-python==4.2.0.34
 opt-einsum==3.2.1
